@@ -1,0 +1,15 @@
+.DS_Store
+**/.ipynb_checkpoints
+**/__pycache__
+**/*.swp
+**/*.tsv
+**/*.*ckpt*
+**/*.pbtxt
+**/checkpoint
+
+# config
+*config*.json
+!example.config.json
+
+# other
+.ignore

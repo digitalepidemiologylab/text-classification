@@ -1,0 +1,12 @@
+{
+  "runs": [{
+    "name": "test_example",
+    "model": "bert",
+    "overwrite": true,
+    "num_epochs": 1
+  }],
+  "params": {
+    "train_data": "example_train.csv",
+    "test_data": "example_test.csv"
+  }
+}
