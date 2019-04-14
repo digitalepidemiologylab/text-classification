@@ -22,6 +22,7 @@ import csv
 from collections import Counter
 import sklearn.model_selection
 import logging
+import itertools
 
 
 def train_test_split(test_size=0.2, seed=42, balanced_labels=False):
@@ -154,34 +155,58 @@ def get_model(model_name):
     else:
         raise NotImplementedError('Model `{}` is unknown'.format(model_name))
 
-def generate_config(model='fasttext'):
+def generate_config(name, train_data, test_data, models, params, global_params):
     """Generates a grid search config"""
-    ngrams = list(range(1, 4)) 
-    epochs = 100 
-    dims = [20, 300, 700]
-    lr = [0.0001, 0.001, 0.01, 0.05, 0.1, 0.2]
+    def _parse_value(s, allow_str=False):
+        try:
+            return int(s)
+        except ValueError:
+            pass
+        try:
+            return float(s)
+        except ValueError:
+            pass
+        try:
+            return bool(s)
+        except ValueError:
+            if allow_str:
+                return s
+            else:
+                raise ValueError('The given parameter value of `{}` could not be converted into int, float or bool')
+    logger = logging.getLogger(__name__)
+    config = {"params": {"train_data": train_data, "test_data": test_data}}
+    for g in global_params:
+        g = g.split(':')
+        if len(g) != 2:
+            raise ValueError('Param {} has to be of format `key:value`'.format(param))
+        key, value = g
+        config['params'][key] = _parse_value(value, allow_str=True)
+    gs_params = []
+    for param in params:
+        param_split = param.split(':')
+        if len(param_split) != 3:
+            raise ValueError('Param {} has to be of format `key:modifier:values`'.format(param))
+        key, modifier, values = param_split
+        values = list(map(_parse_value, values.split(',')))
+        if modifier == 'val':
+            gs_params.append({key: values})
+        elif modifier == 'lin':
+            gs_params.append({key: np.linspace(*values).tolist()})
+        elif modifier == 'log':
+            gs_params.append({key: np.logspace(*values).tolist()})
+        else:
+            raise ValueError('Modifier {} is not recognized.'.format(modifier))
     runs = []
-    config = {
-        "params": {
-            "train_data": "train_sentiment_split_20_seed_42.csv",
-            "test_data": "test_sentiment_split_20_seed_42.csv",
-            "overwrite": True
-            }
-        }
-    runs = []
-    c = 0
-    for ngram in ngrams:
-        for d in dims:
-            for l in lr: 
-                runs.append({'name': 'fasttext{}'.format(c), 'model': 'fasttext', 
-                    'dimensions': d, 'num_epochs': epochs, 'ngrams': ngram, 'learning_rate': l}) 
-                c += 1
+    params = [list(i.values())[0] for i in gs_params] + [models]
+    param_names = [list(i.keys())[0] for i in gs_params] + ['model']
+    for i, param in enumerate(itertools.product(*params)):
+        param_dict = dict(zip(param_names, param))
+        param_dict['name'] = '{}_{}_{}'.format(name, param_dict['model'], i)
+        runs.append(param_dict) 
     config['runs'] = runs
-    print('Generating config of {} runs...'.format(c))
     with open('config.json', 'w') as f:
-        json.dump(config, f)
-    print('done')
-
+        json.dump(config, f, cls=JSONEncoder, indent=4)
+    logger.info('Successfully generated file `config.json` with {} runs'.format(i+1))
 
 def collect_results(run='*'):
     """Collects result output for run (by default gets all results)"""
