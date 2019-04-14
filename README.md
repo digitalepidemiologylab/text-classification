@@ -1,4 +1,4 @@
-# Fondue
+# Kubetext
 A lightweight supervised text classification framework 
 
 ## Install
