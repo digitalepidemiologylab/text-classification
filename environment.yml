@@ -1,4 +1,4 @@
-name: fondue
+name: kubetext
 channels:
   - conda-forge
   - defaults
