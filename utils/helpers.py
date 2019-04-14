@@ -6,6 +6,7 @@ from models.fasttextmodel import FastTextModel
 from models.bertmodel import BERTModel
 from models.bert_finetune import BERTFineTune
 from models.openai_gpt2 import OpenAIGPT2
+from models.dummy_models import DummyModel, RandomModel, WeightedRandomModel
 import pandas as pd
 import numpy as np
 import json
@@ -144,6 +145,12 @@ def get_model(model_name):
         return BERTModel()
     elif model_name == 'openai_gpt2':
         return OpenAIGPT2()
+    elif model_name == 'dummy':
+        return DummyModel()
+    elif model_name == 'random':
+        return RandomModel()
+    elif model_name == 'weighted_random':
+        return WeightedRandomModel()
     else:
         raise NotImplementedError('Model `{}` is unknown'.format(model_name))
 

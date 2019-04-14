@@ -30,13 +30,24 @@ class BaseModel:
         labels = np.unique(labels['label'])
         label_mapping = {}
         for i, label in enumerate(np.unique(labels)):
-            label_mapping[str(label)] = i
+            label_mapping[label] = i
         with open(os.path.join(config.output_path, 'label_mapping.pkl'), 'wb') as f:
             joblib.dump(label_mapping, f)
         return label_mapping
 
     def invert_mapping(self, mapping):
         return {v: k for k, v in mapping.items()}
+
+    def get_full_test_output(self, predictions, labels, label_mapping=None, test_data_path=None):
+        result = {}
+        if label_mapping is not None:
+            label_mapping = self.invert_mapping(label_mapping)
+            result['label'] = list(map(label_mapping.get, labels))
+            result['prediction'] = list(map(label_mapping.get, predictions))
+        if test_data_path is not None:
+            df_test_data = pd.read_csv(test_data_path, usecols=['text'])
+            result['text'] = df_test_data.pop('text').tolist()
+        return result
 
     def format_predictions(self, probabilities, label_mapping=None):
         results = []

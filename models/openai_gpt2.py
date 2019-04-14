@@ -83,20 +83,23 @@ class OpenAIGPT2(BaseModel):
     def test(self, config):
         self.init_params(config, setup_mode='test')
         self.load_models()
-
         # Load test data
         test_data = MyDataset(config.test_data, transform=Encoder(self.tokenizer, self.label_mapping, device=self.device, max_size=self.transformer.config.n_positions))
         dataloader = DataLoader(test_data, batch_size=self.test_batch_size)
-
-        true_labels = torch.empty(0, dtype=torch.int64, device=self.device)
-        predicted_labels = torch.empty(0, dtype=torch.int64, device=self.device)
+        labels = torch.empty(0, dtype=torch.int64, device=self.device)
+        predictions = torch.empty(0, dtype=torch.int64, device=self.device)
         for x, y in tqdm(dataloader):
             pred = self.predict_from_tensor(x)
-            true_labels = torch.cat((true_labels, y))
-            predicted_labels = torch.cat((predicted_labels, pred))
-
-        metrics = self.performance_metrics(true_labels.cpu(), predicted_labels.cpu(), label_mapping=self.get_label_mapping(config))
-        return metrics
+            labels = torch.cat((labels, y))
+            predictions = torch.cat((predictions, pred))
+        labels = labels.cpu()
+        predictions = predictions.cpu()
+        label_mapping = self.get_label_mapping(config)
+        result_out = self.performance_metrics(labels, predictions, label_mapping=label_mapping)
+        if config.write_test_output:
+            test_output = self.get_full_test_output(predictions, labels, label_mapping=label_mapping, test_data_path=config.test_data)
+            result_out = {**result_out, **test_output}
+        return result_out
 
     def predict(self, config, data):
         self.init_params(config, setup_mode='predict')
@@ -259,7 +262,7 @@ class Encoder:
         text_encoded = torch.zeros(self.max_size, dtype=torch.int64, device=self.device)
         tokenized = self.tokenizer.encode(sample['text'])
         text_encoded[:len(tokenized)] = torch.tensor(tokenized, dtype=torch.int64, device=self.device)
-        label = torch.tensor(self.label_mapping[str(sample['label'])], dtype=torch.int64).to(self.device)
+        label = torch.tensor(self.label_mapping[sample['label']], dtype=torch.int64).to(self.device)
         return text_encoded, label
 
     def make_one_hot(self, label):

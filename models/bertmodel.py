@@ -186,13 +186,14 @@ class BERTModel(BaseModel):
             eval_loss += tmp_eval_loss.mean().item()
             nb_eval_steps += 1
         eval_loss = eval_loss / nb_eval_steps
-        result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=self.get_label_mapping(config))
+        label_mapping = self.get_label_mapping(config)
+        result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=label_mapping)
         self.viz.update_line('Test accuracy', [self.learning_curve_fraction], [result_out['accuracy']])
         self.viz.update_line('Test loss', [self.learning_curve_fraction], [eval_loss])
         if self.write_test_output:
-            result_out = {**result_out, **result}
-            df = pd.read_csv(self.test_data)
-            result_out['text'] = df['text'].tolist()
+            test_output = self.get_full_test_output(result['prediction'], result['label'], label_mapping=label_mapping,
+                    test_data_path=self.test_data)
+            result_out = {**result_out, **test_output}
         return result_out
 
     def predict(self, config, data):
@@ -309,8 +310,6 @@ class BERTModel(BaseModel):
         # Prepare model
         if setup_mode == 'train':
             if self.use_fine_tuned_model:
-                print(CONFIG_NAME)
-                print(WEIGHTS_NAME)
                 config = BertConfig(os.path.join(self.fine_tune_path, CONFIG_NAME))
                 weights = torch.load(os.path.join(self.fine_tune_path, WEIGHTS_NAME))
                 self.model = BertForSequenceClassification.from_pretrained(self.model_key, cache_dir=self.model_path, num_labels=num_labels, state_dict=weights)
@@ -323,14 +322,12 @@ class BERTModel(BaseModel):
             config = BertConfig(os.path.join(self.output_path, CONFIG_NAME))
             self.model = BertForSequenceClassification(config, num_labels=num_labels)
             self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))
-
         self.model.to(self.device)
         if self.local_rank != -1:
             try:
                 from apex.parallel import DistributedDataParallel as DDP
             except ImportError:
                 raise ImportError("Please install apex from https://www.github.com/nvidia/apex to use distributed and fp16 training.")
-
             self.model = DDP(self.model)
         elif self.n_gpu > 1:
             self.model = torch.nn.DataParallel(self.model)
@@ -513,8 +510,8 @@ class SentimentClassificationProcessor(DataProcessor):
             guid = "%{}-{}".format(set_type, i)
             text = line['text']
             if set_type == "test":
-                label = str(self.labels[0])
+                label = self.labels[0]
             else:
-                label = str(line['label'])
+                label = line['label']
             examples.append(InputExample(guid=guid, text_a=text, text_b=None, label=label))
         return examples
