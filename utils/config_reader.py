@@ -90,7 +90,7 @@ class ConfigReader:
         project_root = '.'
         paths['tmp_path'] = os.path.join(project_root, 'tmp')
         paths['data_path'] = os.path.join(project_root, 'data')
-        paths['output_path'] = os.path.join(project_root, 'output', 'models', run_name)
+        paths['output_path'] = os.path.join(project_root, 'output', run_name)
         paths['other_path'] = os.path.join(project_root, 'other')
         return paths
 
