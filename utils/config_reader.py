@@ -19,7 +19,7 @@ class ConfigReader:
         :return: config(namespace) or config(dictionary)
         """
         if not os.path.isfile(config_path):
-            Exception('Could not find config file under: {}'.format(config_path))
+            FileNotFoundError('Could not find config file under: {}'.format(config_path))
         config = self._read_config_file(config_path)
         if predict_mode:
             config = {
@@ -56,17 +56,17 @@ class ConfigReader:
                 if rq not in run:
                     raise Exception('Missing key {} in run subfield of config file'.format(rq))
             run_config = {**self._get_default_paths(run['name']), **config['params'], **run}
-            run_config = self._join_path(run_config, 'train')
-            run_config = self._join_path(run_config, 'test')
+            run_config = self._set_data_paths(run_config)
             sanitized_training_runs.append(run_config)
         # merge all params into run file but keep priority of training runs
         config['runs'] = sanitized_training_runs
         return config
 
-    def _join_path(self, config, key):
-        path = config[key + '_data']
-        if not (path.startswith('/') or path.startswith('.')):
-            config[key + '_data'] = os.path.join(config[key + '_path'], path)
+    def _set_data_paths(self, config):
+        for data_key in ['train_data', 'test_data']:
+            data_path = config[data_key]
+            if not (data_path.startswith('/') or data_path.startswith('.')):
+                config[data_key] = os.path.join(config['data_path'], data_path)
         return config
 
     def _create_dirs(self, config):
@@ -89,8 +89,7 @@ class ConfigReader:
         paths = {}
         project_root = '.'
         paths['tmp_path'] = os.path.join(project_root, 'tmp')
-        paths['train_path'] = os.path.join(project_root, 'data')
-        paths['test_path'] = os.path.join(project_root, 'data')
+        paths['data_path'] = os.path.join(project_root, 'data')
         paths['output_path'] = os.path.join(project_root, 'output', 'models', run_name)
         paths['other_path'] = os.path.join(project_root, 'other')
         return paths
