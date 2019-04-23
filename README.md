@@ -46,4 +46,4 @@ Content of `config.json`:
 ```
 python main.py train
 ```
-Trained model can be found in `./output/models/test_example/`
+Trained model can be found in `./output/test_example/`
