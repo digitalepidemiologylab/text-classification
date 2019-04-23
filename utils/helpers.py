@@ -13,7 +13,6 @@ import json
 import os
 import glob
 from multiprocessing import Pool
-# import spacy
 import string
 import unicodedata
 import re
@@ -23,6 +22,8 @@ from collections import Counter
 import sklearn.model_selection
 import logging
 import itertools
+from datetime import datetime
+import uuid
 
 
 def train_test_split(test_size=0.2, seed=42, balanced_labels=False):
@@ -89,53 +90,70 @@ def train(run_config):
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
         
 
-def read_data(path):
-    print('Reading data from {}...'.format(path))
-    if path.endswith('.csv'):
-        data = []
-        with open(path, 'r') as datafile:
-            num_lines = sum(1 for line in datafile)
-            datafile.seek(0)
-            reader = csv.DictReader(datafile)
-            for row in tqdm(reader, total=num_lines):
-                data.append(row['text'])
-    else:
-        with open(path, 'r') as datafile:
-            num_lines = sum(1 for line in datafile)
-            datafile.seek(0)
-            data = [line.replace('\n','') for line in tqdm(datafile.readlines(), total=num_lines)]
-    return data
-
-def predict(run_name, path=None, data=None, format='csv', output=None, verbose=False):
+                        
+def predict(run_name, path=None, data=None, no_file_output=False, verbose=False, output_formats=None):
+    def read_input_data(path, chunksize=2**15, usecols=['text']):
+        if path.endswith('.csv'):
+            for text_chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
+                yield text_chunk['text'].tolist()
+        elif path.endswith('.txt'):
+            with open(path, 'r') as f:
+                num_lines = sum(1 for line in datafile)
+                datafile.seek(0)
+                for i, line in enumerate(f.readlines()):
+                    text_chunk = []
+                    text_chunk.append(line)
+                    if i % chunksize == 0 and i > 0:
+                        yield text_chunk
+        else:
+            raise ValueError('Please provide the input file with a file extension of either `csv` or `txt`.')
+    # parse run config
     config_reader = ConfigReader()
     config_path = os.path.join('output', run_name, 'run_config.json')
     config = config_reader.parse_config(config_path, predict_mode=True)
+    run_config = config.runs[0]
     logger = logging.getLogger(__name__)
-    for run_config in config.runs:
-        model = get_model(run_config.model)
-        if data is None:
-            if path is None:
-                raise ValueError('Provide either a path or data argument')
-            input_data = read_data(path)
-        else:
-            input_data = [data]
-        logger.info('Predicting...')
-        result = model.predict(run_config, data=input_data)
-        if data is None:
-            if output is None:
-                output = os.path.join('output', 'predictions')
-            output_file = os.path.join(output, run_config.name + '_' + run_config.model + '.' + format)
+    model = get_model(run_config.model)
+    if data is None:
+        if path is None:
+            raise ValueError('Provide either a path or data argument')
+        chunksize = 2**5
+        input_data = read_input_data(path, chunksize=chunksize)
+        with open(path, 'r') as f:
+            num_it = int(sum([1 for _ in f]) / chunksize) + 1
+    else:
+        input_data = [[data]]
+        num_it = len(input_data)
+        verbose = True
+    logger.info('Predicting...')
+    output = []
+    for predict_data in tqdm(input_data, total=num_it, unit='chunks', disable=bool(path is None)):
+        predictions = model.predict(run_config, data=predict_data)
+        output.extend(predictions)
+    if len(output) == 0:
+        logger.error('No predictions returned.')
+        return
+    if not no_file_output and path is not None:
+        if output_formats is None:
+            output_formats = ['csv', 'json']
+        unique_id = uuid.uuid4().hex[:5]
+        for fmt in output_formats:
+            output_path = os.path.join('.', 'predictions')
+            if not os.path.isdir(output_path):
+                os.makedirs(output_path)
+            output_file = os.path.join(output_path, 'predicted_{}_{}_{}.{}'.format(run_config.name, datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
             logger.info('Writing output file {}...'.format(output_file))
-            with open(output_file, 'w') as outfile:
-                if format == 'csv':
-                    outfile.write('{},{}\r\n'.format('label', 'probability'))
-                    for prediction in result:
-                        outfile.write('{},{:f}\r\n'.format(prediction['labels'][0], prediction['probabilities'][0]))
-                elif format == 'json':
-                    json.dump(result, outfile, cls=JSONEncoder)
-        if verbose:
-            logger.info('Prediction output:\n')
-            logger.info(result)
+            if fmt == 'csv':
+                df = pd.DataFrame(output)
+                df['label'] = [l[0] for l in df.labels.values]
+                df['probability'] = [p[0] for p in df.probabilities.values]
+                df.to_csv(output_file, index=False)
+            elif fmt == 'json':
+                with open(output_file, 'w') as f:
+                    json.dump(output, f, indent=4, cls=JSONEncoder)
+    if verbose or (data is not None and path is None):
+        logger.info('Prediction output:')
+        logger.info(json.dumps(output, indent=4, cls=JSONEncoder))
 
 def get_model(model_name):
     if model_name == 'fasttext':

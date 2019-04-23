@@ -1,7 +1,7 @@
 import argparse
 import sys, os
 from utils.config_reader import ConfigReader
-from utils.helpers import train_test_split, train, predict,generate_config, augment_training_data, fine_tune, generate_fine_tune_input_data, learning_curve
+from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, generate_fine_tune_input_data, learning_curve
 import multiprocessing
 import logging
 
@@ -16,6 +16,7 @@ Available commands:
   augment          Augment training data
   fine_tune        Fine-tune pre-trained language models
   learning_curve   Compute learning curve
+  list_runs          List trained models
 """
 
 class ArgParse(object):
@@ -48,13 +49,11 @@ class ArgParse(object):
         - name (required): Unique name of the run
         - model (required): One of the available models (e.g. fasttext, bert, etc.)
         - overwrite: If run output folder is already present, wipe it and create new folder
-        - train_data (required): Path to training data (if only filename is provided it should be located under `data/5_labels_cleaned/`)
-        - test_data (required): Path to test data (if only filename is provided it should be located under `data/5_labels_cleaned/`)
+        - train_data (required): Path to training data (if only filename is provided it should be located under `data/`)
+        - test_data (required): Path to test data (if only filename is provided it should be located under `data/`)
         - write_test_output: Write output csv of test evaluation (default: False)
-        - embeddings: (fasttext only) Use word embedding file
         - test_only: Runs test file only and skips training (default: False) 
         - parallel: Run in parallel (not recommended for models requiring GPU training)
-        - init_checkpoint: (bert only) Start training from pre-existing checkpoint (path to folder)
         """
         parser = argparse.ArgumentParser(description='Train a classifier based on a config file')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
@@ -70,15 +69,14 @@ class ArgParse(object):
                 train(run_config)
 
     def predict(self):
-        parser = argparse.ArgumentParser(description='Predict classes based on a config file and input data')
-        parser.add_argument('-r', '--run', metavar='R', required=True, type=str, default=None, help='Name of run')
-        parser.add_argument('-p', '--path', metavar='P', type=str, default=None, help='Path of data file for predictions')
-        parser.add_argument('-d', '--data', metavar='D', type=str, default=None, help='Input sentence')
-        parser.add_argument('-o', '--output', metavar='O', type=str, default=None, help='Path to output file')
-        parser.add_argument('-f', '--format', metavar='F', type=str, default='csv', help='Format of prediction output (csv,json)')
-        parser.add_argument('--verbose', dest='verbose', action='store_true', help='Verbose output (prediction results)')
+        parser = argparse.ArgumentParser(description='Predict classes based on a config file and input data and output predictions')
+        parser.add_argument('-r', '--run', required=True, type=str, default=None, help='Name of run')
+        parser.add_argument('-p', '--path', required=False, type=str, default=None, help='Path of data file for predictions')
+        parser.add_argument('-d', '--data', required=False, type=str, default=None, help='Input text as argument (ignored if path is given)')
+        parser.add_argument('--no_file_output', dest='no_file_output', default=False, action='store_true', help='Do not write output file (default: Write output file to `./predictions/` folder)')
+        parser.add_argument('--verbose', dest='verbose', default=False, action='store_true', help='Print predictions')
         args = parser.parse_args(sys.argv[2:])
-        predict(args.run, path=args.path, data=args.data, format=args.format, output=args.output, verbose=args.verbose)
+        predict(args.run, path=args.path, data=args.data, no_file_output=args.no_file_output, verbose=args.verbose)
 
     def generate_config(self):
         parser = argparse.ArgumentParser(description='Generate config for grid search hyperparameter search. Beware: Existing config.json will be overwritten.')
@@ -129,6 +127,15 @@ class ArgParse(object):
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
         learning_curve(args.config)
+
+    def list_runs(self):
+        parser = argparse.ArgumentParser(description='List trained models')
+        parser.add_argument('-p', '--pattern', type=str, default='*', required=False, dest='pattern', help='Filter model names by pattern')
+        parser.add_argument('-m', '--model', type=str, default='', required=False, dest='model', help='Filter output for model')
+        parser.add_argument('--names_only', dest='names_only', action='store_true', help='Only list names')
+        args = parser.parse_args(sys.argv[2:])
+        config_reader = ConfigReader()
+        config_reader.print_configs(pattern=args.pattern, model=args.model, names_only=args.names_only)
 
 if __name__ == '__main__':
     ArgParse()

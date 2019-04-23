@@ -4,6 +4,7 @@ import os
 import logging
 import shutil
 import json
+import glob
 
 class ConfigReader:
     def __init__(self):
@@ -11,6 +12,7 @@ class ConfigReader:
         self.config = None
         self.experiment_names = []
         self.logger = logging.getLogger(__name__)
+        self.default_output_folder = os.path.join('.', 'output')
 
     def parse_config(self, config_path, predict_mode=False):
         """
@@ -35,6 +37,29 @@ class ConfigReader:
         config = self._sanitize_config(config)
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
+
+    def list_configs(self, pattern='*'):
+        config_paths = glob.glob(os.path.join(self.default_output_folder, pattern, 'run_config.json'))
+        list_configs = []
+        for config_path in config_paths:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+            list_configs.append({'name': config['name'], 'model': config['model']})
+        return list_configs
+
+    def print_configs(self, pattern, model, names_only):
+        configs = self.list_configs(pattern=pattern)
+        if not names_only:
+            print('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
+        c = 1
+        for config in configs:
+            if not model in config['model']:
+                continue
+            if names_only:
+                print(config['name'])
+            else:
+                print('{:3d}) {:<40} {}'.format(c, config['name'], config['model']))
+                c += 1
 
     def _read_config_file(self, config_path):
         with open(config_path, 'r') as cf:

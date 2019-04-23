@@ -18,11 +18,12 @@ class BaseModel:
         raise NotImplementedError
 
     def get_label_mapping(self, config):
+        label_mapping_path = os.path.join(config.output_path, 'label_mapping.pkl')
         try:
-            with open(os.path.join(config.output_path, 'label_mapping.pkl'), 'rb') as f:
+            with open(label_mapping_path, 'rb') as f:
                 label_mapping = joblib.load(f)
         except FileNotFoundError:
-            raise Exception('No label mapping could be found under {}. Either provide a path with a label mapping or call `set_label_mapping` first.'.format(path))
+            raise Exception('No label mapping could be found under {}. Either provide a path with a label mapping or call `set_label_mapping` first.'.format(label_mapping_path))
         return label_mapping
 
     def set_label_mapping(self, config, labels=None):
@@ -65,7 +66,7 @@ class BaseModel:
                 })
         return results
 
-    def performance_metrics(self, y_true, y_pred, metrics=['accuracy', 'precision', 'recall', 'f1'], averaging=['micro', 'macro', 'weighted', None], label_mapping=None):
+    def performance_metrics(self, y_true, y_pred, metrics=['accuracy', 'precision', 'recall', 'f1'], averaging=None, label_mapping=None):
         def _compute_performance_metric(scoring_function, m, y_true, y_pred):
             for av in averaging:
                 if av is None:
@@ -78,6 +79,8 @@ class BaseModel:
                         scores[m + '_' + str(label_name)] = class_metric
                 else:
                     scores[m + '_' + av] = scoring_function(y_true, y_pred, average=av, labels=labels)
+        if averaging is None:
+            averaging = ['micro', 'macro', 'weighted', None]
         scores = {}
         labels = sorted(np.unique(y_true))
         label_mapping = self.invert_mapping(label_mapping)

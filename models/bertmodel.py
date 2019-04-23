@@ -11,6 +11,7 @@ from tqdm import tqdm, trange
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
 from torch.utils.data.distributed import DistributedSampler
+import torch.nn.functional
 from utils.misc import suppress_stdout
 with suppress_stdout():
     from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
@@ -219,8 +220,9 @@ class BERTModel(BaseModel):
             with torch.no_grad(), warnings.catch_warnings():
                 warnings.simplefilter('ignore') 
                 logits = self.model(input_ids, segment_ids, input_mask)
-            logits = logits.detach().cpu().numpy()
-            res = self.format_predictions(logits, label_mapping=self.label_mapping)
+            probabilities = torch.nn.functional.softmax(logits, dim=1)
+            probabilities = probabilities.detach().cpu().numpy()
+            res = self.format_predictions(probabilities, label_mapping=self.label_mapping)
             result.extend(res)
         return result
 
@@ -510,7 +512,7 @@ class SentimentClassificationProcessor(DataProcessor):
             guid = "%{}-{}".format(set_type, i)
             text = line['text']
             if set_type == "test":
-                label = self.labels[0]
+                label = list(self.labels)[0]
             else:
                 label = line['label']
             examples.append(InputExample(guid=guid, text_a=text, text_b=None, label=label))
