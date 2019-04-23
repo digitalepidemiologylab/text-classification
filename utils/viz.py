@@ -3,16 +3,18 @@ import socket
 import logging
 
 class Viz(object):
-    def __init__(self, env_name, port=8097):
-        self.disabled = False
+    def __init__(self, env_name, port=8097, disabled=False):
+        self.disabled = disabled
         self.logger = logging.getLogger(__name__)
+        self.opts = {}
+        if self.disabled:
+            return
         if self.socket_is_used(port=port):
             self.viz = Visdom(port=port, env=env_name)
             if not self.viz.check_connection():
                 self.disable()
         else:
             self.disable()
-        self.opts = {}
 
     def disable(self):
         self.logger.info('Could not connect to Visdom server. Make sure Visdom is running in separate tab if you want to use Visdom.')

@@ -117,7 +117,7 @@ def predict(run_name, path=None, data=None, no_file_output=False, verbose=False,
     if data is None:
         if path is None:
             raise ValueError('Provide either a path or data argument')
-        chunksize = 2**5
+        chunksize = 2**14
         input_data = read_input_data(path, chunksize=chunksize)
         with open(path, 'r') as f:
             num_it = int(sum([1 for _ in f]) / chunksize) + 1
@@ -127,7 +127,7 @@ def predict(run_name, path=None, data=None, no_file_output=False, verbose=False,
         verbose = True
     logger.info('Predicting...')
     output = []
-    for predict_data in tqdm(input_data, total=num_it, unit='chunks', disable=bool(path is None)):
+    for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):
         predictions = model.predict(run_config, data=predict_data)
         output.extend(predictions)
     if len(output) == 0:

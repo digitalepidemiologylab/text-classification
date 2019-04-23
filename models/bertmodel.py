@@ -213,7 +213,7 @@ class BERTModel(BaseModel):
         predict_dataloader = DataLoader(predict_data, sampler=predict_sampler, batch_size=self.eval_batch_size)
         self.model.eval()
         result = []
-        for input_ids, input_mask, segment_ids, label_ids in tqdm(predict_dataloader, desc="Predicting"):
+        for input_ids, input_mask, segment_ids, label_ids in predict_dataloader:
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
@@ -262,7 +262,7 @@ class BERTModel(BaseModel):
         self.learning_curve_fraction = config.get('learning_curve_fraction', 0)
 
         # Visdom
-        self.viz = Viz(config.name)
+        self.viz = Viz(config.name, disabled=setup_mode != 'train')
 
         # GPU config
         if self.local_rank == -1 or self.no_cuda:
@@ -276,8 +276,8 @@ class BERTModel(BaseModel):
             torch.distributed.init_process_group(backend='nccl')
         if self.no_cuda:
             self.n_gpu = 0
-        self.logger.info("Start BERT training: device: {}, n_gpu: {}, distributed training: {}, 16-bits training: {}".format(
-            self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
+        if setup_mode == 'train': 
+            self.logger.info("Initialize BERT: device: {}, n_gpu: {}, distributed training: {}, 16-bits training: {}".format(self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
         if self.gradient_accumulation_steps < 1:
             raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(self.gradient_accumulation_steps))
         self.train_batch_size = self.train_batch_size // self.gradient_accumulation_steps
