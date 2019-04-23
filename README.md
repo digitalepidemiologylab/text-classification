@@ -1,5 +1,5 @@
 # Kubetext
-A lightweight supervised text classification framework 
+A supervised text classification framework 
 
 ## Install
 ```
