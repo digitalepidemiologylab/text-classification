@@ -26,11 +26,14 @@ from datetime import datetime
 import uuid
 
 
-def train_test_split(test_size=0.2, seed=42, balanced_labels=False):
+def train_test_split(name, test_size=0.2, label_tags=None, balanced_labels=False, seed=42):
     """Splits cleaned labelled data into training and test set
     :param test_size: Fraction of data which should be reserved for test data, default: 0.2
+    :param label_tags: Only select examples with certain label tags
+    :param balanced_labels: Ensure equal label balance
+    :param seed: Random seed (default: 42)
     """
-    df = get_data()
+    df = get_data(name)
     logger = logging.getLogger(__name__)
     if balanced_labels:
         df = filter_for_label_balance(df)
@@ -38,12 +41,15 @@ def train_test_split(test_size=0.2, seed=42, balanced_labels=False):
     train, test = sklearn.model_selection.train_test_split(df, test_size=test_size, random_state=seed, shuffle=True)
     for dtype, data in [['train', train], ['test', test]]:
         f_name = '{}_split_{}_seed_{}{}.csv'.format(dtype, int(100*test_size), seed, flags)
-        f_path = os.path.join('output', f_name)
+        f_path = os.path.join('data', f_name)
         data.to_csv(f_path, index=None, encoding='utf8')
         logger.info('Successfully wrote file {}'.format(f_path))
 
 def get_data(name):
-    return pd.read_csv(os.path.join('output', name))
+    try:
+        return pd.read_csv(os.path.join(name))
+    except FileNotFoundError:
+        return pd.read_csv(os.path.join('output', name))
 
 def filter_for_label_balance(df):
     """Performs undersampling for overrepresanted label classes"""

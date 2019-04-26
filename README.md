@@ -24,6 +24,7 @@ Available commands:
 
 1) Define a file `config.json` in your root folder.
 ```
+cp other/example_data/example*.csv data/
 cp example.config.json config.json
 ```
 Content of `config.json`:

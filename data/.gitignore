@@ -2,5 +2,3 @@
 *
 # Except this file
 !.gitignore
-!example_train.csv
-!example_test.csv
