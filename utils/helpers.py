@@ -190,9 +190,11 @@ def generate_config(name, train_data, test_data, models, params, global_params):
             return float(s)
         except ValueError:
             pass
-        try:
-            return bool(s)
-        except ValueError:
+        if s in ['true', 'True']:
+            return True
+        elif s in ['false', 'False']:
+            return False
+        else:
             if allow_str:
                 return s
             else:
@@ -228,9 +230,10 @@ def generate_config(name, train_data, test_data, models, params, global_params):
         param_dict['name'] = '{}_{}_{}'.format(name, param_dict['model'], i)
         runs.append(param_dict) 
     config['runs'] = runs
-    with open('config.json', 'w') as f:
+    f_name = 'config.{}.json'.format(name)
+    with open(f_name, 'w') as f:
         json.dump(config, f, cls=JSONEncoder, indent=4)
-    logger.info('Successfully generated file `config.json` with {} runs'.format(i+1))
+    logger.info('Successfully generated file `{}` with {} runs'.format(f_name, i+1))
 
 def collect_results(run='*'):
     """Collects result output for run (by default gets all results)"""

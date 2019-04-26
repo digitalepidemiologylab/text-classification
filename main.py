@@ -58,7 +58,7 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         config_reader = ConfigReader()
         config = config_reader.parse_config(args.config)
-        if len(config.runs) > 1 and config.parallel:
+        if len(config.runs) > 1 and config.params.parallel:
             num_cpus = os.cpu_count() - 1
             pool = multiprocessing.Pool(num_cpus)
             pool.map(train, config.runs)
@@ -77,14 +77,14 @@ class ArgParse(object):
         predict(args.run, path=args.path, data=args.data, no_file_output=args.no_file_output, verbose=args.verbose)
 
     def generate_config(self):
-        parser = argparse.ArgumentParser(description='Generate config for grid search hyperparameter search. Beware: Existing config.json will be overwritten.')
-        parser.add_argument('--name', required=True, type=str, help='Global name prefix')
+        parser = argparse.ArgumentParser(description='Generate config for grid search hyperparameter search.')
+        parser.add_argument('--name', required=True, type=str, help='Global name prefix and name of output file.')
         parser.add_argument('--train_data', required=True, type=str, help='Train data path')
         parser.add_argument('--test_data', required=True, type=str, help='Test data path')
         parser.add_argument('-m', '--models', required=True, nargs='+', help='List of models. Eeach model will be combined with each param pair.')
         parser.add_argument('-p', '--params', required=False, nargs='*', default=[], help='Arbitrary list of grid search params of the format `key:modifier:values`. \
                 Key=hyperparameter name, modifier=Can be either `val` (individual values), `lin` (linspace), or `log` (logspace), followed by the respective values or params for the lin/log space. \
-                Examples: num_epochs:val:2,3 or learning_rate:log:1e-6,1e-2,4')
+                Examples: num_epochs:val:2,3 or learning_rate:log:-6,-2,4')
         parser.add_argument('-g', '--globals', required=False, nargs='*', default=[], help='List of global params which will be passed to all runs of the format `key:value`')
         args = parser.parse_args(sys.argv[2:])
         generate_config(name=args.name, train_data=args.train_data, test_data=args.test_data, models=args.models, params=args.params, global_params=args.globals)
