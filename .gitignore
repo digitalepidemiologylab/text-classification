@@ -17,3 +17,6 @@ tmp
 minikube.config
 predictions
 predict.sh
+
+# scripts
+*.sh
