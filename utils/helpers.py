@@ -227,8 +227,11 @@ def generate_config(name, train_data, test_data, models, params, global_params):
     param_names = [list(i.keys())[0] for i in gs_params] + ['model']
     for i, param in enumerate(itertools.product(*params)):
         param_dict = dict(zip(param_names, param))
-        param_dict['name'] = '{}_{}_{}'.format(name, param_dict['model'], i)
+        param_dict['name'] = '{}_{}'.format(name, i)
         runs.append(param_dict) 
+    if len(runs) == 1:
+        # get rid of integer for single run
+        runs[0]['name'] = runs[0]['name'][:-2]
     config['runs'] = runs
     f_name = 'config.{}.json'.format(name)
     with open(f_name, 'w') as f:

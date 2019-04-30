@@ -20,8 +20,7 @@ class BagOfWordsModel(BaseModel):
         super().__init__()
         self.model = None
         self.vectorizer = None
-        self.label_mapping = None
-        logging.basicConfig(format = '%(asctime)s - %(levelname)s - %(name)s - %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.INFO)
+        self.logger = logging.getLogger(__name__)
 
     def train(self, config):
         # config
@@ -32,32 +31,30 @@ class BagOfWordsModel(BaseModel):
         stop_words = config.get('stop_words', 'english')
         stop_words = config.get('stop_words', None)
         # read and transform data
-        df_train = pd.read_csv(config.train_data)
-        df_test = pd.read_csv(config.test_data)
-        df = pd.concat([df_train, df_test])
+        df = pd.read_csv(config.train_data)
         # compute mapping
-        self.label_mapping = self.set_label_mapping(config)
+        label_mapping = self.set_label_mapping(config)
         # train vectorizer
-        print('Build vectorizer...')
+        self.logger.info('Build vectorizer...')
         self.vectorizer = CountVectorizer(max_features=max_features, max_df=max_df, stop_words=stop_words, min_df=min_df, ngram_range=(1, ngrams))
         self.vectorizer = self.vectorizer.fit(df['text'])
-        vectors, labels = self.vectorize_data(df_train)
+        labels = np.array(df.label.apply(lambda i: label_mapping[i]))
+        vectors = self.vectorize_data(df)
         features = self.vectorizer.get_feature_names()
-        if config.verbose:
-            print("Num features: {}".format(len(features)))
         if len(features) < 1:
             raise Exception('Vecotrizer could not find any features under the given parameters. Try less restrictive parameters.')
+        self.logger.info("Num features: {}".format(len(features)))
         with open(os.path.join(config.output_path, 'vectorizer.pkl'), 'wb') as f:
             params = {**self.vectorizer.get_params(), 'vocabulary': features}
             joblib.dump(params, f)
         # train
-        print('Start training...')
+        self.logger.debug('Start training...')
         t_start = time.time()
         self.model = OneVsRestClassifier(svm.SVC(gamma=0.01, C=100., probability=True, class_weight='balanced', kernel='linear'))
         self.model.fit(vectors, labels)
         t_end = time.time()
-        print('... training finished after {:.1f} min'.format((t_end - t_start)/60))
-        print('Saving model...')
+        self.logger.debug('... training finished after {:.1f} min'.format((t_end - t_start)/60))
+        self.logger.debug('Saving model...')
         with open(os.path.join(config.output_path, 'model.pkl'), 'wb') as f:
             joblib.dump(self.model, f)
 
@@ -65,11 +62,13 @@ class BagOfWordsModel(BaseModel):
         self.load_model(config)
         # read data
         df = pd.read_csv(config.test_data)
-        vectors, labels = self.vectorize_data(df)
+        vectors = self.vectorize_data(df)
+        label_mapping = self.get_label_mapping(config)
+        labels = np.array(df.label.apply(lambda i: label_mapping[i]))
         # predict
         predicted = self.model.predict(vectors)
         probabilities = self.model.predict_proba(vectors)
-        metrics = self.performance_metrics(labels, predicted, label_mapping=self.get_label_mapping(config))
+        metrics = self.performance_metrics(labels, predicted, label_mapping=label_mapping)
         return metrics
 
     def predict(self, config, data):
@@ -88,33 +87,18 @@ class BagOfWordsModel(BaseModel):
             vectorizer_params = joblib.load(f)
         self.vectorizer = CountVectorizer()
         self.vectorizer.set_params(**vectorizer_params)
-        if self.label_mapping is None:
-            self.label_mapping = self.get_label_mapping(config)
 
     def vectorize_data(self, df):
         df['text'] = df['text'].apply(lambda t: self.tokenize(t))
         vectors = self.vectorizer.transform(df['text'])
-        if 'label' in df:
-            labels = np.array(df['label'].apply(self.transform_labels))
-        else:
-            labels = None
-        return vectors, labels
+        return vectors
 
     def tokenize(self, text):
         # Replace unnecessary spacings/EOL chars
         text = re.sub(r'[\r\n\t]+', ' ', text)
-        text = "".join(ch for ch in text if unicodedata.category(ch)[0] != "C")
-        text = ' '.join(text)
+        text = ''.join(ch for ch in text if unicodedata.category(ch)[0] != "C")
         text = text.lower()
         # replace urls and mentions
         text = re.sub('((www\.[^\s]+)|(https?://[^\s]+)|(http?://[^\s]+))','<url>', text)
         text = re.sub('(\@[^\s]+)','<user>', text)
         return text.strip()
-
-    def transform_labels(self, label):
-        return self.label_mapping[str(label)]
-
-    def transform_index(self, ix):
-        for i, j in self.label_mapping.items():
-            if j == ix:
-                return i
