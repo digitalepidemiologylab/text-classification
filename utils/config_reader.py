@@ -20,8 +20,6 @@ class ConfigReader:
         :param json_file:
         :return: config(namespace) or config(dictionary)
         """
-        if not os.path.isfile(config_path):
-            FileNotFoundError('Could not find config file under: {}'.format(config_path))
         config = self._read_config_file(config_path)
         if predict_mode:
             config = {
@@ -35,6 +33,12 @@ class ConfigReader:
 
     def parse_from_dict(self, config):
         config = self._sanitize_config(config)
+        self._create_dirs(config)
+        return DefaultMunch.fromDict(config, None)
+
+    def parse_fine_tune_config(self, config_path):
+        config = self._read_config_file(config_path)
+        config = self._sanitize_config(config, required_keys_runs=['model', 'name', 'fine_tune_data'])
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
@@ -62,36 +66,49 @@ class ConfigReader:
                 c += 1
 
     def _read_config_file(self, config_path):
+        if not os.path.isfile(config_path):
+            FileNotFoundError('Could not find config file under: {}'.format(config_path))
         with open(config_path, 'r') as cf:
             config = json.load(cf)
         return config
 
-    def _sanitize_config(self, config):
-        required_keys = ['runs', 'params']
-        for rq in required_keys:
+    def _sanitize_config(self, config, required_base_keys=None, required_keys_runs=None):
+        if required_base_keys is None:
+            required_base_keys = ['runs', 'params']
+        if required_keys_runs is None:
+            required_keys_runs = ['name', 'model', 'train_data', 'test_data']
+        for rq in required_base_keys:
             if rq not in config:
                 raise Exception('Missing key "{}" in config file'.format(rq))
         run_names = [k['name'] for k in config['runs']]
         if len(run_names) != len(set(run_names)):
             raise Exception('Name keys in `runs` subfield of config file need to be unique')
-        required_keys_runs = ['name', 'model']
         sanitized_training_runs = []
         for run in config['runs']:
-            for rq in required_keys_runs:
-                if rq not in run:
-                    raise Exception('Missing key {} in run subfield of config file'.format(rq))
             run_config = {**self._get_default_paths(run['name']), **config['params'], **run}
+            for rq in required_keys_runs:
+                if rq not in run_config:
+                    raise Exception('Missing key {} in run subfield of config file'.format(rq))
+            run_config = self._set_output_path(run_config)
             run_config = self._set_data_paths(run_config)
             sanitized_training_runs.append(run_config)
-        # merge all params into run file but keep priority of training runs
+        # merge all params into run key
         config['runs'] = sanitized_training_runs
         return config
 
     def _set_data_paths(self, config):
-        for data_key in ['train_data', 'test_data']:
-            data_path = config[data_key]
-            if not (data_path.startswith('/') or data_path.startswith('.')):
-                config[data_key] = os.path.join(config['data_path'], data_path)
+        for data_key in ['train_data', 'test_data', 'fine_tune_data']:
+            if data_key in config:
+                data_path = config[data_key]
+                if not (data_path.startswith('/') or data_path.startswith('.') or data_path.startswith('~')):
+                    config[data_key] = os.path.join(config['data_path'], data_path)
+        return config
+
+    def _set_output_path(self, config):
+        if 'fine_tune_data' in config:
+            config['output_path'] = os.path.join(config['other_path'], 'fine_tune', config['model'], config['name'])
+        else:
+            config['output_path'] = os.path.join('.', 'output', config['name'])
         return config
 
     def _create_dirs(self, config):
@@ -103,11 +120,11 @@ class ConfigReader:
                 if os.path.isdir(run_dir):
                     if 'overwrite' in run and run['overwrite']:
                         shutil.rmtree(run_dir)
-                        os.mkdir(run_dir)
+                        os.makedirs(run_dir)
                     else:
                         raise Exception('Found exisiting folder {}. Add `overwrite: true` to run config or delete the folder.'.format(run_dir))
                 else:
-                    os.mkdir(run_dir)
+                    os.makedirs(run_dir)
                 self._dump_run_config(run_dir, run)
 
     def _get_default_paths(self, run_name):
@@ -115,7 +132,6 @@ class ConfigReader:
         project_root = '.'
         paths['tmp_path'] = os.path.join(project_root, 'tmp')
         paths['data_path'] = os.path.join(project_root, 'data')
-        paths['output_path'] = os.path.join(project_root, 'output', run_name)
         paths['other_path'] = os.path.join(project_root, 'other')
         return paths
 

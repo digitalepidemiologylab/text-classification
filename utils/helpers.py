@@ -1,12 +1,6 @@
 from utils.config_reader import ConfigReader
 from utils.learning_curve import LearningCurve
 from utils.misc import JSONEncoder
-from models.bag_of_words import BagOfWordsModel
-from models.fasttextmodel import FastTextModel
-from models.bertmodel import BERTModel
-from models.bert_finetune import BERTFineTune
-from models.openai_gpt2 import OpenAIGPT2
-from models.dummy_models import DummyModel, RandomModel, WeightedRandomModel
 import pandas as pd
 import numpy as np
 import json
@@ -25,40 +19,6 @@ import itertools
 from datetime import datetime
 import uuid
 
-
-def train_test_split(name, test_size=0.2, label_tags=None, balanced_labels=False, seed=42):
-    """Splits cleaned labelled data into training and test set
-    :param test_size: Fraction of data which should be reserved for test data, default: 0.2
-    :param label_tags: Only select examples with certain label tags
-    :param balanced_labels: Ensure equal label balance
-    :param seed: Random seed (default: 42)
-    """
-    df = get_data(name)
-    logger = logging.getLogger(__name__)
-    if balanced_labels:
-        df = filter_for_label_balance(df)
-    flags = '{}'.format('_balanced' if balanced_labels else '')
-    train, test = sklearn.model_selection.train_test_split(df, test_size=test_size, random_state=seed, shuffle=True)
-    for dtype, data in [['train', train], ['test', test]]:
-        f_name = '{}_split_{}_seed_{}{}.csv'.format(dtype, int(100*test_size), seed, flags)
-        f_path = os.path.join('data', f_name)
-        data.to_csv(f_path, index=None, encoding='utf8')
-        logger.info('Successfully wrote file {}'.format(f_path))
-
-def get_data(name):
-    try:
-        return pd.read_csv(os.path.join(name))
-    except FileNotFoundError:
-        return pd.read_csv(os.path.join('output', name))
-
-def filter_for_label_balance(df):
-    """Performs undersampling for overrepresanted label classes"""
-    counts = Counter(df['label'])
-    min_count = min(counts.values())
-    _df = pd.DataFrame()
-    for l in counts.keys():
-        _df = pd.concat([_df, df[df['label'] == l].sample(min_count)])
-    return _df
 
 def train(run_config):
     model = get_model(run_config.model)
@@ -94,9 +54,7 @@ def train(run_config):
                     output += "{:<20}: {:.4f}\n".format(new_key, result[new_key])
     logger.info(output)
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
-        
 
-                        
 def predict(run_name, path=None, data=None, no_file_output=False, verbose=False, output_formats=None):
     def read_input_data(path, chunksize=2**15, usecols=['text']):
         if path.endswith('.csv'):
@@ -162,19 +120,27 @@ def predict(run_name, path=None, data=None, no_file_output=False, verbose=False,
         logger.info(json.dumps(output, indent=4, cls=JSONEncoder))
 
 def get_model(model_name):
+    """Dynamically import model module and return model instance"""
     if model_name == 'fasttext':
+        from models.fasttextmodel import FastTextModel
         return FastTextModel()
     elif model_name == 'bag_of_words':
+        from models.bag_of_words import BagOfWordsModel
         return BagOfWordsModel()
     elif model_name == 'bert':
+        from models.bertmodel import BERTModel
         return BERTModel()
     elif model_name == 'openai_gpt2':
+        from models.openai_gpt2 import OpenAIGPT2
         return OpenAIGPT2()
     elif model_name == 'dummy':
+        from models.dummy_models import DummyModel
         return DummyModel()
     elif model_name == 'random':
+        from models.dummy_models import RandomModel
         return RandomModel()
     elif model_name == 'weighted_random':
+        from models.dummy_models import WeightedRandomModel
         return WeightedRandomModel()
     else:
         raise NotImplementedError('Model `{}` is unknown'.format(model_name))
@@ -238,33 +204,41 @@ def generate_config(name, train_data, test_data, models, params, global_params):
         json.dump(config, f, cls=JSONEncoder, indent=4)
     logger.info('Successfully generated file `{}` with {} runs'.format(f_name, i+1))
 
-def collect_results(run='*'):
-    """Collects result output for run (by default gets all results)"""
-    run_path = os.path.join('output', run)
-    folders = glob.glob(run_path)
-    results = []
-    for f in folders:
-        if os.path.isdir(f):
-            config_path = os.path.join(f, 'run_config.json')
-            test_output_path = os.path.join(f, 'test_output.json')
-            try:
-                with open(config_path, 'r') as f_p:
-                    run_config = json.load(f_p)
-                with open(test_output_path, 'r') as f_p:
-                    test_output = json.load(f_p)
-            except FileNotFoundError:
-                continue
-            results.append({**run_config, **test_output})
-    return pd.DataFrame(results)
+def train_test_split(name, test_size=0.2, label_tags=None, balanced_labels=False, seed=42):
+    """Splits cleaned labelled data into training and test set
+    :param test_size: Fraction of data which should be reserved for test data, default: 0.2
+    :param label_tags: Only select examples with certain label tags
+    :param balanced_labels: Ensure equal label balance
+    :param seed: Random seed (default: 42)
+    """
+    def get_data(name):
+        try:
+            return pd.read_csv(os.path.join(name))
+        except FileNotFoundError:
+            return pd.read_csv(os.path.join('output', name))
+    def filter_for_label_balance(df):
+        """Performs undersampling for overrepresanted label classes"""
+        counts = Counter(df['label'])
+        min_count = min(counts.values())
+        _df = pd.DataFrame()
+        for l in counts.keys():
+            _df = pd.concat([_df, df[df['label'] == l].sample(min_count)])
+        return _df
+    df = get_data(name)
+    logger = logging.getLogger(__name__)
+    if balanced_labels:
+        df = filter_for_label_balance(df)
+    flags = '{}'.format('_balanced' if balanced_labels else '')
+    train, test = sklearn.model_selection.train_test_split(df, test_size=test_size, random_state=seed, shuffle=True)
+    for dtype, data in [['train', train], ['test', test]]:
+        f_name = '{}_split_{}_seed_{}{}.csv'.format(dtype, int(100*test_size), seed, flags)
+        f_path = os.path.join('data', f_name)
+        data.to_csv(f_path, index=None, encoding='utf8')
+        logger.info('Successfully wrote file {}'.format(f_path))
 
-
-def fine_tune(model, run_name, overwrite):
-    if model == 'bert':
-        finetuner = BERTFineTune(run_name=run_name, overwrite=overwrite)
-    else:
-        raise NotImplementedError('Model {} is not recognized for fine-tuning'.format(model))
-    finetuner.train()
-
+def fine_tune(run_config):
+    model = get_model(run_config.model)
+    model.fine_tune(run_config)
 
 def learning_curve(config_path):
     lc = LearningCurve(config_path)
@@ -272,7 +246,6 @@ def learning_curve(config_path):
     configs = lc.generate_configs()
     for config in configs:
         train(config)
-
 
 def find_project_root(num_par_dirs=8):
     for i in range(num_par_dirs):
@@ -286,97 +259,3 @@ def find_project_root(num_par_dirs=8):
 
 def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=8, source='training_data', should_contain_keyword='', verbose=False):
     raise NotImplementedError
-#     # helper function
-#     def remove_control_characters(s):
-#         return "".join(ch for ch in s if unicodedata.category(ch)[0]!="C")
-#     # load model
-#     model = OpenAIGPT2()
-#     try:
-#         nlp = spacy.load('en')
-#     except:
-#         os.system('python -m spacy download en')
-#         nlp = spacy.load('en')
-#     counts_per_label = int(n/3)
-#     counts = {'positive': counts_per_label, 'neutral': counts_per_label, 'negative': counts_per_label}
-#     df_augmented = []
-#     output_path = os.path.join('data', 'other', 'augmented')
-#     if not os.path.isdir(output_path):
-#         os.mkdir(output_path)
-#     total_collected = 0
-#     if source == 'training_data':
-#         df_labels = get_cleaned_labelled_data()
-#     elif source == 'seed_data':
-#         df_labels = pd.read_csv(os.path.join(output_path, 'seed_data.csv'))
-#     else:
-#         raise NotImplementedError('Source type {} is not supported'.format(source))
-#     for k, v in counts.items():
-#         num_samples = min(len(df_labels[df_labels['label'] == k]), v)
-#         if num_samples == 0:
-#             continue
-#         sample = df_labels[df_labels['label'] == k].sample(num_samples)
-#         pbar = tqdm(sample.iterrows(), total=len(sample))
-#         num_collected = 0
-#         for i, s in pbar:
-#             seed_text = s['text'].replace('@<user>', '').replace('<url>', '')
-#             for _ in range(repeats):
-#                 pbar.set_description("Num samples collected {:3d}; current class: {}".format(num_collected, k))
-#                 gen_text = model.generate_text(seed_text)
-#                 sentences = nlp(gen_text).sents
-#                 if verbose:
-#                     print('Seed text:', seed_text)
-#                 for i, sentence in enumerate(sentences):
-#                     if i > n_sentences_after_seed:
-#                         break
-#                     sentence = remove_control_characters(sentence.text)
-#                     sentence = re.sub('((www\.[^\s]+)|(https?://[^\s]+)|(http?://[^\s]+))', '<url>', sentence, flags=re.MULTILINE)
-#                     tokenized_sentence = [i.text for i in nlp(sentence) if i.is_alpha]
-#                     if len(tokenized_sentence) > min_tokens and should_contain_keyword in sentence.lower():
-#                         if verbose:
-#                             print(sentence)
-#                         df_augmented.append({'text': sentence, 'label': k})
-#                         num_collected += 1
-#         total_collected += num_collected
-#     print("Total samples collected: {}".format(total_collected))
-#     if total_collected > 0:
-#         df_augmented = pd.DataFrame(df_augmented)
-#         if source == 'seed_data':
-#             f_name = 'augmented_data_{}_mintokens_{}_repeats_{}_sentences_after_seed_{}.csv'.format(source, min_tokens, repeats, n_sentences_after_seed)
-#         else:
-#             f_name = 'augmented_data_{}_n_{}_mintokens_{}_repeats_{}_sentences_after_seed_{}.csv'.format(source, n, min_tokens, repeats, n_sentences_after_seed)
-#         df_augmented.to_csv(os.path.join(output_path, f_name), index=False)
-
-
-def generate_fine_tune_input_data(min_tokens=3):
-    raise NotImplementedError
-#     try:
-#         nlp = spacy.load('en')
-#     except:
-#         os.system('python -m spacy download en')
-#         nlp = spacy.load('en')
-#     print('Loading data...')
-#     df = get_cleaned_data(dtype='anonymized')
-#     finetune_data = []
-#     print('Generating input data...')
-#     for i, tweet in tqdm(enumerate(df['text']), total=len(df)):
-#         sentence_was_found = False
-#         try:
-#             sentences = nlp(tweet).sents
-#         except:
-#             print('error with sentence:', tweet)
-#             continue
-#         for sentence in sentences:
-#             try:
-#                 num_tokens = len([i.text for i in sentence if i.is_alpha])
-#             except:
-#                 print('error with sentence: "{}" in tweet "{}"'.format(sentence.text, tweet))
-#                 break
-#             if num_tokens > min_tokens:
-#                 sentence_was_found = True
-#                 finetune_data.append(sentence.text)
-#         if sentence_was_found:
-#             # add new line after sentences
-#             finetune_data.append('')
-#     print('Write output file...')
-#     with open(os.path.join(find_folder('other'), 'fine_tuning', 'finetuning.txt'), 'w') as f:
-#         for sentence in finetune_data:
-#             f.write(sentence + '\n')

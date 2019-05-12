@@ -1,7 +1,7 @@
 import argparse
 import sys, os
 from utils.config_reader import ConfigReader
-from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, generate_fine_tune_input_data, learning_curve
+from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, learning_curve
 import multiprocessing
 import logging
 
@@ -16,11 +16,12 @@ Available commands:
   augment          Augment training data
   fine_tune        Fine-tune pre-trained language models
   learning_curve   Compute learning curve
-  list_runs          List trained models
+  list_runs        List trained models
 """
 
 class ArgParse(object):
     def __init__(self):
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
         parser = argparse.ArgumentParser(
                 description='',
                 usage=USAGE_DESC)
@@ -109,16 +110,19 @@ class ArgParse(object):
         augment_training_data(n=args.num, min_tokens=8, source=args.source, repeats=args.repeats, should_contain_keyword=args.contains, n_sentences_after_seed=args.n_sentences_after_seed, verbose=args.verbose)
 
     def fine_tune(self):
-        parser = argparse.ArgumentParser(description='Fine-tune language model')
-        parser.add_argument('-n', '--name', type=str, required=True, dest='name', help='Name of run')
-        parser.add_argument('-m', '--model', type=str, default='bert', required=False, dest='model', help='Model to fine-tune')
-        parser.add_argument('--overwrite', default=False, required=False, action='store_true', dest='overwrite', help='Overwrite pre-existing model of same name')
-        parser.add_argument('--verbose', dest='verbose', action='store_true', help='Verbose output')
+        """Finetune model based on config. The following config keys can/should be present in the config file (in runs or params):
+        - name (required): Unique name of the run
+        - model (required): One of the models which can be finetuned (e.g. bert, etc.)
+        - fine_tune_data (required): Path to unannotated data: A csv with a text column (if only filename is provided it should be located under `data/`)
+        - overwrite: Wipe existing finetuned model with same name
+        """
+        parser = argparse.ArgumentParser(description='Train a classifier based on a config file')
+        parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
-        fine_tune(args.model, args.name, args.overwrite)
-
-    # def generate_fine_tune_input_data(self):
-    #     generate_fine_tune_input_data()
+        config_reader = ConfigReader()
+        config = config_reader.parse_fine_tune_config(args.config)
+        for run_config in config.runs:
+            fine_tune(run_config)
 
     def learning_curve(self):
         parser = argparse.ArgumentParser(description='Generate learning curve')

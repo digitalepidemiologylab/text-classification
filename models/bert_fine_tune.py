@@ -1,83 +1,55 @@
-# coding=utf-8
-# Copyright 2018 The Google AI Language Team Authors and The HugginFace Inc. team.
-# Copyright (c) 2018, NVIDIA CORPORATION.  All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-"""BERT finetuning runner."""
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import argparse
+from utils.misc import suppress_stdout, get_file_md5
+import pandas as pd
 import logging
 import os
 import random
-from io import open
-
 import numpy as np
 import torch
 from torch.utils.data import DataLoader, Dataset, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
-
-from utils.misc import suppress_stdout
 with suppress_stdout():
-    from pytorch_pretrained_bert.modeling import BertForPreTraining
+    from pytorch_pretrained_bert.modeling import BertForPreTraining, WEIGHTS_NAME, CONFIG_NAME
     from pytorch_pretrained_bert.tokenization import BertTokenizer
     from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
-
 from torch.utils.data import Dataset
 import random
 import shutil
+import nltk.tokenize
 
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(name)s - %(message)s', datefmt='%m/%d/%Y %H:%M:%S', level=logging.INFO)
-logger = logging.getLogger(__name__)
+class BertFineTune():
+    def __init__(self):
+        super().__init__()
 
+    def init(self, config):
+        self.logger = logging.getLogger(__name__)
 
-class BERTFineTune:
-    def __init__(self, run_name='test', overwrite=False):
         # Paths
-        self.other_path = os.path.join('data', 'other')
-        self.output_path = os.path.join(self.other_path, 'fine_tuning', run_name)
-        self.train_data = os.path.join(self.other_path, 'fine_tuning', 'crispr_anonymized_finetuning.txt')
-        self.model_type = 'bert-base-uncased' # bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese
+        self.name = config.name
+        self.fine_tune_data = config.fine_tune_data
+        self.other_path = config.other_path
+        self.output_path = config.output_path
+        self.tmp_path = config.tmp_path
+        self.model_type = config.get('model_type', 'bert-base-uncased') # bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese
         self.model_path = os.path.join(self.other_path, 'bert')
-        self.overwrite = overwrite
-
-        # Create paths
-        if not os.path.isdir(self.output_path):
-            os.makedirs(self.output_path)
-        elif run_name == 'test' or self.overwrite:
-            shutil.rmtree(self.output_path)
-            os.mkdir(self.output_path)
-        else:
-            raise RuntimeError('Path {} already exists, pick a different run name'.format(self.output_path))
+        self.overwrite = config.get('overwrite', False)
 
         # hyperparams
-        self.max_seq_length = 128
-        self.train_batch_size = 32
-        self.learning_rate = 3e-5
-        self.num_train_epochs = 3.0
-        self.warmup_proportion = 0.1
-        self.no_cuda = False
-        self.on_memory = True  # Load train samples into memory
-        self.do_lower_case = True  # True when using uncased models
-        self.local_rank = -1  # For distributed training on GPUs
-        self.seed = 42
-        self.gradient_accumulation_steps = 1
-        self.fp16 = False # Use 16-bit float precision
-        self.loss_scale = False  # Loss scaling for fp16 numeric stability (Should be False if fp16 is False)
+        self.max_seq_length = config.get('max_seq_length', 128)
+        self.train_batch_size = config.get('train_batch_size', 32)
+        self.learning_rate = config.get('learning_rate', 5e-5)
+        self.num_epochs = config.get('num_epochs', 1)
+        self.warmup_proportion = config.get('warmup_proportion', 0.1)
+        self.no_cuda = config.get('no_cuda', False)
+        self.on_memory = config.get('on_memory', True)
+        self.do_lower_case = 'uncased' in self.model_type
+        self.local_rank = config.get('local_rank', -1)
+        self.seed = config.get('seed', np.random.randint(1e4))
+        self.gradient_accumulation_steps = config.get('gradient_accumulation_steps', 1)
+        self.fp16 = config.get('fp16', False)
+        self.loss_scale = config.get('loss_scale', 0.0)
 
-        # CUDA config
+        # GPU config
         if self.local_rank == -1 or self.no_cuda:
             self.device = torch.device("cuda" if torch.cuda.is_available() and not self.no_cuda else "cpu")
             self.n_gpu = torch.cuda.device_count()
@@ -87,25 +59,27 @@ class BERTFineTune:
             self.n_gpu = 1
             # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
             torch.distributed.init_process_group(backend='nccl')
-        logger.info("device: {} n_gpu: {}, distributed training: {}, 16-bits training: {}".format(
-            self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
+        if self.no_cuda:
+            self.n_gpu = 0
+        self.logger.info("device: {} n_gpu: {}, distributed training: {}, 16-bits training: {}".format(self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
         if self.gradient_accumulation_steps < 1:
-            raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(
-                                self.gradient_accumulation_steps))
+            raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(self.gradient_accumulation_steps))
         self.train_batch_size = self.train_batch_size // self.gradient_accumulation_steps
+
+        # seed
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         if self.n_gpu > 0:
             torch.cuda.manual_seed_all(self.seed)
 
-    def train(self):
+    def fine_tune(self, input_data_path):
         # Model initialization
         tokenizer = BertTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case, cache_dir=self.model_path)
         num_train_optimization_steps = None
-        print("Loading Train Dataset", self.train_data)
-        train_dataset = BERTDataset(self.train_data, tokenizer, seq_len=self.max_seq_length, corpus_lines=None, on_memory=self.on_memory)
-        num_train_optimization_steps = int(len(train_dataset) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_train_epochs
+        self.logger.debug("Loading Train Dataset", input_data_path)
+        train_dataset = BERTDataset(input_data_path, tokenizer, seq_len=self.max_seq_length, corpus_lines=None, on_memory=self.on_memory)
+        num_train_optimization_steps = int(len(train_dataset) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_epochs
         if self.local_rank != -1:
             num_train_optimization_steps = num_train_optimization_steps // torch.distributed.get_world_size()
 
@@ -152,19 +126,17 @@ class BERTFineTune:
 
         # Run training
         global_step = 0
-        logger.info("***** Running training *****")
-        logger.info("  Num examples = %d", len(train_dataset))
-        logger.info("  Batch size = %d", self.train_batch_size)
-        logger.info("  Num steps = %d", num_train_optimization_steps)
+        self.logger.info("***** Running training *****")
+        self.logger.info("  Num examples = %d", len(train_dataset))
+        self.logger.info("  Batch size = %d", self.train_batch_size)
+        self.logger.info("  Num steps = %d", num_train_optimization_steps)
         if self.local_rank == -1:
             train_sampler = RandomSampler(train_dataset)
         else:
-            #TODO: check if this works with current data generator from disk that relies on next(file)
-            # (it doesn't return item back by index)
             train_sampler = DistributedSampler(train_dataset)
         train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=self.train_batch_size)
         model.train()
-        for _ in trange(int(self.num_train_epochs), desc="Epoch"):
+        for _ in trange(int(self.num_epochs), desc="Epoch"):
             tr_loss = 0
             nb_tr_examples, nb_tr_steps = 0, 0
             for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration")):
@@ -194,10 +166,45 @@ class BERTFineTune:
                     global_step += 1
 
         # Save a trained model
-        logger.info("** ** * Saving fine - tuned model ** ** * ")
+        self.logger.info("** ** * Saving fine - tuned model ** ** * ")
         model_to_save = model.module if hasattr(model, 'module') else model  # Only save the model it-self
-        output_model_file = os.path.join(self.output_path, "pytorch_model.bin")
+        output_model_file = os.path.join(self.output_path, WEIGHTS_NAME)
         torch.save(model_to_save.state_dict(), output_model_file)
+        output_config_file = os.path.join(self.output_path, CONFIG_NAME)
+        with open(output_config_file, 'w') as f:
+            f.write(model_to_save.config.to_json_string())
+
+    def prepare_input_data(self, min_tokens=3):
+        """Method to prepare data for BERT finetuning"""
+        self.logger.info('Generating file hash...')
+        file_hash = get_file_md5(self.fine_tune_data)
+        input_data_path = os.path.join(self.tmp_path, 'fine_tune', 'bert', '{}.txt'.format(file_hash))
+        if os.path.exists(input_data_path):
+            self.logger.info('Found pre-existing input data file.')
+            return input_data_path
+        if not os.path.isdir(os.path.dirname(input_data_path)):
+            os.makedirs(os.path.dirname(input_data_path))
+        self.logger.info('Reading input data...')
+        df = pd.read_csv(self.fine_tune_data, usecols=['text'])
+        self.logger.info('Generating input data...')
+        with open(input_data_path, 'w') as f:
+            for i, text in tqdm(enumerate(df['text']), total=len(df)):
+                sentence_was_found = False
+                sentences = nltk.tokenize.sent_tokenize(text)
+                for sentence in sentences:
+                    try:
+                        num_tokens = len(nltk.tokenize.word_tokenize(sentence))
+                    except:
+                        self.logger.error('error with sentence: "{}"'.format(sentence))
+                        continue
+                    if num_tokens > min_tokens:
+                        f.write(sentence + '\n')
+                        sentence_was_found = True
+                if sentence_was_found:
+                    # add new line after sentences
+                    f.write('\n')
+        return input_data_path
+
 
 class BERTDataset(Dataset):
     def __init__(self, corpus_path, tokenizer, seq_len, encoding="utf-8", corpus_lines=None, on_memory=True):
@@ -453,6 +460,7 @@ def random_word(tokens, tokenizer):
             except KeyError:
                 # For unknown words (should not occur with BPE vocab)
                 output_label.append(tokenizer.vocab["[UNK]"])
+                logger = logging.getLogger(__name__)
                 logger.warning("Cannot find token '{}' in vocab. Using [UNK] insetad".format(token))
         else:
             # no masking token (will be ignored by loss function later)
@@ -536,6 +544,7 @@ def convert_example_to_features(example, max_seq_length, tokenizer):
     assert len(lm_label_ids) == max_seq_length
 
     if example.guid < 5:
+        logger = logging.getLogger(__name__)
         logger.info("*** Example ***")
         logger.info("guid: %s" % (example.guid))
         logger.info("tokens: %s" % " ".join(
@@ -570,9 +579,3 @@ def _truncate_seq_pair(tokens_a, tokens_b, max_length):
             tokens_a.pop()
         else:
             tokens_b.pop()
-
-
-def accuracy(out, labels):
-    outputs = np.argmax(out, axis=1)
-    return np.sum(outputs == labels)
-

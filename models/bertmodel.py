@@ -20,6 +20,7 @@ with suppress_stdout():
     from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
 import warnings
 from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
+from models.bert_fine_tune import BertFineTune
 
 
 class BERTModel(BaseModel):
@@ -30,7 +31,6 @@ class BERTModel(BaseModel):
         self.train_examples = None
         logging.getLogger("pytorch_pretrained_bert").setLevel(logging.WARNING)
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
         self.num_train_optimization_steps = None
         self.vis = None
 
@@ -119,27 +119,28 @@ class BERTModel(BaseModel):
                     self.optimizer.zero_grad()
                     global_step += 1
             # evaluate model
-            self.model.eval()
-            nb_train_steps, nb_train_examples = 0, 0
-            train_accuracy, train_loss = 0, 0
-            for input_ids, input_mask, segment_ids, label_ids in tqdm(train_dataloader, desc="Evaluating"):
-                input_ids = input_ids.to(self.device)
-                input_mask = input_mask.to(self.device)
-                segment_ids = segment_ids.to(self.device)
-                label_ids = label_ids.to(self.device)
-                with torch.no_grad(), warnings.catch_warnings():
-                    warnings.simplefilter('ignore') 
-                    loss = self.model(input_ids, segment_ids, input_mask, label_ids)
-                    logits = self.model(input_ids, segment_ids, input_mask)
-                train_accuracy += self.accuracy(logits.to('cpu').numpy(), label_ids.to('cpu').numpy())
-                train_loss += loss.mean().item()
-                nb_train_examples += input_ids.size(0)
-                nb_train_steps += 1
-            train_loss = train_loss / nb_train_steps
-            train_accuracy = train_accuracy / nb_train_examples
-            # update viz
-            self.viz.update_line('Loss', [epoch], [train_loss])
-            self.viz.update_line('Accuracy', [epoch], [train_accuracy])
+            if not bool(config.avoid_eval_after_epoch):
+                self.model.eval()
+                nb_train_steps, nb_train_examples = 0, 0
+                train_accuracy, train_loss = 0, 0
+                for input_ids, input_mask, segment_ids, label_ids in tqdm(train_dataloader, desc="Evaluating"):
+                    input_ids = input_ids.to(self.device)
+                    input_mask = input_mask.to(self.device)
+                    segment_ids = segment_ids.to(self.device)
+                    label_ids = label_ids.to(self.device)
+                    with torch.no_grad(), warnings.catch_warnings():
+                        warnings.simplefilter('ignore') 
+                        loss = self.model(input_ids, segment_ids, input_mask, label_ids)
+                        logits = self.model(input_ids, segment_ids, input_mask)
+                    train_accuracy += self.accuracy(logits.to('cpu').numpy(), label_ids.to('cpu').numpy())
+                    train_loss += loss.mean().item()
+                    nb_train_examples += input_ids.size(0)
+                    nb_train_steps += 1
+                train_loss = train_loss / nb_train_steps
+                train_accuracy = train_accuracy / nb_train_examples
+                # update viz
+                self.viz.update_line('Loss', [epoch], [train_loss])
+                self.viz.update_line('Accuracy', [epoch], [train_accuracy])
 
         # Save model
         model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model it-self
@@ -226,13 +227,21 @@ class BERTModel(BaseModel):
             result.extend(res)
         return result
 
+    def fine_tune(self, config):
+        bert_ft = BertFineTune()
+        bert_ft.init(config)
+        input_data_path = bert_ft.prepare_input_data()
+        bert_ft.fine_tune(input_data_path)
+
     def _setup_bert(self, config, setup_mode='train', data=None):
         # Paths
         self.model_path = os.path.join(config.other_path, 'bert')
         self.output_path = config.output_path
         self.train_data = config.train_data
         self.test_data = config.test_data
-        self.fine_tune_path = config.get('fine_tuned_model_path', os.path.join(config.other_path, 'fine_tuned', 'bert', 'default'))
+        self.fine_tune_path = None
+        if config.fine_tune_name:
+            self.fine_tune_path = config.get('fine_tuned_model_path', os.path.join(config.other_path, 'fine_tune', 'bert', config.fine_tune_name))
 
         # Hyperparams
         self.max_seq_length = config.get('max_seq_length', 128)
@@ -292,17 +301,15 @@ class BERTModel(BaseModel):
         # label mapping
         if setup_mode == 'train':
             self.label_mapping = self.set_label_mapping(config)
-        else:
+        elif setup_mode in ['test', 'predict']:
             self.label_mapping = self.get_label_mapping(config)
 
         # Build model
         self.processor = SentimentClassificationProcessor(self.train_data, self.label_mapping)
         num_labels = len(self.label_mapping)
-        self.pretrained_model_size = config.get('bert_model_size', 'base')
-        self.pretrained_model_case_type = config.get('bert_model_case_type', 'uncased')
-        self.model_key = 'bert-{}-{}'.format(self.pretrained_model_size, self.pretrained_model_case_type)
-        self.do_lower_case = self.pretrained_model_case_type == 'uncased'
-        self.tokenizer = BertTokenizer.from_pretrained(self.model_key, do_lower_case=self.do_lower_case)
+        self.model_type = config.get('model_type', 'bert-base-uncased') # bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese
+        self.do_lower_case = 'uncased' in self.model_type
+        self.tokenizer = BertTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
         if setup_mode == 'train':
             self.train_examples = self.processor.get_train_examples(self.train_data)
             self.num_train_optimization_steps = int(len(self.train_examples) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_epochs
@@ -311,16 +318,16 @@ class BERTModel(BaseModel):
 
         # Prepare model
         if setup_mode == 'train':
-            if self.use_fine_tuned_model:
+            if self.fine_tune_path:
                 config = BertConfig(os.path.join(self.fine_tune_path, CONFIG_NAME))
                 weights = torch.load(os.path.join(self.fine_tune_path, WEIGHTS_NAME))
-                self.model = BertForSequenceClassification.from_pretrained(self.model_key, cache_dir=self.model_path, num_labels=num_labels, state_dict=weights)
+                self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels=num_labels, state_dict=weights)
             else:
-                self.model = BertForSequenceClassification.from_pretrained(self.model_key, cache_dir=self.model_path, num_labels = num_labels)
+                self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels = num_labels)
             if self.fp16:
                 self.model.half()
         else:
-            # Load a trained model and config that you have fine-tuned
+            # Load a trained model and config that you have trained
             config = BertConfig(os.path.join(self.output_path, CONFIG_NAME))
             self.model = BertForSequenceClassification(config, num_labels=num_labels)
             self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))
