@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from copy import deepcopy
 import shutil
+import uuid
 
 
 class LearningCurve:
@@ -18,6 +19,7 @@ class LearningCurve:
         self.len_train_data = 0
         self.min_len_train_data = 100
         self.init_was_run = False
+        self.learning_curve_repetitions = 1
 
     def init(self):
         # read config
@@ -41,6 +43,7 @@ class LearningCurve:
         assert isinstance(learning_curve_fractions_linspace, list), '`learning_curve_fractions_linspace` has to be of type list'
         assert len(learning_curve_fractions_linspace) == 3, '`learning_curve_fractions_linspace` has to have 3 values (start, stop, num_steps)'
         self.fractions = np.linspace(*learning_curve_fractions_linspace)
+        self.learning_curve_repetitions = self.config.get('learning_curve_repetitions', 1)
         self.init_was_run = True
 
 
@@ -61,29 +64,38 @@ class LearningCurve:
         if self.config.augment_training_data is not None:
             df_augmented = self.get_augmented_data(self.config.augment_training_data)
             assert self.labels == set(np.unique(df_augmented['label']))
-        for i, f in enumerate(self.fractions):
-            config = deepcopy(self.original_config)
-            df_fraction = df.sample(int(f*len(df)))
-            selected_labels = set(df_fraction['label'].unique())
-            # make sure all labels are present
-            for l in self.labels - selected_labels:
-                missing_label = df[df['label'] == l].sample(1)
-                df_fraction = pd.concat([df_fraction, missing_label], ignore_index=True)
-            assert self.labels == set(df_fraction['label'].unique())
-            if self.config.augment_training_data is not None:
-                df_fraction = pd.concat([df_augmented, df_fraction], ignore_index=True)
-            # save training data
-            f_path = os.path.join(self.train_data_folder, '{}.csv'.format(i))
-            df_fraction.to_csv(f_path, index=False)
-            # fix all paths
-            for run_config in config.runs:
-                run_config.name = run_config.name + '_run_{}'.format(i)
-                run_config.train_data = f_path
-                run_config.run_index = i
-                run_config.learning_curve_fraction = f
-                run_config.pop('output_path', None)
-                run_config = self.config_reader.parse_from_dict({'runs': [dict(run_config)], 'params': {}})
-                configs.append(run_config.runs[0])
+        random_hex = uuid.uuid4().hex
+        i = 0
+        repetition_index = 0
+        for _, f in enumerate(self.fractions):
+            for _ in range(self.learning_curve_repetitions):
+                config = deepcopy(self.original_config)
+                df_fraction = df.sample(int(f*len(df)))
+                selected_labels = set(df_fraction['label'].unique())
+                # make sure all labels are present
+                for l in self.labels - selected_labels:
+                    missing_label = df[df['label'] == l].sample(1)
+                    df_fraction = pd.concat([df_fraction, missing_label], ignore_index=True)
+                assert self.labels == set(df_fraction['label'].unique())
+                if self.config.augment_training_data is not None:
+                    df_fraction = pd.concat([df_augmented, df_fraction], ignore_index=True)
+                # save training data
+                f_path = os.path.join(self.train_data_folder, '{}.csv'.format(i))
+                df_fraction.to_csv(f_path, index=False)
+                i += 1
+                # fix all paths
+                for run_config in config.runs:
+                    run_config.name = run_config.name + '_run_{}'.format(i)
+                    run_config.train_data = f_path
+                    run_config.learning_curve_index = i
+                    run_config.learning_curve_repetition_index = repetition_index
+                    run_config.learning_curve_fraction = f
+                    run_config.learning_curve_num_samples = len(df_fraction)
+                    run_config.learning_curve_id = random_hex
+                    run_config.pop('output_path', None)
+                    run_config = self.config_reader.parse_from_dict({'runs': [dict(run_config)], 'params': {}})
+                    configs.append(run_config.runs[0])
+            repetition_index += 1
         return configs
 
     def get_augmented_data(self, f_path):

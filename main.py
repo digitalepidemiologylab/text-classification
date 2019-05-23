@@ -103,7 +103,7 @@ class ArgParse(object):
         parser.add_argument('-n', '--num', type=int, default=10, required=False, dest='num', help='Number of tweets to generate text from')
         parser.add_argument('-s', '--source', type=str, default='training_data', required=False, dest='source', help='Source for seed data (training data (default), or seed_data)')
         parser.add_argument('-r', '--repeats', type=int, default=1, required=False, dest='repeats', help='Number of repeated times a single seed should be used')
-        parser.add_argument('-c', '--contains', type=str, default='crispr', required=False, dest='contains', help='Only collect sentences which contain keyword')
+        parser.add_argument('-c', '--contains', type=str, default='', required=False, dest='contains', help='Only collect sentences which contain keyword')
         parser.add_argument('--n_sentences_after_seed', type=int, default=8, required=False, dest='n_sentences_after_seed', help='Consider only first n predicted sentences after seed')
         parser.add_argument('--verbose', dest='verbose', action='store_true', help='Verbose output')
         args = parser.parse_args(sys.argv[2:])
@@ -115,6 +115,7 @@ class ArgParse(object):
         - model (required): One of the models which can be finetuned (e.g. bert, etc.)
         - fine_tune_data (required): Path to unannotated data: A csv with a text column (if only filename is provided it should be located under `data/`)
         - overwrite: Wipe existing finetuned model with same name
+        - ... all additional model-specific parameters
         """
         parser = argparse.ArgumentParser(description='Train a classifier based on a config file')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
@@ -125,6 +126,17 @@ class ArgParse(object):
             fine_tune(run_config)
 
     def learning_curve(self):
+        """Compute learning curve for model. The following keys can/should be present in the config file:
+        - name (required): Unique prefix of all learning curve runs (each name will be extended with a run index '_run_i')
+        - model (required): One of the available models
+        - learning_curve_fractions_linspace: Argument to np.linspace which sets the fraction of training data which should be used. Default: [0, 1, 20]
+        - learning_curve_repetitions: Number of times each fraction will be trained and evaluated (each fraction will be randomly sampled). Default: 1
+        - ... and all parameters which are also available for `train`
+
+        Note that all fractions will contain at least one example of each available class (so that fraction 0 there will be at least num_classes training samples present).
+        Output configs will contain keys `learning_curve_fraction` and `learning_curve_num_samples` indicating the portion of training data which was used, as well as a unique
+        identifier `learning_curve_id` and a unique run index `learning_curve_index` for each run and a `learning_curve_repetition_index`, being unique for each repetition group.
+        """
         parser = argparse.ArgumentParser(description='Generate learning curve')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
