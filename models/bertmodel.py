@@ -239,9 +239,10 @@ class BERTModel(BaseModel):
         self.output_path = config.output_path
         self.train_data = config.train_data
         self.test_data = config.test_data
-        self.fine_tune_path = None
         if config.fine_tune_name:
             self.fine_tune_path = config.get('fine_tuned_model_path', os.path.join(config.other_path, 'fine_tune', 'bert', config.fine_tune_name))
+        else:
+            self.fine_tune_path = None
 
         # Hyperparams
         self.max_seq_length = config.get('max_seq_length', 128)

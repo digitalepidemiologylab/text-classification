@@ -42,6 +42,10 @@ class ConfigReader:
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
+    def get_default_config(self, base_config={}):
+        config = {**self._get_default_paths(), **base_config}
+        return DefaultMunch.fromDict(config, None)
+
     def list_configs(self, pattern='*'):
         config_paths = glob.glob(os.path.join(self.default_output_folder, pattern, 'run_config.json'))
         list_configs = []
@@ -85,7 +89,7 @@ class ConfigReader:
             raise Exception('Name keys in `runs` subfield of config file need to be unique')
         sanitized_training_runs = []
         for run in config['runs']:
-            run_config = {**self._get_default_paths(run['name']), **config['params'], **run}
+            run_config = {**self._get_default_paths(), **config['params'], **run}
             for rq in required_keys_runs:
                 if rq not in run_config:
                     raise Exception('Missing key {} in run subfield of config file'.format(rq))
@@ -127,7 +131,7 @@ class ConfigReader:
                     os.makedirs(run_dir)
                 self._dump_run_config(run_dir, run)
 
-    def _get_default_paths(self, run_name):
+    def _get_default_paths(self):
         paths = {}
         project_root = '.'
         paths['tmp_path'] = os.path.join(project_root, 'tmp')

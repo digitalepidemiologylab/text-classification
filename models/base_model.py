@@ -20,6 +20,9 @@ class BaseModel:
     def fine_tune(self, config):
         raise NotImplementedError
 
+    def generate_text(self, seed, config):
+        raise NotImplementedError
+
     def get_label_mapping(self, config):
         label_mapping_path = os.path.join(config.output_path, 'label_mapping.pkl')
         try:

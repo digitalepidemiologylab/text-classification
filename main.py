@@ -1,7 +1,7 @@
 import argparse
 import sys, os
 from utils.config_reader import ConfigReader
-from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, learning_curve
+from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, learning_curve, generate_text
 import multiprocessing
 import logging
 
@@ -14,6 +14,7 @@ Available commands:
   predict          Predict unknown data given a trained model
   generate_config  Generate a config file programmatically
   augment          Augment training data
+  generate_text    Generate text
   fine_tune        Fine-tune pre-trained language models
   learning_curve   Compute learning curve
   list_runs        List trained models
@@ -92,10 +93,13 @@ class ArgParse(object):
 
     def generate_text(self):
         parser = argparse.ArgumentParser(description='Generate text')
-        parser.add_argument('-s', '--seed', type=str, required=False, dest='seed', help='Seed text to start generating text from.')
+        parser.add_argument('--seed_text', type=str, required=True, help='Seed text to start generating text from.')
+        args, other_args = parser.parse_known_args(sys.argv[2:])
+        for arg in other_args:
+            if arg.startswith(("-", "--")):
+                parser.add_argument(arg)
         args = parser.parse_args(sys.argv[2:])
-        model = OpenAIGPT2()
-        text = model.generate_text(seed_text=args.seed)
+        text = generate_text(**vars(args))
         print(text)
 
     def augment(self):

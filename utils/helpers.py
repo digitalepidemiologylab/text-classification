@@ -237,8 +237,14 @@ def train_test_split(name, test_size=0.2, label_tags=None, balanced_labels=False
         logger.info('Successfully wrote file {}'.format(f_path))
 
 def fine_tune(run_config):
-    model = get_model(run_config.model)
+    model = get_model()
     model.fine_tune(run_config)
+
+def generate_text(**config):
+    model = get_model(config.get('model', 'openai_gpt2'))
+    config_reader = ConfigReader()
+    config = config_reader.get_default_config(base_config=config)
+    return model.generate_text(config.seed_text, config)
 
 def learning_curve(config_path):
     lc = LearningCurve(config_path)
