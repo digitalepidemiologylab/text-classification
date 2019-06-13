@@ -64,7 +64,6 @@ class BERTModel(BaseModel):
 
         # Run training
         global_step = 0
-        nb_tr_steps = 0
         tr_loss = 0
         train_features = self.convert_examples_to_features(self.train_examples)
         self.logger.debug("***** Running training *****")
@@ -86,10 +85,11 @@ class BERTModel(BaseModel):
         self.viz.add_viz('Loss step', 'Step', 'Loss')
         self.model.train()
         loss_vs_time = []
-        for epoch in trange(int(self.num_epochs), desc="Epoch"):
-            tr_loss = 0
+        for epoch in range(int(self.num_epochs)):
             nb_tr_examples, nb_tr_steps = 0, 0
-            for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration")):
+            epoch_loss = 0
+            pbar = tqdm(train_dataloader)
+            for step, batch in enumerate(pbar):
                 self.viz.update_line('Loss step', [global_step], [tr_loss])
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
@@ -105,7 +105,11 @@ class BERTModel(BaseModel):
                     self.optimizer.backward(loss)
                 else:
                     loss.backward()
-                tr_loss += loss.item()
+                loss = loss.item()
+                tr_loss += loss
+                epoch_loss += loss
+                if step > 0:
+                    pbar.set_description("Loss: {:8.4f} | Average loss/it: {:8.4f}".format(loss, epoch_loss/step))
                 nb_tr_examples += input_ids.size(0)
                 nb_tr_steps += 1
                 if (step + 1) % self.gradient_accumulation_steps == 0:
@@ -137,7 +141,8 @@ class BERTModel(BaseModel):
                     nb_train_examples += input_ids.size(0)
                     nb_train_steps += 1
                 train_loss = train_loss / nb_train_steps
-                train_accuracy = train_accuracy / nb_train_examples
+                train_accuracy = 100 * train_accuracy / nb_train_examples
+                print("{bar}\nEpoch {}:\nTraining loss: {:8.4f} | Training accuracy: {:.2f}%\n{bar}".format(epoch+1, train_loss, train_accuracy, bar=80*'='))
                 # update viz
                 self.viz.update_line('Loss', [epoch], [train_loss])
                 self.viz.update_line('Accuracy', [epoch], [train_accuracy])
@@ -320,10 +325,12 @@ class BERTModel(BaseModel):
         # Prepare model
         if setup_mode == 'train':
             if self.fine_tune_path:
+                self.logger.info('Loading fine-tuned model {} of type {}...'.format(self.fine_tune_path, self.model_type))
                 config = BertConfig(os.path.join(self.fine_tune_path, CONFIG_NAME))
                 weights = torch.load(os.path.join(self.fine_tune_path, WEIGHTS_NAME))
                 self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels=num_labels, state_dict=weights)
             else:
+                self.logger.info('Loading pretrained model {}...'.format(self.model_type))
                 self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels = num_labels)
             if self.fp16:
                 self.model.half()

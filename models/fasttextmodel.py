@@ -28,7 +28,7 @@ class FastTextModel(BaseModel):
         self.classifier = self.fastText.train_supervised(
                 input=train_data_path,
                 lr=config.get('learning_rate', 0.1),
-                dim=config.get('dimensions', 100),
+                dim=config.get('dim', 100),
                 ws=5,
                 epoch=config.get('num_epochs', 5),
                 minCount=1,
@@ -41,7 +41,7 @@ class FastTextModel(BaseModel):
                 bucket=2000000,
                 thread=47,
                 lrUpdateRate=100,
-                t=config.get('learning_rate', 0.0001),
+                t=config.get('t', 1e-4),
                 label=self.label_prefix,
                 verbose=2,
                 pretrainedVectors='')
@@ -67,7 +67,7 @@ class FastTextModel(BaseModel):
             except ValueError:
                 return label
         self.load_classifier(config)
-        candidates = self.classifier.predict(data, k=32)
+        candidates = self.classifier.predict(data, k=3)
         predictions = [{
             'labels': [_parse(label[len(self.label_prefix):]) for label in candidate[0]],
             'probabilities': candidate[1].tolist()
