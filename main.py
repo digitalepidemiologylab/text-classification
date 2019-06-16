@@ -2,6 +2,7 @@ import argparse
 import sys, os
 from utils.config_reader import ConfigReader
 from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, learning_curve, generate_text
+from utils.list_runs import ListRuns
 import multiprocessing
 import logging
 
@@ -17,7 +18,7 @@ Available commands:
   generate_text    Generate text
   fine_tune        Fine-tune pre-trained language models
   learning_curve   Compute learning curve
-  list_runs        List trained models
+  ls               List trained models and performance
 """
 
 class ArgParse(object):
@@ -146,14 +147,19 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         learning_curve(args.config)
 
-    def list_runs(self):
+    def ls(self):
         parser = argparse.ArgumentParser(description='List trained models')
-        parser.add_argument('-p', '--pattern', type=str, default='*', required=False, dest='pattern', help='Filter model names by pattern')
-        parser.add_argument('-m', '--model', type=str, default='', required=False, dest='model', help='Filter output for model')
-        parser.add_argument('--names_only', dest='names_only', action='store_true', help='Only list names')
+        parser.add_argument('-m', '--model', type=str, default=None, required=False, dest='model', help='Only show certain models')
+        parser.add_argument('-p', '--pattern', type=str, default=None, required=False, dest='pattern', help='Filter run names by pattern')
+        parser.add_argument('-f', '--filename-pattern', type=str, default=None, required=False, dest='filename_pattern', help='Filter by name of training data input file')
+        parser.add_argument('-a', '--averaging', type=str, choices=['micro', 'macro', 'weighted'], default='macro', required=False, help='Precision/recall/f1 averaging mode')
+        parser.add_argument('--metrics', type=str, nargs='+', default=None, choices=['accuracy', 'f1', 'precision', 'recall'], required=False, help='Metrics to display')
+        parser.add_argument('--params', type=str, nargs='+', default=None, required=False, help='Display certain hyperparameters instead of default ones')
+        parser.add_argument('--names-only', dest='names_only', action='store_true', help='Only list names')
         args = parser.parse_args(sys.argv[2:])
-        config_reader = ConfigReader()
-        config_reader.print_configs(pattern=args.pattern, model=args.model, names_only=args.names_only)
+        ls = ListRuns()
+        ls.list_runs(pattern=args.pattern, model=args.model, names_only=args.names_only, filename_pattern=args.filename_pattern,
+                averaging=args.averaging, metrics=args.metrics, params=args.params)
 
 if __name__ == '__main__':
     ArgParse()

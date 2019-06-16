@@ -72,7 +72,7 @@ class BaseModel:
                 })
         return results
 
-    def performance_metrics(self, y_true, y_pred, metrics=['accuracy', 'precision', 'recall', 'f1'], averaging=None, label_mapping=None):
+    def performance_metrics(self, y_true, y_pred, metrics=None, averaging=None, label_mapping=None):
         def _compute_performance_metric(scoring_function, m, y_true, y_pred):
             for av in averaging:
                 if av is None:
@@ -87,6 +87,8 @@ class BaseModel:
                     scores[m + '_' + av] = scoring_function(y_true, y_pred, average=av, labels=labels)
         if averaging is None:
             averaging = ['micro', 'macro', 'weighted', None]
+        if metrics is None:
+            metrics = ['accuracy', 'precision', 'recall', 'f1']
         scores = {}
         labels = sorted(np.unique(y_true))
         label_mapping = self.invert_mapping(label_mapping)

@@ -123,7 +123,7 @@ class BERTModel(BaseModel):
                     self.optimizer.zero_grad()
                     global_step += 1
             # evaluate model
-            if not bool(config.avoid_eval_after_epoch):
+            if config.eval_after_epoch:
                 self.model.eval()
                 nb_train_steps, nb_train_examples = 0, 0
                 train_accuracy, train_loss = 0, 0
