@@ -373,10 +373,10 @@ class BERTModel(BaseModel):
         """Loads a data file into a list of `InputBatch`s."""
         features = []
         for (ex_index, example) in enumerate(examples):
-            tokens_a = self.tokenizer.tokenize(example.text_a)
+            tokens_a = self.tokenizer.tokenize(str(example.text_a))
             tokens_b = None
             if example.text_b:
-                tokens_b = self.tokenizer.tokenize(example.text_b)
+                tokens_b = self.tokenizer.tokenize(str(example.text_b))
                 # Modifies `tokens_a` and `tokens_b` in place so that the total
                 # length is less than the specified length.
                 # Account for [CLS], [SEP], [SEP] with "- 3"

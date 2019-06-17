@@ -4,6 +4,7 @@ import json
 import numpy as np
 from contextlib import contextmanager
 import hashlib
+import pandas as pd
 
 @contextmanager
 def suppress_stdout():
@@ -26,8 +27,6 @@ class JSONEncoder(json.JSONEncoder):
         else:
             return super(MyEncoder, self).default(obj)
 
-
-
 def get_file_md5(f_path, block_size=2**20):
     md5 = hashlib.md5()
     with open(f_path, 'r') as f:
@@ -37,3 +36,7 @@ def get_file_md5(f_path, block_size=2**20):
                 break
             md5.update(data.encode())
     return md5.hexdigest()
+
+def get_df_hash(df):
+    return hashlib.sha256(pd.util.hash_pandas_object(df, index=True).values).hexdigest()
+

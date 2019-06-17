@@ -52,6 +52,7 @@ class ArgParse(object):
         - overwrite: If run output folder is already present, wipe it and create new folder
         - train_data (required): Path to training data (if only filename is provided it should be located under `data/`)
         - test_data (required): Path to test data (if only filename is provided it should be located under `data/`)
+        - augment_data: Path to augment data (if only filename is provided it should be located under `data/`)
         - write_test_output: Write output csv of test evaluation (default: False)
         - test_only: Runs test file only and skips training (default: False) 
         - parallel: Run in parallel (not recommended for models requiring GPU training)

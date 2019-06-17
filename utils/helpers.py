@@ -1,6 +1,6 @@
 from utils.config_reader import ConfigReader
 from utils.learning_curve import LearningCurve
-from utils.misc import JSONEncoder
+from utils.misc import JSONEncoder, get_df_hash
 import pandas as pd
 import numpy as np
 import json
@@ -23,6 +23,9 @@ import uuid
 def train(run_config):
     model = get_model(run_config.model)
     logger = logging.getLogger(__name__)
+    if run_config.augment_data:
+        logger.info('Augmenting training data')
+        run_config = augment(run_config)
     # train
     logger.info('\n\nStart training model for `{}`'.format(run_config.name))
     if not run_config.test_only:
@@ -235,6 +238,28 @@ def train_test_split(name, test_size=0.2, label_tags=None, balanced_labels=False
         f_path = os.path.join('data', f_name)
         data.to_csv(f_path, index=None, encoding='utf8')
         logger.info('Successfully wrote file {}'.format(f_path))
+
+def augment(run_config):
+    df_augment = pd.read_csv(run_config.augment_data)
+    try:
+        df_augment = df_augment[['text', 'label']]
+    except KeyError:
+        raise Exception('Augmented data needs to have a text and label column.')
+    df_train = pd.read_csv(run_config.train_data)
+    # concatenate
+    df_train = pd.concat([df_train, df_augment], sort=False)
+    # check if hash exists
+    f_name = '{}.csv'.format(get_df_hash(df_train))
+    f_path = os.path.join(run_config.tmp_path, 'augment', f_name)
+    if not os.path.isdir(os.path.dirname(f_path)):
+        os.makedirs(os.path.dirname(f_path))
+    if not os.path.isdir(f_path):
+        # shuffle and store
+        df_train = df_train.sample(frac=1)
+        df_train.to_csv(f_path, index=False)
+    # change paths
+    run_config.train_data = f_path
+    return run_config
 
 def fine_tune(run_config):
     model = get_model()
