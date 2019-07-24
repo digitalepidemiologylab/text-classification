@@ -156,22 +156,6 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         learning_curve(args.config)
 
-    def optimize(self):
-        """Performs hyperparameter optimization (requires hypteropt package)
-        - name (required): Unique prefix of all learning curve runs (each name will be extended with a run index '_run_i')
-        - model (required): One of the available models
-        - ... and all parameters which are also available for `train`
-        """
-        from utils.helpers import optimize
-        parser = argparse.ArgumentParser(description='Split annotated data into training and test data set')
-        parser.add_argument('-n', '--name', type=str, required=True, help='Name of dataset or file path')
-        parser.add_argument('-s', '--test_size', type=float, required=False, default=0.2, help='Fraction of test size')
-        parser.add_argument('--balanced_labels', dest='balanced_labels', action='store_true', default=False, help='Ensure equal label balance')
-        parser.add_argument('--label_tags', required=False, default=[], nargs='+', help='Only select examples with certain label tags')
-        parser.add_argument('--seed', type=int, required=False, default=42, help='Random state split')
-        args = parser.parse_args(sys.argv[2:])
-        train_test_split(name=args.name, test_size=args.test_size, balanced_labels=args.balanced_labels, label_tags=args.label_tags, seed=args.seed)
-
     def train(self):
         """Train model based on config. The following config keys can/should be present in the config file (in runs or params):
         - name (required): Unique name of the run
@@ -290,6 +274,7 @@ class ArgParse(object):
         - model (required): One of the available models
         - ... and all parameters which are also available for `train`
         """
+        from utils.helpers import optimize
         parser = argparse.ArgumentParser(description='Perform hyperparamter search')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
