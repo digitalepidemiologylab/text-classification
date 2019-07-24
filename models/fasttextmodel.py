@@ -48,7 +48,7 @@ class FastTextModel(BaseModel):
                 neg=5,
                 wordNgrams=config.get('ngrams', 3),
                 loss='softmax',
-                bucket=2000000,
+                bucket=10000000,
                 thread=47,
                 lrUpdateRate=config.get('lr_update_rate', 100),
                 t=config.get('t', 1e-4),

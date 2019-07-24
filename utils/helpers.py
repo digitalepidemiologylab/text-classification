@@ -1,5 +1,6 @@
 from utils.config_reader import ConfigReader
 from utils.learning_curve import LearningCurve
+from utils.optimize import Optimize
 from utils.misc import JSONEncoder, get_df_hash
 import pandas as pd
 import numpy as np
@@ -290,3 +291,8 @@ def find_project_root(num_par_dirs=8):
 
 def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=8, source='training_data', should_contain_keyword='', verbose=False):
     raise NotImplementedError
+
+def optimize(config_path):
+    opt = Optimize(config_path)
+    opt.init()
+
