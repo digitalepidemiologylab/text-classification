@@ -1,8 +1,5 @@
 import argparse
 import sys, os
-from utils.config_reader import ConfigReader
-from utils.helpers import train_test_split, train, predict, generate_config, augment_training_data, fine_tune, learning_curve, generate_text
-from utils.list_runs import ListRuns
 import multiprocessing
 import logging
 
@@ -36,6 +33,7 @@ class ArgParse(object):
         getattr(self, args.command)()
 
     def split(self):
+        from utils.helpers import train_test_split
         parser = argparse.ArgumentParser(description='Split annotated data into training and test data set')
         parser.add_argument('-n', '--name', type=str, required=True, help='Name of dataset or file path')
         parser.add_argument('-s', '--test_size', type=float, required=False, default=0.2, help='Fraction of test size')
@@ -57,6 +55,8 @@ class ArgParse(object):
         - test_only: Runs test file only and skips training (default: False) 
         - parallel: Run in parallel (not recommended for models requiring GPU training)
         """
+        from utils.helpers import train
+        from utils.config_reader import ConfigReader
         parser = argparse.ArgumentParser(description='Train a classifier based on a config file')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
@@ -71,6 +71,7 @@ class ArgParse(object):
                 train(run_config)
 
     def predict(self):
+        from utils.helpers import predict
         parser = argparse.ArgumentParser(description='Predict classes based on a config file and input data and output predictions')
         parser.add_argument('-r', '--run', required=True, type=str, default=None, help='Name of run')
         parser.add_argument('-p', '--path', required=False, type=str, default=None, help='Path of data file for predictions')
@@ -81,6 +82,7 @@ class ArgParse(object):
         predict(args.run, path=args.path, data=args.data, no_file_output=args.no_file_output, verbose=args.verbose)
 
     def generate_config(self):
+        from utils.helpers import generate_config
         parser = argparse.ArgumentParser(description='Generate config for grid search hyperparameter search.')
         parser.add_argument('--name', required=True, type=str, help='Global name prefix and name of output file.')
         parser.add_argument('--train_data', required=True, type=str, help='Train data path')
@@ -94,6 +96,7 @@ class ArgParse(object):
         generate_config(name=args.name, train_data=args.train_data, test_data=args.test_data, models=args.models, params=args.params, global_params=args.globals)
 
     def generate_text(self):
+        from utils.helpers import generate_text
         parser = argparse.ArgumentParser(description='Generate text')
         parser.add_argument('--seed_text', type=str, required=True, help='Seed text to start generating text from.')
         args, other_args = parser.parse_known_args(sys.argv[2:])
@@ -105,6 +108,7 @@ class ArgParse(object):
         print(text)
 
     def augment(self):
+        from utils.helpers import augment_training_data
         parser = argparse.ArgumentParser(description='Augment training data')
         parser.add_argument('-n', '--num', type=int, default=10, required=False, dest='num', help='Number of tweets to generate text from')
         parser.add_argument('-s', '--source', type=str, default='training_data', required=False, dest='source', help='Source for seed data (training data (default), or seed_data)')
@@ -123,6 +127,8 @@ class ArgParse(object):
         - overwrite: Wipe existing finetuned model with same name
         - ... all additional model-specific parameters
         """
+        from utils.helpers import fine_tune
+        from utils.config_reader import ConfigReader
         parser = argparse.ArgumentParser(description='Train a classifier based on a config file')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
@@ -143,12 +149,14 @@ class ArgParse(object):
         Output configs will contain keys `learning_curve_fraction` and `learning_curve_num_samples` indicating the portion of training data which was used, as well as a unique
         identifier `learning_curve_id` and a unique run index `learning_curve_index` for each run and a `learning_curve_repetition_index`, being unique for each repetition group.
         """
+        from utils.helpers import learning_curve
         parser = argparse.ArgumentParser(description='Generate learning curve')
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
         learning_curve(args.config)
 
     def ls(self):
+        from utils.list_runs import ListRuns
         parser = argparse.ArgumentParser(description='List trained models')
         parser.add_argument('-m', '--model', type=str, default=None, required=False, dest='model', help='Only show certain models')
         parser.add_argument('-p', '--pattern', type=str, default=None, required=False, dest='pattern', help='Filter run names by pattern')

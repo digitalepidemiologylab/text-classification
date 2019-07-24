@@ -21,6 +21,16 @@ class FastTextModel(BaseModel):
                 on the official Github page.""")
 
     def train(self, config):
+        """
+        Config params:
+        - pretrained_vectors: Path to pretrained model (available here: https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md), by default learns from scratch
+        - dim: Dimension of hidden layer (default 100), needs to be adjusted depending on pretrained_vectors
+        - ws: Size of context window, default: 5
+        - learning_rate: Learning rate, default: 0.1
+        - lr_update_rate: Rate of updates for the learning rate, default: 100
+        - num_epochs: Default 5
+
+        """
         train_data_path = self.generate_input_file(config.train_data, config.tmp_path)
         output_model_path = os.path.join(config.output_path, 'model.bin')
         label_mapping = self.set_label_mapping(config)
@@ -29,7 +39,7 @@ class FastTextModel(BaseModel):
                 input=train_data_path,
                 lr=config.get('learning_rate', 0.1),
                 dim=config.get('dim', 100),
-                ws=5,
+                ws=config.get('ws', 5),
                 epoch=config.get('num_epochs', 5),
                 minCount=1,
                 minCountLabel=0,
@@ -40,11 +50,11 @@ class FastTextModel(BaseModel):
                 loss='softmax',
                 bucket=2000000,
                 thread=47,
-                lrUpdateRate=100,
+                lrUpdateRate=config.get('lr_update_rate', 100),
                 t=config.get('t', 1e-4),
                 label=self.label_prefix,
                 verbose=2,
-                pretrainedVectors='')
+                pretrainedVectors=config.get('pretrained_vectors', ''))
         self.classifier.save_model(output_model_path)
 
     def test(self, config):
