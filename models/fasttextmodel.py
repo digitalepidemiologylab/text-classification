@@ -34,27 +34,29 @@ class FastTextModel(BaseModel):
         train_data_path = self.generate_input_file(config.train_data, config.tmp_path)
         output_model_path = os.path.join(config.output_path, 'model.bin')
         label_mapping = self.set_label_mapping(config)
-        print("Training FastText model...")
-        self.classifier = self.fastText.train_supervised(
-                input=train_data_path,
-                lr=config.get('learning_rate', 0.1),
-                dim=config.get('dim', 100),
-                ws=config.get('ws', 5),
-                epoch=config.get('num_epochs', 5),
-                minCount=1,
-                minCountLabel=0,
-                minn=0,
-                maxn=0,
-                neg=5,
-                wordNgrams=config.get('ngrams', 3),
-                loss='softmax',
-                bucket=10000000,
-                thread=47,
-                lrUpdateRate=config.get('lr_update_rate', 100),
-                t=config.get('t', 1e-4),
-                label=self.label_prefix,
-                verbose=2,
-                pretrainedVectors=config.get('pretrained_vectors', ''))
+        model_args = {
+                'input': train_data_path,
+                'lr': config.get('learning_rate', 0.1),
+                'dim': config.get('dim', 100),
+                'ws': config.get('ws', 5),
+                'epoch': config.get('num_epochs', 5),
+                'minCount': 1,
+                'minCountLabel': 0,
+                'minn': 0,
+                'maxn': 0,
+                'neg': 5,
+                'wordNgrams': config.get('ngrams', 3),
+                'loss': 'softmax',
+                'bucket': 10000000,
+                'thread': 47,
+                'lrUpdateRate': config.get('lr_update_rate', 100),
+                't': config.get('t', 1e-4),
+                'label': self.label_prefix,
+                'verbose': 0,
+                'pretrainedVectors': config.get('pretrained_vectors', '')}
+        self.classifier = self.fastText.train_supervised(**model_args)
+        self.add_model_state(model_args)
+        self.dump_model_state(config.output_path)
         self.classifier.save_model(output_model_path)
 
     def test(self, config):

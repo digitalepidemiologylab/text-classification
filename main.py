@@ -236,6 +236,8 @@ class ArgParse(object):
         """Finetune model based on config. The following config keys can/should be present in the config file (in runs or params):
         - name (required): Unique name of the run
         - model (required): One of the models which can be finetuned (e.g. bert, etc.)
+        - train_data (required)
+        - test_data (required)
         - fine_tune_data (required): Path to unannotated data: A csv with a text column (if only filename is provided it should be located under `data/`)
         - overwrite: Wipe existing finetuned model with same name
         - ... all additional model-specific parameters
@@ -251,9 +253,12 @@ class ArgParse(object):
             fine_tune(run_config)
 
     def learning_curve(self):
-        """Compute learning curve for model. The following keys can/should be present in the config file:
+        """Compute learning curve for model.
+        The following keys can/should be present in the config file:
         - name (required): Unique prefix of all learning curve runs (each name will be extended with a run index '_run_i')
         - model (required): One of the available models
+        - train_data (required)
+        - test_data (required)
         - learning_curve_fractions_linspace: Argument to np.linspace which sets the fraction of training data which should be used. Default: [0, 1, 20]
         - learning_curve_repetitions: Number of times each fraction will be trained and evaluated (each fraction will be randomly sampled). Default: 1
         - ... and all parameters which are also available for `train`
@@ -269,10 +274,16 @@ class ArgParse(object):
         learning_curve(args.config)
 
     def optimize(self):
-        """Performs hyperparameter optimization (requires hypteropt package)
-        - name (required): Unique prefix of all learning curve runs (each name will be extended with a run index '_run_i')
+        """Performs hyperparameter optimization (requires hypteropt package).
+        The following keys can/should be present in the config file:
+        - name (required): Unique prefix of all optimization output will be stored under
         - model (required): One of the available models
-        - ... and all parameters which are also available for `train`
+        - train_data (required)
+        - test_data (required)
+        - optimize_space (required): List of hyperparameter-objects to optimize. A hyperparameter-object is a dictionary with keys `param` (name of the hyperparameter), 
+        `type` (choice|uniform|normal), and `values` (For choice list of choices, otherwise a list of arguments to be passed to function, can be stringified python code)
+        - optimize_max_eval: Maximum number of iterations (default 10)
+        - optimize_keep_models: Whether to keep model for each iteration (default: false)
         """
         from utils.helpers import optimize
         parser = argparse.ArgumentParser(description='Perform hyperparamter search')

@@ -40,3 +40,5 @@ def get_file_md5(f_path, block_size=2**20):
 def get_df_hash(df):
     return hashlib.sha256(pd.util.hash_pandas_object(df, index=True).values).hexdigest()
 
+def get_json_hash(d):
+    return hashlib.sha256(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()

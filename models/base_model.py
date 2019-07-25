@@ -3,10 +3,11 @@ import sklearn.metrics
 import os
 import joblib
 import pandas as pd
+import json
 
 class BaseModel:
     def __init__(self):
-        pass
+        self.model_state = {}
 
     def train(self, config):
         raise NotImplementedError
@@ -105,3 +106,12 @@ class BaseModel:
             elif m == 'f1':
                 _compute_performance_metric(sklearn.metrics.f1_score, m, y_true, y_pred)
         return scores
+
+    def dump_model_state(self, output_path):
+        f_path = os.path.join(output_path, 'model_config.json')
+        with open(f_path, 'w') as f:
+            json.dump(self.model_state, f, indent=4)
+
+    def add_model_state(self, states):
+        for k, v in states.items():
+            self.model_state[k] = v

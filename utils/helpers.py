@@ -22,6 +22,7 @@ import uuid
 
 
 def train(run_config):
+    """Train and evaluate"""
     model = get_model(run_config.model)
     logger = logging.getLogger(__name__)
     if run_config.augment_data:
@@ -295,4 +296,4 @@ def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=
 def optimize(config_path):
     opt = Optimize(config_path)
     opt.init()
-
+    opt.run()
