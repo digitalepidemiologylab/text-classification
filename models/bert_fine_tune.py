@@ -119,7 +119,7 @@ class BertFineTune():
                 optimizer = FP16_Optimizer(optimizer, static_loss_scale=self.loss_scale)
         else:
             optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate)
-            scheduler = WarmupLinearSchedule(self.optimizer, warmup_steps=self.warmup_steps, t_total=num_train_optimization_steps)
+            scheduler = WarmupLinearSchedule(optimizer, warmup_steps=self.warmup_steps, t_total=num_train_optimization_steps)
 
         # Run training
         global_step = 0
@@ -139,7 +139,8 @@ class BertFineTune():
             for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration")):
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, lm_label_ids, is_next = batch
-                loss, logits = model(input_ids, segment_ids, input_mask, lm_label_ids, is_next)
+                output = model(input_ids, segment_ids, input_mask, lm_label_ids, is_next)
+                loss = output[0]
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.
                 if self.gradient_accumulation_steps > 1:
