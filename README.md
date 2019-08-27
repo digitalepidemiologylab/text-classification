@@ -6,6 +6,22 @@ A supervised text classification framework
 conda env create -f environment.yml
 ```
 
+The environment (Python version 3.6) contains the following packages:
+
+conda create -n crispr python=3.6 pandas tqdm pytorch matplotlib numpy munch statsmodels shapely scikit-learn
+```
+- pytorch
+- pytorch-transformers
+- pandas
+- tqdm
+- numpy
+- munch
+- scikit-learn
+- visdom
+- dill
+```
+
+
 ## Usage
 ```
 python main.py <command> [<args>]
