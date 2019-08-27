@@ -9,16 +9,13 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm, trange
 import torch
-from torch.utils.data import DataLoader, RandomSampler, SequentialSampler, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 import torch.nn.functional
-from utils.misc import suppress_stdout
-with suppress_stdout():
-    from pytorch_pretrained_bert.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
-    from pytorch_pretrained_bert.modeling import BertForSequenceClassification, BertForPreTraining, BertConfig, WEIGHTS_NAME, CONFIG_NAME
-    from pytorch_pretrained_bert.tokenization import BertTokenizer
-    from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
-import warnings
+from pytorch_transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
+from pytorch_transformers import BertForSequenceClassification, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
+from pytorch_transformers import AdamW, WarmupLinearSchedule
 from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
 from models.bert_fine_tune import BertFineTune
 
@@ -29,7 +26,7 @@ class BERTModel(BaseModel):
         self.estimator = None
         self.label_mapping = None
         self.train_examples = None
-        logging.getLogger("pytorch_pretrained_bert").setLevel(logging.WARNING)
+        logging.getLogger('pytorch_transformers').setLevel(logging.WARNING)
         self.logger = logging.getLogger(__name__)
         self.num_train_optimization_steps = None
         self.vis = None
@@ -60,7 +57,9 @@ class BERTModel(BaseModel):
             else:
                 self.optimizer = FP16_Optimizer(self.optimizer, static_loss_scale=self.loss_scale)
         else:
-            self.optimizer = BertAdam(optimizer_grouped_parameters, lr=self.learning_rate, warmup=self.warmup_proportion, t_total=self.num_train_optimization_steps)
+            self.optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate)
+            self.scheduler = WarmupLinearSchedule(self.optimizer, warmup_steps=self.warmup_steps, t_total=self.num_train_optimization_steps)
+
 
         # Run training
         global_step = 0
@@ -83,9 +82,9 @@ class BERTModel(BaseModel):
         self.viz.add_viz('Loss', 'Epoch', 'Loss')
         self.viz.add_viz('Accuracy', 'Epoch', 'Accuracy')
         self.viz.add_viz('Loss step', 'Step', 'Loss')
-        self.model.train()
         loss_vs_time = []
         for epoch in range(int(self.num_epochs)):
+            self.model.train()
             nb_tr_examples, nb_tr_steps = 0, 0
             epoch_loss = 0
             pbar = tqdm(train_dataloader)
@@ -93,10 +92,7 @@ class BERTModel(BaseModel):
                 self.viz.update_line('Loss step', [global_step], [tr_loss])
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
-                with warnings.catch_warnings():
-                    # suppress user warning from multi GPU setup
-                    warnings.simplefilter('ignore') 
-                    loss = self.model(input_ids, segment_ids, input_mask, label_ids)
+                loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.
                 if self.gradient_accumulation_steps > 1:
@@ -113,13 +109,10 @@ class BERTModel(BaseModel):
                 nb_tr_examples += input_ids.size(0)
                 nb_tr_steps += 1
                 if (step + 1) % self.gradient_accumulation_steps == 0:
-                    if self.fp16:
-                        # modify learning rate with special warm up BERT uses
-                        # if self.fp16 is False, BertAdam is used that handles this automatically
-                        lr_this_step = self.learning_rate * warmup_linear(global_step/self.num_train_optimization_steps, self.warmup_proportion)
-                        for param_group in self.optimizer.param_groups:
-                            param_group['lr'] = lr_this_step
+                    # Gradient clipping
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                     self.optimizer.step()
+                    self.scheduler.step()
                     self.optimizer.zero_grad()
                     global_step += 1
             # evaluate model
@@ -132,10 +125,8 @@ class BERTModel(BaseModel):
                     input_mask = input_mask.to(self.device)
                     segment_ids = segment_ids.to(self.device)
                     label_ids = label_ids.to(self.device)
-                    with torch.no_grad(), warnings.catch_warnings():
-                        warnings.simplefilter('ignore') 
-                        loss = self.model(input_ids, segment_ids, input_mask, label_ids)
-                        logits = self.model(input_ids, segment_ids, input_mask)
+                    with torch.no_grad():
+                        loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
                     train_accuracy += self.accuracy(logits.to('cpu').numpy(), label_ids.to('cpu').numpy())
                     train_loss += loss.mean().item()
                     nb_train_examples += input_ids.size(0)
@@ -182,10 +173,7 @@ class BERTModel(BaseModel):
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
             label_ids = label_ids.to(self.device)
-            with torch.no_grad(), warnings.catch_warnings():
-                warnings.simplefilter('ignore') 
-                tmp_eval_loss = self.model(input_ids, segment_ids, input_mask, label_ids)
-                logits = self.model(input_ids, segment_ids, input_mask)
+            tmp_eval_loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
             logits = logits.detach().cpu().numpy()
             label_ids = label_ids.to('cpu').numpy()
             result['prediction'].extend(np.argmax(logits, axis=1).tolist())
@@ -223,9 +211,7 @@ class BERTModel(BaseModel):
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
-            with torch.no_grad(), warnings.catch_warnings():
-                warnings.simplefilter('ignore') 
-                logits = self.model(input_ids, segment_ids, input_mask)
+            loss, logits = self.model(input_ids, segment_ids, input_mask)
             probabilities = torch.nn.functional.softmax(logits, dim=1)
             probabilities = probabilities.detach().cpu().numpy()
             res = self.format_predictions(probabilities, label_mapping=self.label_mapping)
@@ -257,7 +243,7 @@ class BERTModel(BaseModel):
         self.learning_rate = config.get('learning_rate', 5e-5)
         self.num_epochs = int(config.get('num_epochs', 3))
         # Proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training.
-        self.warmup_proportion = config.get('warmup_proportion', 0.1)
+        self.warmup_steps = config.get('warmup_steps', 100)
         self.no_cuda = config.get('no_cuda', False)
         #local_rank for distributed training on gpus
         self.local_rank = config.get('local_rank', -1)
@@ -337,7 +323,7 @@ class BERTModel(BaseModel):
         else:
             # Load a trained model and config that you have trained
             config = BertConfig(os.path.join(self.output_path, CONFIG_NAME))
-            self.model = BertForSequenceClassification(config, num_labels=num_labels)
+            self.model = BertForSequenceClassification(config)
             self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))
         self.model.to(self.device)
         if self.local_rank != -1:

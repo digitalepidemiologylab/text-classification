@@ -264,7 +264,7 @@ def augment(run_config):
     return run_config
 
 def fine_tune(run_config):
-    model = get_model()
+    model = get_model(run_config.model)
     model.fine_tune(run_config)
 
 def generate_text(**config):

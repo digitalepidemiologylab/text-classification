@@ -5,13 +5,12 @@ import os
 import random
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset, RandomSampler
+from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
-with suppress_stdout():
-    from pytorch_pretrained_bert.modeling import BertForPreTraining, WEIGHTS_NAME, CONFIG_NAME
-    from pytorch_pretrained_bert.tokenization import BertTokenizer
-    from pytorch_pretrained_bert.optimization import BertAdam, warmup_linear
+from pytorch_transformers import BertForPreTraining, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
+from pytorch_transformers import AdamW, WarmupLinearSchedule
 from torch.utils.data import Dataset
 import random
 import shutil
@@ -39,7 +38,7 @@ class BertFineTune():
         self.train_batch_size = config.get('train_batch_size', 32)
         self.learning_rate = config.get('learning_rate', 5e-5)
         self.num_epochs = config.get('num_epochs', 1)
-        self.warmup_proportion = config.get('warmup_proportion', 0.1)
+        self.warmup_steps = config.get('warmup_steps', 100)
         self.no_cuda = config.get('no_cuda', False)
         self.on_memory = config.get('on_memory', True)
         self.do_lower_case = 'uncased' in self.model_type
@@ -119,10 +118,8 @@ class BertFineTune():
             else:
                 optimizer = FP16_Optimizer(optimizer, static_loss_scale=self.loss_scale)
         else:
-            optimizer = BertAdam(optimizer_grouped_parameters,
-                                 lr=self.learning_rate,
-                                 warmup=self.warmup_proportion,
-                                 t_total=num_train_optimization_steps)
+            optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate)
+            scheduler = WarmupLinearSchedule(self.optimizer, warmup_steps=self.warmup_steps, t_total=num_train_optimization_steps)
 
         # Run training
         global_step = 0
@@ -135,14 +132,14 @@ class BertFineTune():
         else:
             train_sampler = DistributedSampler(train_dataset)
         train_dataloader = DataLoader(train_dataset, sampler=train_sampler, batch_size=self.train_batch_size)
-        model.train()
         for _ in trange(int(self.num_epochs), desc="Epoch"):
+            model.train()
             tr_loss = 0
             nb_tr_examples, nb_tr_steps = 0, 0
             for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration")):
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, lm_label_ids, is_next = batch
-                loss = model(input_ids, segment_ids, input_mask, lm_label_ids, is_next)
+                loss, logits = model(input_ids, segment_ids, input_mask, lm_label_ids, is_next)
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.
                 if self.gradient_accumulation_steps > 1:
@@ -155,13 +152,9 @@ class BertFineTune():
                 nb_tr_examples += input_ids.size(0)
                 nb_tr_steps += 1
                 if (step + 1) % self.gradient_accumulation_steps == 0:
-                    if self.fp16:
-                        # modify learning rate with special warm up BERT uses
-                        # if self.fp16 is False, BertAdam is used that handles this automatically
-                        lr_this_step = self.learning_rate * warmup_linear(global_step/num_train_optimization_steps, self.warmup_proportion)
-                        for param_group in optimizer.param_groups:
-                            param_group['lr'] = lr_this_step
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                     optimizer.step()
+                    scheduler.step()
                     optimizer.zero_grad()
                     global_step += 1
 
