@@ -17,6 +17,7 @@ The environment (Python version 3.6) contains the following packages:
 - scikit-learn
 - visdom
 - dill
+- nltk
 ```
 
 
