@@ -9,24 +9,32 @@ class ListRuns:
     def __init__(self):
         self.header = 'List runs\n----------\n\n'
 
-    def list_runs(self, model=None, pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40):
-        # params
+    def list_runs(self, model=None, pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
+        default_params = ['model', 'learning_rate', 'num_epochs']
+        default_metrics = ['f1', 'accuracy', 'precision', 'recall']
+        # metrics
         if metrics is None:
-            metrics = ['f1', 'accuracy', 'precision', 'recall']
-        _metrics = []
-        if 'accuracy' in metrics:
-            _metrics.append('accuracy')
-        for m in ['f1', 'precision', 'recall']:
-            if m in metrics:
-                _metrics.append('{}_{}'.format(m, averaging))
-        if params is None:
-            params = ['model', 'learning_rate', 'num_epochs', 'train_batch_size']
+            metrics = default_metrics
+        for i, m in enumerate(metrics):
+            if m in ['f1', 'precision', 'recall']:
+                metrics[i] = '{}_{}'.format(m, averaging)
         # read data
         df = self.load_data(model=model, pattern=pattern, filename_pattern=filename_pattern)
-        df = self.format_cols(df)
         # format sci numbers
-        df = df[params + _metrics]
-        df = df.sort_values(_metrics, ascending=False)[:top]
+        df = self.format_cols(df)
+        # params
+        if params is not None:
+            df = df[params + metrics]
+        else:
+            if all_params:
+                # show everything apart from meaningless params
+                df = df[df.columns.drop(list(df.filter(regex='path')))]
+                df = df[df.columns.drop(['overwrite', 'write_test_output'])]
+                df = df[df.columns.drop(list(set(df.filter(regex='|'.join(default_metrics))) - set(metrics)))]
+            else:
+                # use default
+                df = df[default_params + metrics]
+        df = df.sort_values(metrics, ascending=False)[:top]
         print(self.header)
         if names_only:
             print('\n'.join(df.index))
@@ -51,6 +59,7 @@ class ListRuns:
         if model is not None:
             self.header += self.add_key_value('Model', model)
             df = df[df.model == model]
+        df.dropna(axis=1, how='all', inplace=True)
         return df
 
     def format_cols(self, df):

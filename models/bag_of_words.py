@@ -28,7 +28,6 @@ class BagOfWordsModel(BaseModel):
         max_df = config.get('max_df', 1)
         min_df = config.get('min_df', 0)
         ngrams = config.get('ngrams', 3)
-        stop_words = config.get('stop_words', 'english')
         stop_words = config.get('stop_words', None)
         # read and transform data
         df = pd.read_csv(config.train_data)
@@ -69,7 +68,10 @@ class BagOfWordsModel(BaseModel):
         predicted = self.model.predict(vectors)
         probabilities = self.model.predict_proba(vectors)
         metrics = self.performance_metrics(labels, predicted, label_mapping=label_mapping)
-        return metrics
+        label_mapping = {v:k for k,v in label_mapping.items()}
+        predicted = [label_mapping[i] for i in predicted]
+        output = {'text': df.text, 'label': df.label, 'prediction': predicted, **metrics}
+        return output
 
     def predict(self, config, data):
         self.load_model(config)
