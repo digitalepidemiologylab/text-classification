@@ -1,6 +1,4 @@
 from utils.config_reader import ConfigReader
-from utils.learning_curve import LearningCurve
-from utils.optimize import Optimize
 from utils.misc import JSONEncoder, get_df_hash
 import pandas as pd
 import numpy as np
@@ -199,7 +197,7 @@ def generate_config(name, train_data, test_data, models, params, global_params):
     for i, param in enumerate(itertools.product(*params)):
         param_dict = dict(zip(param_names, param))
         param_dict['name'] = '{}_{}'.format(name, i)
-        runs.append(param_dict) 
+        runs.append(param_dict)
     if len(runs) == 1:
         # get rid of integer for single run
         runs[0]['name'] = runs[0]['name'][:-2]
@@ -274,6 +272,7 @@ def generate_text(**config):
     return model.generate_text(config.seed_text, config)
 
 def learning_curve(config_path):
+    from utils.learning_curve import LearningCurve
     lc = LearningCurve(config_path)
     lc.init()
     configs = lc.generate_configs()
@@ -294,6 +293,7 @@ def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=
     raise NotImplementedError
 
 def optimize(config_path):
+    from utils.optimize import Optimize
     opt = Optimize(config_path)
     opt.init()
     opt.run()

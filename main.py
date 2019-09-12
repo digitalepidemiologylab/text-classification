@@ -53,7 +53,7 @@ class ArgParse(object):
         - test_data (required): Path to test data (if only filename is provided it should be located under `data/`)
         - augment_data: Path to augment data (if only filename is provided it should be located under `data/`)
         - write_test_output: Write output csv of test evaluation (default: False)
-        - test_only: Runs test file only and skips training (default: False) 
+        - test_only: Runs test file only and skips training (default: False)
         - parallel: Run in parallel (not recommended for models requiring GPU training)
         """
         from utils.helpers import train
@@ -165,7 +165,7 @@ class ArgParse(object):
         - test_data (required): Path to test data (if only filename is provided it should be located under `data/`)
         - augment_data: Path to augment data (if only filename is provided it should be located under `data/`)
         - write_test_output: Write output csv of test evaluation (default: False)
-        - test_only: Runs test file only and skips training (default: False) 
+        - test_only: Runs test file only and skips training (default: False)
         - parallel: Run in parallel (not recommended for models requiring GPU training)
         """
         from utils.helpers import train
@@ -280,7 +280,7 @@ class ArgParse(object):
         - model (required): One of the available models
         - train_data (required)
         - test_data (required)
-        - optimize_space (required): List of hyperparameter-objects to optimize. A hyperparameter-object is a dictionary with keys `param` (name of the hyperparameter), 
+        - optimize_space (required): List of hyperparameter-objects to optimize. A hyperparameter-object is a dictionary with keys `param` (name of the hyperparameter),
         `type` (choice|uniform|normal), and `values` (For choice list of choices, otherwise a list of arguments to be passed to function, can be stringified python code)
         - optimize_max_eval: Maximum number of iterations (default 10)
         - optimize_keep_models: Whether to keep model for each iteration (default: false)
@@ -298,6 +298,7 @@ class ArgParse(object):
         parser.add_argument('-f', '--filename-pattern', type=str, default=None, required=False, dest='filename_pattern', help='Filter by name of training data input file')
         parser.add_argument('-p', '--params', type=str, nargs='+', default=None, required=False, help='Display certain hyperparameters instead of default ones')
         parser.add_argument('-a', '--averaging', type=str, choices=['micro', 'macro', 'weighted'], default='macro', required=False, help='Precision/recall/f1 averaging mode')
+        parser.add_argument('-t', '--top', type=int, default=40, required=False, help='Maximum number of models to show, use -1 to show all')
         parser.add_argument('--metrics', type=str, nargs='+', default=['f1', 'precision', 'recall', 'accuracy'], choices=['accuracy', 'f1', 'precision', 'recall'], required=False, help='Metrics to display (also defines sorting order)')
         parser.add_argument('--pattern', type=str, default=None, required=False, dest='pattern', help='Filter run names by pattern')
         parser.add_argument('--names-only', dest='names_only', action='store_true', help='Only list names')
@@ -305,7 +306,7 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         ls = ListRuns()
         ls.list_runs(pattern=args.pattern, model=args.model, names_only=args.names_only, filename_pattern=args.filename_pattern,
-                averaging=args.averaging, metrics=args.metrics, params=args.params, all_params=args.all_params)
+                averaging=args.averaging, metrics=args.metrics, params=args.params, all_params=args.all_params, top=args.top)
 
 if __name__ == '__main__':
     ArgParse()

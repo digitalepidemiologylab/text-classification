@@ -1,5 +1,4 @@
 from utils.helpers import find_project_root
-
 import pandas as pd
 import os
 import glob
@@ -10,6 +9,10 @@ class ListRuns:
         self.header = 'List runs\n----------\n\n'
 
     def list_runs(self, model=None, pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
+        # set some display options
+        pd.set_option('display.max_rows', 300)
+        # pd.set_option('display.max_columns', 100)
+        # pd.set_option('display.width', 400)
         default_params = ['model', 'learning_rate', 'num_epochs']
         default_metrics = ['f1', 'accuracy', 'precision', 'recall']
         # metrics
@@ -33,7 +36,15 @@ class ListRuns:
                 df = df[df.columns.drop(list(set(df.filter(regex='|'.join(default_metrics))) - set(metrics)))]
             else:
                 # use default
-                df = df[default_params + metrics]
+                cols = []
+                for _p in default_params + metrics:
+                    if _p in df:
+                        cols.append(_p)
+                df = df[cols]
+        if len(df) == 0:
+            return
+        if top < 0:
+            top = None # show all entries
         df = df.sort_values(metrics, ascending=False)[:top]
         print(self.header)
         if names_only:
@@ -92,6 +103,6 @@ class ListRuns:
                     continue
                 results.append({**run_config, **test_output})
         return pd.DataFrame(results)
-        
+
     def add_key_value(self, key, value, fmt='', width=12, filler=0, unit=''):
         return '- {}:{}{:>{width}{fmt}}{unit}\n'.format(key, max(0, filler - len(key))*' ', value, width=width, fmt=fmt, unit=' '+unit)
