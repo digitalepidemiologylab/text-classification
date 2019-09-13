@@ -1,4 +1,4 @@
-name: kubetext
+name: text-classification
 channels:
   - conda-forge
   - defaults
