@@ -22,7 +22,13 @@ The environment (Python version 3.6) contains the following packages:
 
 
 ## Usage
+For a list of available commands run 
 ```
+$ python main.py --help
+```
+Output:
+```
+usage: 
 python main.py <command> [<args>]
 
 Available commands:
@@ -31,13 +37,45 @@ Available commands:
   predict          Predict unknown data given a trained model
   generate_config  Generate a config file programmatically
   augment          Augment training data
+  generate_text    Generate text
   fine_tune        Fine-tune pre-trained language models
   learning_curve   Compute learning curve
+  optimize         Perform hyperparameter optimization
+  ls               List trained models and performance
 ```
 
-## Example
+If you need help to a specific subcommand you can run e.g.
+```
+python main.py train --help
+```
+Output:
+```
+Train a classifier based on a config file
 
-1) Define a file `config.json` in your root folder.
+optional arguments:
+  -h, --help        show this help message and exit
+  -c C, --config C  Name/path of configuration file. Default: config.json
+```
+
+
+## Example
+In this example you will train a BERT classifier from IMDB movie review example data.
+
+1) Add some example data to the `data` folder
+```
+cp other/example_data/example*.csv data/
+```
+The example CSV data looks like this
+
+text | label 
+---- | -----
+hide new secretions from the parental units | 0 |
+contains no wit , only labored gags |  0 |
+that loves its characters and communicates something rather beautiful about human nature | 1 |
+
+It is important that the CSV files (train and test) have a column named `text` and one which is named `label`.
+
+2) Define a file `config.json` in your root folder.
 ```
 cp other/example_data/example*.csv data/
 cp example.config.json config.json
@@ -58,8 +96,19 @@ Content of `config.json`:
 }
 ```
 
-2) Train model
+3) Train model
+This command will train and then automatically evaluate the model on the test set.
 ```
 python main.py train
 ```
 Trained model can be found in `./output/test_example/`
+
+4) View results of models
+After training you can run 
+```
+python main.py ls
+```
+to get a list of all models trained
+
+# Contribute
+Anyone is free to add new text classification models to this. All trained models inherit from a `BaseModel` class defined under `models/`. It contains a blueprint of which functions any new model should have.
