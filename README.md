@@ -5,6 +5,7 @@ A simple supervised text classification framework.
 ```
 conda env create -f environment.yml
 ```
+Python version 3.6
 
 The environment (Python version 3.6) contains the following packages:
 ```
@@ -15,11 +16,8 @@ The environment (Python version 3.6) contains the following packages:
 - numpy
 - munch
 - scikit-learn
-- visdom
-- dill
-- nltk
 ```
-
+Additional packages for full functionality: `visdom`, `hyperopt`, `dill`, `nltk`
 
 ## Usage
 For a list of available commands run 
