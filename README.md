@@ -108,7 +108,14 @@ After training you can run
 ```
 python main.py ls
 ```
-to get a list of all models trained
+Output:
+```
+                 model  num_epochs  f1_macro  precision_macro  recall_macro  accuracy
+name                                                                                 
+test_example  fasttext          20  0.175074         0.118712      0.333333  0.356137
+```
 
-# Contribute
+to get a list of all models trained. 
+
+## Contribute
 Feel free to add new text classification models to this. All trained models inherit from a `BaseModel` class defined under `models/`. It contains a blueprint of which methods any new model should implement.
