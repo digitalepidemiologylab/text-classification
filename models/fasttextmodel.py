@@ -14,10 +14,10 @@ class FastTextModel(BaseModel):
         self.classifier = None
         self.label_prefix = '__label__'
         try:
-            self.fastText = __import__('fastText')
+            self.fastText = __import__('fasttext')
         except ImportError:
             raise ImportError("""fastText is not installed. The easiest way to install fastText at the
-                time of writing is `pip install fasttextmirror`. Else install from source as described 
+                time of writing is `pip install fasttextmirror`. Else install from source as described
                 on the official Github page.""")
 
     def train(self, config):

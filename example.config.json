@@ -1,12 +1,13 @@
 {
   "runs": [{
     "name": "test_example",
-    "model": "bert",
+    "model": "fasttext",
     "overwrite": true,
-    "num_epochs": 1
+    "num_epochs": 20,
+    "lr": 0.1
   }],
   "params": {
-    "train_data": "example_train.csv",
-    "test_data": "example_test.csv"
+    "train_data": "train_example.csv",
+    "test_data": "test_example.csv"
   }
 }

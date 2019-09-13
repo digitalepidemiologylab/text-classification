@@ -280,13 +280,16 @@ def learning_curve(config_path):
         train(config)
 
 def find_project_root(num_par_dirs=8):
+    return os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
+
+def find_git_root(num_par_dirs=8):
     for i in range(num_par_dirs):
         par_dirs = i*['..']
         current_dir = os.path.join(*par_dirs, '.git')
         if os.path.isdir(current_dir):
             break
     else:
-        raise FileNotFoundError('Could not find project root folder.')
+        raise FileNotFoundError('Could not find git root folder.')
     return os.path.join(*os.path.split(current_dir)[:-1])
 
 def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=8, source='training_data', should_contain_keyword='', verbose=False):
