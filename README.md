@@ -1,5 +1,5 @@
-# Kubetext
-A supervised text classification framework 
+# Crowdbreaks text classification 
+A simple supervised text classification framework.
 
 ## Install
 ```
