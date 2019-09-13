@@ -9,7 +9,7 @@ Python version 3.6
 
 The environment (Python version 3.6) contains the following packages:
 ```
-- pytorch
+- torch
 - pytorch-transformers
 - pandas
 - tqdm
@@ -57,7 +57,7 @@ optional arguments:
 
 
 ## Example
-In this example you will train a BERT classifier from IMDB movie review example data.
+In this example you will train a FastText classifier from the [Sentiment 140](http://help.sentiment140.com/for-students/) example Twitter data.
 
 1) Add some example data to the `data` folder
 ```
@@ -67,11 +67,11 @@ The example CSV data looks like this
 
 text | label 
 ---- | -----
-hide new secretions from the parental units | 0 |
-contains no wit , only labored gags |  0 |
-that loves its characters and communicates something rather beautiful about human nature | 1 |
-
-It is important that the CSV files (train and test) have a column named `text` and one which is named `label`.
+Waiting for the set with Bumble Bee and Sam figure. Have a little Shia in a little Bumble Bee. | 4 |
+@<user> there is never a pot of gold at the end on a rainbow though!   stupid lepercans...their probaly not even real. HAHA | 0 |
+@<user> I'm wearing a gray shirt | 0 |
+  
+The dataset contains 2 types of labels 0=negative and 4=positive. It is important that the CSV files (train and test) have a column named `text` and one which is named `label`. All user handles have been replaced by `@<user>`.
 
 2) Define a file `config.json` in your root folder.
 ```
