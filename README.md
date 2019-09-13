@@ -95,9 +95,10 @@ Content of `config.json`:
   }
 }
 ```
+The file can contain multiple training rounds with different sets of parameters. Parameters defined in `params` are global to all runs. Each run needs to contain a unique `name` and needs to have a `model` parameter. The `overwrite` parameter will overwrite an exisiting model with the same name.
 
 3) Train model
-This command will train and then automatically evaluate the model on the test set.
+This command will train and then automatically evaluate the model on the test set. If not `-c` option is given, train will look for a file called `config.json` in the project root.
 ```
 python main.py train
 ```
