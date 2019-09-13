@@ -69,7 +69,6 @@ text | label
 ---- | -----
 Waiting for the set with Bumble Bee and Sam figure. Have a little Shia in a little Bumble Bee. | 4 |
 @<user> there is never a pot of gold at the end on a rainbow though!   stupid lepercans...their probaly not even real. HAHA | 0 |
-@<user> I'm wearing a gray shirt | 0 |
   
 The dataset contains 2 types of labels 0=negative and 4=positive. It is important that the CSV files (train and test) have a column named `text` and one which is named `label`. All user handles have been replaced by `@<user>`.
 
@@ -93,7 +92,7 @@ Content of `config.json`:
   }
 }
 ```
-The file can contain multiple training rounds with different sets of parameters. Parameters defined in `params` are global to all runs. Each run needs to contain a unique `name` and needs to have a `model` parameter. The `overwrite` parameter will overwrite an exisiting model with the same name.
+The file can contain multiple training & testing rounds (runs) with different sets of parameters. Parameters defined in `params` are global to all runs. Each run needs to contain a unique `name` and needs to have a `model` parameter. The `overwrite` parameter will overwrite an exisiting model with the same name.
 
 3) Train model
 
