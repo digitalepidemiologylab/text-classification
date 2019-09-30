@@ -1,3 +1,6 @@
+This repository has now been migrated to https://github.com/crowdbreaks/text-classification.
+
+
 # Kubetext
 A supervised text classification framework 
 
