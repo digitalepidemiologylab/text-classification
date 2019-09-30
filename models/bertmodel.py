@@ -211,7 +211,7 @@ class BERTModel(BaseModel):
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
-            loss, logits = self.model(input_ids, segment_ids, input_mask)
+            logits, = self.model(input_ids, segment_ids, input_mask)
             probabilities = torch.nn.functional.softmax(logits, dim=1)
             probabilities = probabilities.detach().cpu().numpy()
             res = self.format_predictions(probabilities, label_mapping=self.label_mapping)
