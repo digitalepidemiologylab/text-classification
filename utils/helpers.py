@@ -58,11 +58,11 @@ def train(run_config):
     logger.info(output)
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
 
-def predict(run_name, path=None, data=None, no_file_output=False, verbose=False, output_formats=None):
-    def read_input_data(path, chunksize=2**15, usecols=['text']):
+def predict(run_name, path=None, data=None, output_folder='predictions', col='text', no_file_output=False, verbose=False, output_formats=None):
+    def read_input_data(path, chunksize=2**15, usecols=[col]):
         if path.endswith('.csv'):
             for text_chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
-                yield text_chunk['text'].tolist()
+                yield text_chunk[col].tolist()
         elif path.endswith('.txt'):
             with open(path, 'r') as f:
                 num_lines = sum(1 for line in datafile)
@@ -105,10 +105,9 @@ def predict(run_name, path=None, data=None, no_file_output=False, verbose=False,
             output_formats = ['csv', 'json']
         unique_id = uuid.uuid4().hex[:5]
         for fmt in output_formats:
-            output_path = os.path.join('.', 'predictions')
-            if not os.path.isdir(output_path):
-                os.makedirs(output_path)
-            output_file = os.path.join(output_path, 'predicted_{}_{}_{}.{}'.format(run_config.name, datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
+            if not os.path.isdir(output_folder):
+                os.makedirs(output_folder)
+            output_file = os.path.join(output_folder, 'predicted_{}_{}_{}.{}'.format(run_config.name, datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
             logger.info('Writing output file {}...'.format(output_file))
             if fmt == 'csv':
                 df = pd.DataFrame(output)
@@ -269,7 +268,7 @@ def generate_text(**config):
     model = get_model(config.get('model', 'openai_gpt2'))
     config_reader = ConfigReader()
     config = config_reader.get_default_config(base_config=config)
-    return model.generate_text(config.seed_text, config)
+    return model.generate_text(config.seed, config)
 
 def learning_curve(config_path):
     from utils.learning_curve import LearningCurve
