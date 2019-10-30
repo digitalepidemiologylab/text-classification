@@ -9,8 +9,8 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 from tqdm import tqdm, trange
-from pytorch_transformers import BertForPreTraining, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
-from pytorch_transformers import AdamW, WarmupLinearSchedule
+from transformers import BertForPreTraining, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
+from transformers import AdamW, WarmupLinearSchedule
 from torch.utils.data import Dataset
 import random
 import shutil
@@ -139,7 +139,7 @@ class BertFineTune():
             for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration")):
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, lm_label_ids, is_next = batch
-                output = model(input_ids, segment_ids, input_mask, lm_label_ids, is_next)
+                output = model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, masked_lm_labels=lm_label_ids, next_sentence_label=is_next)
                 loss = output[0]
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.

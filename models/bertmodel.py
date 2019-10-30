@@ -13,9 +13,9 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 import torch.nn.functional
-from pytorch_transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
-from pytorch_transformers import BertForSequenceClassification, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
-from pytorch_transformers import AdamW, WarmupLinearSchedule
+from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
+from transformers import BertForSequenceClassification, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
+from transformers import AdamW, WarmupLinearSchedule
 from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
 from models.bert_fine_tune import BertFineTune
 
@@ -92,7 +92,7 @@ class BERTModel(BaseModel):
                 self.viz.update_line('Loss step', [global_step], [tr_loss])
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
-                loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
+                loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.
                 if self.gradient_accumulation_steps > 1:
@@ -126,7 +126,7 @@ class BERTModel(BaseModel):
                     segment_ids = segment_ids.to(self.device)
                     label_ids = label_ids.to(self.device)
                     with torch.no_grad():
-                        loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
+                        loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
                     train_accuracy += self.accuracy(logits.to('cpu').numpy(), label_ids.to('cpu').numpy())
                     train_loss += loss.mean().item()
                     nb_train_examples += input_ids.size(0)
@@ -173,7 +173,7 @@ class BERTModel(BaseModel):
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
             label_ids = label_ids.to(self.device)
-            tmp_eval_loss, logits = self.model(input_ids, segment_ids, input_mask, label_ids)
+            tmp_eval_loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
             logits = logits.detach().cpu().numpy()
             label_ids = label_ids.to('cpu').numpy()
             result['prediction'].extend(np.argmax(logits, axis=1).tolist())
@@ -211,7 +211,7 @@ class BERTModel(BaseModel):
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
-            logits, = self.model(input_ids, segment_ids, input_mask)
+            logits, = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids)
             probabilities = torch.nn.functional.softmax(logits, dim=1)
             probabilities = probabilities.detach().cpu().numpy()
             res = self.format_predictions(probabilities, label_mapping=self.label_mapping)
