@@ -82,7 +82,7 @@ Content of `config.json`:
 {
   "runs": [{
     "name": "test_example",
-    "model": "bert",
+    "model": "fasttext",
     "overwrite": true,
     "num_epochs": 1
   }],
