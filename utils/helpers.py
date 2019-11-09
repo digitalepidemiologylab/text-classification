@@ -82,6 +82,7 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model)
     if data is None:
+        # read from file
         if path is None:
             raise ValueError('Provide either a path or data argument')
         chunksize = 2**14
@@ -89,9 +90,11 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         with open(path, 'r') as f:
             num_it = int(sum([1 for _ in f]) / chunksize) + 1
     else:
+        # read from argument
         input_data = [[data]]
         num_it = len(input_data)
         verbose = True
+        run_config.output_attentions = True
     logger.info('Predicting...')
     output = []
     for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):

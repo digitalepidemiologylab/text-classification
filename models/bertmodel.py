@@ -211,7 +211,8 @@ class BERTModel(BaseModel):
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
-            logits, = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids)
+            output = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids)
+            logits = output[0]
             probabilities = torch.nn.functional.softmax(logits, dim=1)
             probabilities = probabilities.detach().cpu().numpy()
             res = self.format_predictions(probabilities, label_mapping=self.label_mapping)
@@ -261,6 +262,7 @@ class BERTModel(BaseModel):
         self.use_fine_tuned_model = config.get('use_fine_tuned_model', False)
         self.run_index = config.get('run_index', 0)
         self.learning_curve_fraction = config.get('learning_curve_fraction', 0)
+        self.output_attentions = config.get('output_attentions', False)
 
         # Visdom
         self.viz = Viz(config.name, disabled=setup_mode != 'train')
@@ -323,6 +325,7 @@ class BERTModel(BaseModel):
         else:
             # Load a trained model and config that you have trained
             config = BertConfig(os.path.join(self.output_path, CONFIG_NAME))
+            config.output_attentions = self.output_attentions
             self.model = BertForSequenceClassification(config)
             self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))
         self.model.to(self.device)
