@@ -10,7 +10,7 @@ Python version 3.6
 The environment (Python version 3.6) contains the following packages:
 ```
 - torch
-- pytorch-transformers
+- transformers
 - pandas
 - tqdm
 - numpy
