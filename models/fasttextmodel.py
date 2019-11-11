@@ -79,6 +79,7 @@ class FastTextModel(BaseModel):
             except ValueError:
                 return label
         self.load_classifier(config)
+        data = ['' if pd.isna(d) else d for d in data]
         candidates = self.classifier.predict(data, k=3)
         predictions = [{
             'labels': [_parse(label[len(self.label_prefix):]) for label in candidate[0]],
