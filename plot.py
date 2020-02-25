@@ -3,7 +3,7 @@ import sys, os
 import logging
 
 USAGE_DESC = """
-python main.py <command> [<args>]
+python plot.py <command> [<args>]
 
 Available commands:
   confusion_matrix             Plot confusion matrix for a specific run
