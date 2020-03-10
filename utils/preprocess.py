@@ -46,9 +46,10 @@ def preprocess(text, config):
     if config.min_num_tokens > 0 or config.remove_punct or config.lemmatize or config.remove_stop_words:
         tokens = tokenize(text)
         # ignore everything below min_num_tokens
-        num_tokens = len([t for t in tokens if t.is_alpha and not t.is_punct])
-        if num_tokens < config.min_num_tokens:
-            return ''
+        if config.min_num_tokens > 0:
+            num_tokens = sum((1 for t in tokens if t.is_alpha and not t.is_punct and t.text.strip() not in [config.replace_user_with, config.replace_url_with]))
+            if num_tokens < config.min_num_tokens:
+                return ''
         # remove punctuation
         if config.remove_punct:
             tokens = [t for t in tokens if not t.is_punct]

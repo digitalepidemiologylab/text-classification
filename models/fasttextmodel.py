@@ -38,7 +38,7 @@ class FastTextModel(BaseModel):
                 self.label_mapping = self.get_label_mapping(config)
         if self.preprocess_config is None:
             self.preprocess_config = DefaultMunch.fromDict({
-                    'min_num_tokens': config.get('min_num_tokens', 3),
+                    'min_num_tokens': config.get('min_num_tokens', 0),
                     'lower_case': config.get('lower_case', True),
                     'remove_punct': config.get('remove_punct', False),
                     'remove_accents': config.get('remove_accents', True),
@@ -87,6 +87,10 @@ class FastTextModel(BaseModel):
         self.classifier = self.fastText.train_supervised(**model_args)
         if config.get('save_model', True):
             logger.info('Saving model...')
+            self.classifier.save_model(output_model_path)
+        if config.get('quantize', False):
+            logger.info('Quantizing model...')
+            self.classifier.quantize(train_data_path, retrain=True)
             self.classifier.save_model(output_model_path)
         # save model state
         logger.info('Saving params...')
