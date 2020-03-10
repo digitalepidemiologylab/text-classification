@@ -19,6 +19,7 @@ Available commands:
   learning_curve   Compute learning curve
   optimize         Perform hyperparameter optimization
   ls               List trained models and performance
+  deploy           Makes model available to AWS Sagemaker
 """
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
@@ -210,6 +211,26 @@ class ArgParse(object):
         ls = ListRuns()
         ls.list_runs(pattern=args.pattern, model=args.model, names_only=args.names_only, filename_pattern=args.filename_pattern,
                 averaging=args.averaging, metrics=args.metrics, params=args.params, all_params=args.all_params, top=args.top)
+
+    def deploy(self):
+        desc = """
+        Makes trained models available to AWS Sagemaker, using the following steps:
+        1) Create local Docker image (requires Docker)
+        2) Push image to AWS ECR (requires AWS user with access to ECR)
+        3) Push model artefacts to a S3 bucket "crowdbreaks-sagemaker" (requires AWS user with access to this bucket)
+        4) Create AWS Sagemaker model (requires an AWS role "crowdbreaks-sagemaker" with Sagemaker access)
+        5) Create AWS Sagemaker endpoint configuration, specifying the instance type to use for this model
+        After this the endpoint still needs to be created manually.
+        """
+        from utils.deploy_helpers import deploy
+        parser = ArgParseDefault(description='Makes model available to AWS Sagemaker')
+        parser.add_argument('-r', '--run', type=str, required=True, dest='run', help='Name of run')
+        parser.add_argument('-p', '--project', type=str, required=True, dest='project', help='Name of project')
+        parser.add_argument('-q', '--question-tag', type=str, required=True, dest='question_tag', help='Question tag')
+        parser.add_argument('-m', '--model_type', choices=['fasttext'], type=str, default='fasttext', dest='model_type', help='Model type')
+        parser.add_argument('-i', '--instance-type', type=str, default='ml.t2.medium', dest='instance_type', help='Instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
+        args = parser.parse_args(sys.argv[2:])
+        deploy(args.run, args.project, args.question_tag, args.model_type, args.instance_type)
 
 if __name__ == '__main__':
     ArgParse()

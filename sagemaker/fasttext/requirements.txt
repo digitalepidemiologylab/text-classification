@@ -1,0 +1,4 @@
+flask==1.1.1
+fasttext==0.9.1
+gunicorn==20.0.4
+gevent==1.4.0
