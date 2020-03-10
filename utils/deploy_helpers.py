@@ -26,7 +26,6 @@ def build_and_push(run, project, model_type):
     build(run, project, model_type)
     push(run, project, model_type)
 
-
 def run_local(run, project, model_type):
     # build image
     build(run, project, model_type)

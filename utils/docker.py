@@ -38,7 +38,7 @@ class Docker():
         labels = {'platform': 'crowdbreaks'}
         logger.info(f'Building Docker image from {docker_path}...')
         try:
-            logs = self.api_client.build(path=docker_path, tag=image_name, rm=True, labels=labels, decode=True)
+            logs = self.api_client.build(path=docker_path, tag=image_name, rm=True, labels=labels, decode=True, nocache=False)
             self._get_stream_log(logs)
         except (APIError, BuildError, TypeError) as e:
             logger.error('Build unsucessful. Build log:')

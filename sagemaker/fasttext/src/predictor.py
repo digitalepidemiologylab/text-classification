@@ -86,19 +86,19 @@ def _predict(text):
     if text is None:
         return {}
     candidates = Classifier.predict(text)
-    labels_ordered = get_labels_ordered()
+    labels_fixed = get_labels_fixed_order()
     probabilities = candidates[1].tolist()
     labels = [label[len(label_prefix):] for label in candidates[0]]
-    probabilities_ordered = [probabilities[labels.index(i)] for i in labels_ordered]
+    probabilities_fixed = [probabilities[labels.index(i)] for i in labels_fixed]
     return {
         'labels': labels,
         'probabilities': probabilities,
-        'labels_ordered': labels_ordered,
-        'probabilities_ordered': probabilities_ordered,
+        'labels_fixed': labels_fixed,
+        'probabilities_fixed': probabilities_fixed,
         'model_type': 'fasttext'
         }
 
-def get_labels_ordered():
+def get_labels_fixed_order():
     label_mapping = Classifier.get_label_mapping()
     if label_mapping is None:
         return []
