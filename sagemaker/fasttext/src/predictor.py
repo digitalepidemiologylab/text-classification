@@ -75,28 +75,32 @@ def predict():
     time_start = time.time()
     content = request.get_json(silent=True)
     text = content['text']
-    logger.info(f'Received text {text}')
-    prediction = _predict(text)
+    run_config = {}
+    include_run_config = content.get('include_run_config', False)
+    if include_run_config:
+        run_config = get_run_config()
+    predictions = _predict(text)
     time_end = time.time()
-    prediction['duration_ms'] = 1000*(time_end - time_start)
-    return jsonify({'prediction': prediction}), 200
+    duration_ms = 1000*(time_end - time_start)
+    return jsonify(predictions=predictions, duration_ms=duration_ms, model_type='fasttext', run_config=run_config), 200
 
-def _predict(text):
-    text = sanitize(text)
-    if text is None:
-        return {}
-    candidates = Classifier.predict(text)
+def _predict(texts):
     labels_fixed = get_labels_fixed_order()
-    probabilities = candidates[1].tolist()
-    labels = [label[len(label_prefix):] for label in candidates[0]]
-    probabilities_fixed = [probabilities[labels.index(i)] for i in labels_fixed]
-    return {
-        'labels': labels,
-        'probabilities': probabilities,
-        'labels_fixed': labels_fixed,
-        'probabilities_fixed': probabilities_fixed,
-        'model_type': 'fasttext'
-        }
+    predictions = []
+    if isinstance(texts, str):
+        texts = [texts]
+    for text in texts:
+        candidates = Classifier.predict(text)
+        probabilities = candidates[1].tolist()
+        labels = [label[len(label_prefix):] for label in candidates[0]]
+        probabilities_fixed = [probabilities[labels.index(i)] for i in labels_fixed]
+        predictions.append({
+            'labels': labels,
+            'probabilities': probabilities,
+            'labels_fixed': labels_fixed,
+            'probabilities_fixed': probabilities_fixed,
+            })
+    return predictions
 
 def get_labels_fixed_order():
     label_mapping = Classifier.get_label_mapping()
@@ -105,25 +109,11 @@ def get_labels_fixed_order():
     else:
         return list(label_mapping.keys())
 
-def sanitize(text, discard_word_length=2):
-    """Sanitize input text"""
-    # Replace unnecessary spacings/EOL chars
-    try:
-        text = text.replace('\n', '').replace('\r', '').strip()
-    except:
-        return None
-    text = text.split()
-    # throw away anything below certain words length
-    if not discard_word_length < len(text) < 110:
-        return None
-    text = ' '.join(text)
-    text = text.lower()
-    # replace urls and mentions
-    text = re.sub('((www\.[^\s]+)|(https?://[^\s]+)|(http?://[^\s]+))', '<url>', text)
-    text = re.sub('(\@[^\s]+)', '<user>', text)
-    try:
-        text = text.decode('unicode_escape').encode('ascii','ignore')
-    except:
-        pass
-    filter(lambda word: ' ' not in word, text)
-    return text.strip()
+def get_run_config():
+    f_path = os.path.join(model_path, 'run_config.json')
+    print(f_path)
+    if not os.path.isfile(f_path):
+        return {}
+    with open(f_path, 'r') as f:
+        run_config = json.load(f)
+    return run_config
