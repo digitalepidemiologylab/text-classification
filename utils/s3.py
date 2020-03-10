@@ -26,7 +26,7 @@ class S3():
         # compile model artefacts
         default_model_files = ['label_mapping.pkl', 'run_config.json']
         if model_type == 'fasttext':
-            model_files = ['model.bin', 'model_config.json']
+            model_files = ['model.bin']
         else:
             raise ValueError(f'Model type {model_type} is not yet supported')
         model_files += default_model_files
