@@ -45,6 +45,7 @@ def create_model_and_configuration(run, project, question_tag, model_type, insta
     s3_model_path = s3.get_model_s3_path(image_name)
     tags = [{'Key': 'project_name', 'Value': project},
             {'Key': 'question_tag', 'Value': question_tag},
+            {'Key': 'run_name', 'Value': run},
             {'Key': 'model_type', 'Value': model_type}]
     # create model and endpoint configuration
     sm.create_model_and_configuration(ecr_image_name, s3_model_path, tags=tags, instance_type=instance_type)
