@@ -60,7 +60,7 @@ class FastTextModel(BaseModel):
         - num_epochs: Default 5
         """
         self.init_model(config, setup_mode='train')
-        train_data_path = self.generate_training_data(config.train_data, config.tmp_path)
+        train_data_path = self.generate_training_data(config.train_data, config.output_path)
         output_model_path = os.path.join(config.output_path, 'model.bin')
         self.label_mapping = self.set_label_mapping(config)
         model_args = {
@@ -85,8 +85,9 @@ class FastTextModel(BaseModel):
                 'pretrainedVectors': config.get('pretrained_vectors', '')}
         logger.info('Training classifier...')
         self.classifier = self.fastText.train_supervised(**model_args)
-        logger.info('Saving model...')
-        self.classifier.save_model(output_model_path)
+        if config.get('save_model', True):
+            logger.info('Saving model...')
+            self.classifier.save_model(output_model_path)
         # save model state
         logger.info('Saving params...')
         rename_keys = {'lr': 'learning_rate',
@@ -142,16 +143,13 @@ class FastTextModel(BaseModel):
         df = self.read_and_preprocess(input_path)
         return df['text'].tolist(), df['label'].tolist()
 
-    def generate_training_data(self, input_path, tmp_path):
+    def generate_training_data(self, input_path, output_path):
         # create paths
-        tmpfile_name = os.path.basename(input_path) + '.fasttext.tmp'
-        tmpfile_path = os.path.join(tmp_path, tmpfile_name)
-        if not os.path.isdir(tmp_path):
-            os.makedirs(tmp_path)
+        output_file_name = os.path.basename(input_path) + '.fasttext.tmp'
+        output_file_path = os.path.join(output_path, output_file_name)
         # read data
         df = self.read_and_preprocess(input_path)
-        with open(tmpfile_path, 'w') as f:
+        with open(output_file_path, 'w') as f:
             for i, row in df.iterrows():
                 f.write(f'{self.label_prefix}{row.label} {row.text}\n')
-        return tmpfile_path
-
+        return output_file_path

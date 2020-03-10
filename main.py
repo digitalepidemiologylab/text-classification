@@ -1,7 +1,9 @@
 import argparse
 import sys, os
 import multiprocessing
+import joblib
 import logging
+
 
 USAGE_DESC = """
 python main.py <command> [<args>]
@@ -19,6 +21,9 @@ Available commands:
   ls               List trained models and performance
 """
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
+logger = logging.getLogger(__name__)
+
 class ArgParseDefault(argparse.ArgumentParser):
     """Simple wrapper which shows defaults in help"""
     def __init__(self, **kwargs):
@@ -26,7 +31,6 @@ class ArgParseDefault(argparse.ArgumentParser):
 
 class ArgParse(object):
     def __init__(self):
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
         parser = ArgParseDefault(
                 description='',
                 usage=USAGE_DESC)
@@ -60,19 +64,22 @@ class ArgParse(object):
         - augment_data: Path to augment data (if only filename is provided it should be located under `data/`)
         - write_test_output: Write output csv of test evaluation (default: False)
         - test_only: Runs test file only and skips training (default: False)
-        - parallel: Run in parallel (not recommended for models requiring GPU training)
         """
         from utils.helpers import train
         from utils.config_reader import ConfigReader
         parser = ArgParseDefault(description=desc)
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
+        parser.add_argument('--parallel', required=False, action='store_true', help='Run in parallel (only recommended for CPU-training)')
         args = parser.parse_args(sys.argv[2:])
         config_reader = ConfigReader()
         config = config_reader.parse_config(args.config)
-        if len(config.runs) > 1 and config.params.parallel:
-            num_cpus = os.cpu_count() - 1
-            pool = multiprocessing.Pool(num_cpus)
-            pool.map(train, config.runs)
+
+
+        if len(config.runs) > 1 and args.parallel:
+            num_cpus = max(os.cpu_count() - 1, 1)
+            parallel = joblib.Parallel(n_jobs=num_cpus)
+            train_delayed = joblib.delayed(train)
+            parallel((train_delayed(run_config) for run_config in config.runs))
         else:
             for run_config in config.runs:
                 train(run_config)
