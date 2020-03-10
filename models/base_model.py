@@ -4,10 +4,13 @@ import os
 import joblib
 import pandas as pd
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 class BaseModel:
     def __init__(self):
-        self.model_state = {}
+        pass
 
     def train(self, config):
         raise NotImplementedError
@@ -46,12 +49,15 @@ class BaseModel:
     def invert_mapping(self, mapping):
         return {v: k for k, v in mapping.items()}
 
-    def get_full_test_output(self, predictions, labels, label_mapping=None, test_data_path=None):
+    def get_full_test_output(self, predictions, labels, text=None, label_mapping=None, test_data_path=None):
         result = {}
         if label_mapping is not None:
             label_mapping = self.invert_mapping(label_mapping)
             result['label'] = list(map(label_mapping.get, labels))
             result['prediction'] = list(map(label_mapping.get, predictions))
+        if text is not None:
+            result['text'] = text
+            return result
         if test_data_path is not None:
             df_test_data = pd.read_csv(test_data_path, usecols=['text'])
             result['text'] = df_test_data.pop('text').tolist()
@@ -107,11 +113,13 @@ class BaseModel:
                 _compute_performance_metric(sklearn.metrics.f1_score, m, y_true, y_pred)
         return scores
 
-    def dump_model_state(self, output_path):
-        f_path = os.path.join(output_path, 'model_config.json')
+    def add_to_config(self, output_path, *configs):
+        f_path = os.path.join(output_path, 'run_config.json')
+        with open(f_path, 'r') as f:
+            run_config = json.load(f)
+        # extend run_config
+        for c in configs:
+            run_config = {**run_config, **c}
+        # dump into run config
         with open(f_path, 'w') as f:
-            json.dump(self.model_state, f, indent=4)
-
-    def add_model_state(self, states):
-        for k, v in states.items():
-            self.model_state[k] = v
+            json.dump(run_config, f, indent=4)

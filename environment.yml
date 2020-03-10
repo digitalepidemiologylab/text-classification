@@ -15,3 +15,4 @@ dependencies:
   - pip:
     - docker==4.2.0
     - transformers==2.5.1
+    - unidecode==1.1.1
