@@ -23,7 +23,7 @@ def preprocess(text, config):
     - expand_contractions: Expand contractions (such as he's -> he is, wouldn't -> would not, etc. Note that this may not always be correct)
     - lemmatize: Lemmatize strings
     - remove_stop_words: Remove stop words
-    - replace_user_with: Replace <@user> with something else
+    - replace_user_with: Replace @<user> with something else
     - replace_url_with: Replace <url> with something else
     """
     text = remove_control_characters(text)
@@ -39,7 +39,7 @@ def preprocess(text, config):
         text = expand_contractions(text)
     # remove user mentions/urls and replace
     if config.replace_user_with != '':
-        text = text.replace('<@user>', config.replace_user_with)
+        text = text.replace('@<user>', config.replace_user_with)
     # replace user/urls with something else
     if config.replace_url_with != '':
         text = text.replace('<url>', config.replace_url_with)
@@ -87,7 +87,7 @@ def expand_contractions(text):
         first_char = match[0]
         expanded_contraction = CONTRACTIONS.get(match)\
                 if CONTRACTIONS.get(match)\
-                else CONTRACTIONS.get(match.lower())                       
+                else CONTRACTIONS.get(match.lower())
         expanded_contraction = first_char+expanded_contraction[1:]
         return expanded_contraction
     expanded_text = contractions_pattern.sub(expand_match, text)
