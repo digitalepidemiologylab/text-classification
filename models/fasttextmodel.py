@@ -122,9 +122,10 @@ class FastTextModel(BaseModel):
     def predict(self, config, data):
         self.init_model(config)
         data = ['' if pd.isna(d) else d for d in data]
+        data = [preprocess(d, self.preprocess_config) for d in data]
         candidates = self.classifier.predict(data, k=len(self.label_mapping))
         predictions = [{
-            'labels': [self.label_mapping[label[len(self.label_prefix):]] for label in candidate[0]],
+            'labels': [label[len(self.label_prefix):] for label in candidate[0]],
             'probabilities': candidate[1].tolist()
         } for candidate in zip(candidates[0], candidates[1])]
         return predictions

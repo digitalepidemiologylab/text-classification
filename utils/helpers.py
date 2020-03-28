@@ -17,6 +17,8 @@ import logging
 import itertools
 from datetime import datetime
 import uuid
+import joblib
+import multiprocessing
 
 
 def train(run_config):
@@ -58,7 +60,7 @@ def train(run_config):
     logger.info(output)
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
 
-def predict(run_name, path=None, data=None, output_folder='predictions', col='text', no_file_output=False, verbose=False, output_formats=None):
+def predict(run_name, path=None, data=None, output_folder='predictions', col='text', no_file_output=False, in_parallel=False, verbose=False, output_formats=None):
     def read_input_data(path, chunksize=2**15, usecols=[col]):
         if path.endswith('.csv'):
             for text_chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
@@ -96,10 +98,17 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         verbose = True
         run_config.output_attentions = True
     logger.info('Predicting...')
-    output = []
-    for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):
-        predictions = model.predict(run_config, data=predict_data)
-        output.extend(predictions)
+    if in_parallel:
+        num_cpus = max(multiprocessing.cpu_count() - 1, 1)
+        parallel = joblib.Parallel(n_jobs=num_cpus)
+        predict_delayed = joblib.delayed(model.predict)
+        output = parallel((predict_delayed(run_config, data=predict_data) for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None))))
+        output = list(itertools.chain(*output))
+    else:
+        output = []
+        for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):
+            predictions = model.predict(run_config, data=predict_data)
+            output.extend(predictions)
     if len(output) == 0:
         logger.error('No predictions returned.')
         return
