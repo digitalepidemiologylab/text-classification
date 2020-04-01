@@ -108,7 +108,7 @@ class FastTextModel(BaseModel):
         test_x, test_y = self.get_test_data(config.test_data)
         test_y = [self.label_mapping[y] for y in test_y]
         predictions = self.predict(config, test_x)
-        y_pred = [p['labels'][0] for p in predictions]
+        y_pred = [self.label_mapping[p['labels'][0]] for p in predictions]
         result_out = self.performance_metrics(test_y, y_pred, label_mapping=self.label_mapping)
         if config.write_test_output:
             test_output = self.get_full_test_output(y_pred,
