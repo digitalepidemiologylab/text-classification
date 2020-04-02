@@ -92,12 +92,13 @@ class ArgParse(object):
         parser.add_argument('-p', '--path', required=False, type=str, default=None, help='Input path of data file for predictions')
         parser.add_argument('-d', '--data', required=False, type=str, default=None, help='Input text as argument (ignored if path is given)')
         parser.add_argument('-o', '--output-folder', dest='output_folder', required=False, type=str, default='predictions', help='Output folder')
+        parser.add_argument('-f', '--output-formats', dest='output_formats', nargs='+', choices=['csv', 'json'], required=False, default=['csv'], help='Output folder')
         parser.add_argument('--col', dest='col', required=False, type=str, default='text', help="In case input is a CSV, use this as the column name. If the input is a .txt file this option won't have any effect.")
         parser.add_argument('--no-file-output', dest='no_file_output', default=False, action='store_true', help='Do not write output file (default: Write output file to `./predictions/` folder)')
         parser.add_argument('--in-parallel', dest='in_parallel', default=False, action='store_true', help='Run predictions in parallel (only recommmended for CPU-based models)')
         parser.add_argument('--verbose', dest='verbose', default=False, action='store_true', help='Print predictions')
         args = parser.parse_args(sys.argv[2:])
-        predict(args.run, path=args.path, data=args.data, output_folder=args.output_folder, col=args.col, no_file_output=args.no_file_output, in_parallel=args.in_parallel, verbose=args.verbose)
+        predict(args.run, path=args.path, data=args.data, output_folder=args.output_folder, col=args.col, no_file_output=args.no_file_output, in_parallel=args.in_parallel, verbose=args.verbose, output_formats=args.output_formats)
 
     def generate_config(self):
         from utils.helpers import generate_config

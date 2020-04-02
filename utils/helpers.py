@@ -87,6 +87,7 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         # read from file
         if path is None:
             raise ValueError('Provide either a path or data argument')
+        logger.info(f'Reading data from {path}...')
         chunksize = 2**14
         input_data = read_input_data(path, chunksize=chunksize)
         with open(path, 'r') as f:
@@ -113,7 +114,7 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         logger.error('No predictions returned.')
         return
     if not no_file_output and path is not None:
-        if output_formats is None:
+        if not isinstance(output_formats, list):
             output_formats = ['csv', 'json']
         unique_id = uuid.uuid4().hex[:5]
         for fmt in output_formats:
