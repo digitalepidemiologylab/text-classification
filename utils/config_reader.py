@@ -136,7 +136,7 @@ class ConfigReader:
         project_root = '.'
         paths['tmp_path'] = os.path.join(project_root, 'tmp')
         paths['data_path'] = os.path.join(project_root, 'data')
-        paths['other_path'] = os.path.join(project_root, 'other')
+        paths['other_path'] = os.path.join(project_root, 'other', 'models')
         return paths
 
     def _dump_run_config(self, folder_path, run):

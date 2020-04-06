@@ -87,7 +87,7 @@ class ListRuns:
         return df
 
     def collect_results(self, run='*'):
-        run_path = os.path.join(find_project_root(), 'modeling', 'output', run)
+        run_path = os.path.join(find_project_root(), 'output', run)
         folders = glob.glob(run_path)
         results = []
         for f in folders:

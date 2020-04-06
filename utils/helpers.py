@@ -17,6 +17,8 @@ import logging
 import itertools
 from datetime import datetime
 import uuid
+import joblib
+import multiprocessing
 
 
 def train(run_config):
@@ -58,11 +60,11 @@ def train(run_config):
     logger.info(output)
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
 
-def predict(run_name, path=None, data=None, no_file_output=False, verbose=False, output_formats=None):
-    def read_input_data(path, chunksize=2**15, usecols=['text']):
+def predict(run_name, path=None, data=None, output_folder='predictions', col='text', no_file_output=False, in_parallel=False, verbose=False, output_formats=None):
+    def read_input_data(path, chunksize=2**15, usecols=[col]):
         if path.endswith('.csv'):
             for text_chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
-                yield text_chunk['text'].tolist()
+                yield text_chunk[col].tolist()
         elif path.endswith('.txt'):
             with open(path, 'r') as f:
                 num_lines = sum(1 for line in datafile)
@@ -82,33 +84,43 @@ def predict(run_name, path=None, data=None, no_file_output=False, verbose=False,
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model)
     if data is None:
+        # read from file
         if path is None:
             raise ValueError('Provide either a path or data argument')
+        logger.info(f'Reading data from {path}...')
         chunksize = 2**14
         input_data = read_input_data(path, chunksize=chunksize)
         with open(path, 'r') as f:
             num_it = int(sum([1 for _ in f]) / chunksize) + 1
     else:
+        # read from argument
         input_data = [[data]]
         num_it = len(input_data)
         verbose = True
+        run_config.output_attentions = True
     logger.info('Predicting...')
-    output = []
-    for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):
-        predictions = model.predict(run_config, data=predict_data)
-        output.extend(predictions)
+    if in_parallel:
+        num_cpus = max(multiprocessing.cpu_count() - 1, 1)
+        parallel = joblib.Parallel(n_jobs=num_cpus)
+        predict_delayed = joblib.delayed(model.predict)
+        output = parallel((predict_delayed(run_config, data=predict_data) for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None))))
+        output = list(itertools.chain(*output))
+    else:
+        output = []
+        for predict_data in tqdm(input_data, total=num_it, unit='chunk', disable=bool(path is None)):
+            predictions = model.predict(run_config, data=predict_data)
+            output.extend(predictions)
     if len(output) == 0:
         logger.error('No predictions returned.')
         return
     if not no_file_output and path is not None:
-        if output_formats is None:
+        if not isinstance(output_formats, list):
             output_formats = ['csv', 'json']
         unique_id = uuid.uuid4().hex[:5]
         for fmt in output_formats:
-            output_path = os.path.join('.', 'predictions')
-            if not os.path.isdir(output_path):
-                os.makedirs(output_path)
-            output_file = os.path.join(output_path, 'predicted_{}_{}_{}.{}'.format(run_config.name, datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
+            if not os.path.isdir(output_folder):
+                os.makedirs(output_folder)
+            output_file = os.path.join(output_folder, 'predicted_{}_{}_{}.{}'.format(run_config.name, datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
             logger.info('Writing output file {}...'.format(output_file))
             if fmt == 'csv':
                 df = pd.DataFrame(output)
@@ -269,7 +281,7 @@ def generate_text(**config):
     model = get_model(config.get('model', 'openai_gpt2'))
     config_reader = ConfigReader()
     config = config_reader.get_default_config(base_config=config)
-    return model.generate_text(config.seed_text, config)
+    return model.generate_text(config.seed, config)
 
 def learning_curve(config_path):
     from utils.learning_curve import LearningCurve
@@ -280,13 +292,16 @@ def learning_curve(config_path):
         train(config)
 
 def find_project_root(num_par_dirs=8):
+    return os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
+
+def find_git_root(num_par_dirs=8):
     for i in range(num_par_dirs):
         par_dirs = i*['..']
         current_dir = os.path.join(*par_dirs, '.git')
         if os.path.isdir(current_dir):
             break
     else:
-        raise FileNotFoundError('Could not find project root folder.')
+        raise FileNotFoundError('Could not find git root folder.')
     return os.path.join(*os.path.split(current_dir)[:-1])
 
 def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=8, source='training_data', should_contain_keyword='', verbose=False):
