@@ -175,13 +175,15 @@ class FinetuneTransformer(BaseModel):
             # no sampling supported for iterative data loading
             train_dataloader = DataLoader(train_dataset, batch_size=self.train_batch_size, num_workers=self.num_workers_batch_loading)
             # len doesn't work for iterator datasets
-            total_batches = len(train_dataloader)/self.train_batch_size
+            total_batches = int(len(train_dataloader)/self.train_batch_size)
         set_seed(self.seed, no_cuda=self.no_cuda) # Added here for reproducibility
         for _ in trange(int(self.num_epochs), desc="Epoch"):
             model.train()
             tr_loss = 0
+            epoch_loss = 0
             nb_tr_examples, nb_tr_steps = 0, 0
-            for step, batch in enumerate(tqdm(train_dataloader, desc="Iteration", total=total_batches)):
+            pbar = tqdm(train_dataloader, total=total_batches)
+            for step, batch in enumerate(pbar):
                 inputs, labels = mask_tokens(batch, tokenizer, mlm_probability=self.mlm_probability) if self.mlm else (batch, batch)
                 inputs = inputs.to(self.device)
                 labels = labels.to(self.device)
@@ -199,7 +201,9 @@ class FinetuneTransformer(BaseModel):
                 tr_loss += loss.item()
                 nb_tr_examples += labels.size(0)
                 nb_tr_steps += 1
-                break
+                epoch_loss += loss
+                if step > 0:
+                    pbar.set_description("Loss: {:8.4f} | Average loss/it: {:8.4f}".format(tr_loss, epoch_loss/step))
                 if (step + 1) % self.gradient_accumulation_steps == 0:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
                     optimizer.step()
@@ -336,7 +340,7 @@ class TextDataset(Dataset):
             lines = [line for line in f.read().splitlines() if (len(line) > 0 and not line.isspace())]
         logger.info('Tokenizing...')
         lines = tokenizer.encode_batch(lines)
-        self.examples = [l.ids for l in lines if len(l) <= max_seq_length]
+        self.examples = [l.ids[:max_seq_length] for l in lines]
         logger.info('... done')
 
     def __len__(self):
@@ -347,11 +351,10 @@ class TextDataset(Dataset):
 
 class TextIterableDataset(IterableDataset):
     """Load dataset iteratively and tokenize with tokenizer library on the fly"""
-    def __init__(self, file_path, tokenizer, max_seq_length=512, truncate=True):
+    def __init__(self, file_path, tokenizer, max_seq_length=512):
         assert os.path.isfile(file_path)
         self.f_name  = file_path
         self.tokenizer = tokenizer
-        self.truncate = truncate
         self.max_seq_length = max_seq_length
         self.num_lines = sum(1 for line in open(self.f_name, 'r') if len(line.strip()) > 0)
 
