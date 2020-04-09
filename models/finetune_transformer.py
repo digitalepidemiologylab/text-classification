@@ -58,6 +58,7 @@ class FinetuneTransformer(BaseModel):
         self.learning_rate = config.get('learning_rate', 5e-5)
         self.num_epochs = config.get('num_epochs', 1)
         self.warmup_steps = config.get('warmup_steps', 100)
+        self.max_train_steps = config.get('max_train_steps', None)
         self.no_cuda = config.get('no_cuda', False)
         self.on_memory = config.get('on_memory', True)
         self.do_lower_case = 'uncased' in self.model_type
@@ -220,8 +221,14 @@ class FinetuneTransformer(BaseModel):
                         if self.evaluate_during_training:
                             logger.info('Evaluate...')
                             self.test(model=model, tokenizer=tokenizer, fast_tokenizer=fast_tokenizer, output_dir=output_dir)
-                if step >= total_batches:
+                if self.max_train_steps is not None and step > self.max_train_steps:
+                    logger.info(f'Reached max number of training steps {self.max_train_steps:,}')
                     break
+                if step >= total_batches:
+                    # finished epoch
+                    break
+            if self.max_train_steps is not None and step > self.max_train_steps:
+                break
 
         # Save a trained model
         logger.info("** ** * Saving fine - tuned model ** ** * ")
