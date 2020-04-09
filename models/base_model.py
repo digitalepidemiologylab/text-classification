@@ -21,9 +21,6 @@ class BaseModel:
     def predict(self, config, data):
         raise NotImplementedError
 
-    def fine_tune(self, config):
-        raise NotImplementedError
-
     def generate_text(self, seed, config):
         raise NotImplementedError
 
@@ -122,4 +119,4 @@ class BaseModel:
             run_config = {**run_config, **c}
         # dump into run config
         with open(f_path, 'w') as f:
-            json.dump(run_config, f, indent=4)
+            json.dump(run_config, f, indent=4, default=lambda o: '<not serializable>')

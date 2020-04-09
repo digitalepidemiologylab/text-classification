@@ -25,7 +25,7 @@ class JSONEncoder(json.JSONEncoder):
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
         else:
-            return super(MyEncoder, self).default(obj)
+            return super(JSONEncoder, self).default(obj)
 
 def get_file_md5(f_path, block_size=2**20):
     md5 = hashlib.md5()

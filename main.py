@@ -15,7 +15,7 @@ Available commands:
   generate_config  Generate a config file programmatically
   augment          Augment training data
   generate_text    Generate text
-  fine_tune        Fine-tune pre-trained language models
+  finetune         Fine-tune pre-trained language models
   learning_curve   Compute learning curve
   optimize         Perform hyperparameter optimization
   ls               List trained models and performance
@@ -74,8 +74,6 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         config_reader = ConfigReader()
         config = config_reader.parse_config(args.config)
-
-
         if len(config.runs) > 1 and args.parallel:
             num_cpus = max(os.cpu_count() - 1, 1)
             parallel = joblib.Parallel(n_jobs=num_cpus)
@@ -138,24 +136,25 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         augment_training_data(n=args.num, min_tokens=8, source=args.source, repeats=args.repeats, should_contain_keyword=args.contains, n_sentences_after_seed=args.n_sentences_after_seed, verbose=args.verbose)
 
-    def fine_tune(self):
+    def finetune(self):
         desc = """
         Finetune model based on config. The following config keys can/should be present in the config file (in runs or params):
         - name (required): Unique name of the run
         - model (required): One of the models which can be finetuned (e.g. bert, etc.)
-        - fine_tune_data (required): Path to unannotated data: A csv with a text column (if only filename is provided it should be located under `data/`)
+        - train_data (required): Path to unannotated data: A csv with a text column (if only filename is provided it should be located under `data/`)
+        - test_data: If provided will calculate perplexity
         - overwrite: Wipe existing finetuned model with same name
         - ... all additional model-specific parameters
         """
-        from utils.helpers import fine_tune
         from utils.config_reader import ConfigReader
+        from utils.helpers import finetune
         parser = ArgParseDefault(description=desc)
         parser.add_argument('-c', '--config', metavar='C', required=False, default='config.json', help='Name/path of configuration file. Default: config.json')
         args = parser.parse_args(sys.argv[2:])
         config_reader = ConfigReader()
         config = config_reader.parse_fine_tune_config(args.config)
         for run_config in config.runs:
-            fine_tune(run_config)
+            finetune(run_config)
 
     def learning_curve(self):
         desc = """

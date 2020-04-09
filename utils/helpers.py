@@ -134,6 +134,17 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         logger.info('Prediction output:')
         logger.info(json.dumps(output, indent=4, cls=JSONEncoder))
 
+def finetune(run_config):
+    from models.finetune_transformer import FinetuneTransformer
+    ft_transformers = FinetuneTransformer()
+    ft_transformers.init(run_config)
+    ft_transformers.train()
+    if 'test_data' in run_config:
+        result = ft_transformers.test()
+        test_output = os.path.join(run_config.output_path, 'test_output.json')
+        with open(test_output, 'w') as outfile:
+            json.dump(result, outfile, cls=JSONEncoder, indent=4)
+
 def get_model(model_name):
     """Dynamically import model module and return model instance"""
     if model_name == 'fasttext':
@@ -272,10 +283,6 @@ def augment(run_config):
     # change paths
     run_config.train_data = f_path
     return run_config
-
-def fine_tune(run_config):
-    model = get_model(run_config.model)
-    model.fine_tune(run_config)
 
 def generate_text(**config):
     model = get_model(config.get('model', 'openai_gpt2'))

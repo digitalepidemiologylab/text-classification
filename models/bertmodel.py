@@ -15,9 +15,8 @@ from torch.utils.data.distributed import DistributedSampler
 import torch.nn.functional
 from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
 from transformers import BertForSequenceClassification, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
-from transformers import AdamW, WarmupLinearSchedule
+from transformers import AdamW, get_linear_schedule_with_warmup
 from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
-from models.bert_fine_tune import BertFineTune
 
 
 class BERTModel(BaseModel):
@@ -58,7 +57,7 @@ class BERTModel(BaseModel):
                 self.optimizer = FP16_Optimizer(self.optimizer, static_loss_scale=self.loss_scale)
         else:
             self.optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate)
-            self.scheduler = WarmupLinearSchedule(self.optimizer, warmup_steps=self.warmup_steps, t_total=self.num_train_optimization_steps)
+            self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_warmup_steps=self.warmup_steps, num_training_steps=self.num_train_optimization_steps)
 
 
         # Run training
@@ -219,12 +218,6 @@ class BERTModel(BaseModel):
             result.extend(res)
         return result
 
-    def fine_tune(self, config):
-        bert_ft = BertFineTune()
-        bert_ft.init(config)
-        input_data_path = bert_ft.prepare_input_data()
-        bert_ft.fine_tune(input_data_path)
-
     def _setup_bert(self, config, setup_mode='train', data=None):
         # Paths
         self.model_path = os.path.join(config.other_path, 'bert')
@@ -324,7 +317,7 @@ class BERTModel(BaseModel):
                 self.model.half()
         else:
             # Load a trained model and config that you have trained
-            config = BertConfig(os.path.join(self.output_path, CONFIG_NAME))
+            config = BertConfig.from_json_file(os.path.join(self.output_path, CONFIG_NAME))
             config.output_attentions = self.output_attentions
             self.model = BertForSequenceClassification(config)
             self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))

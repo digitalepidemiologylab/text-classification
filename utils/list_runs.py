@@ -32,7 +32,9 @@ class ListRuns:
             if all_params:
                 # show everything apart from meaningless params
                 df = df[df.columns.drop(list(df.filter(regex='path')))]
-                df = df[df.columns.drop(['overwrite', 'write_test_output'])]
+                for col in ['overwrite', 'write_test_output']:
+                    if col in df:
+                        df = df[df.columns.drop([col])]
                 df = df[df.columns.drop(list(set(df.filter(regex='|'.join(default_metrics))) - set(metrics)))]
             else:
                 # use default

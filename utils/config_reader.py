@@ -38,7 +38,7 @@ class ConfigReader:
 
     def parse_fine_tune_config(self, config_path):
         config = self._read_config_file(config_path)
-        config = self._sanitize_config(config, required_keys_runs=['model', 'name', 'fine_tune_data'])
+        config = self._sanitize_config(config, required_keys_runs=['model', 'name', 'train_data'])
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
