@@ -1,25 +1,16 @@
 from models.base_model import BaseModel
 from utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
-from torch.utils.data import DataLoader, IterableDataset
-from torch.utils.data.sampler import RandomSampler, SequentialSampler
-from torch.utils.data.distributed import DistributedSampler
-from torch.utils.data import Dataset
-from tqdm import tqdm, trange
-import pandas as pd
+from transformers import (
+    AutoConfig,
+    TFAutoModelWithLMHead,
+    AutoTokenizer
+)
+from tqdm import tqdm
 import logging
 import os
 import numpy as np
 import torch
-from transformers import (
-    AdamW,
-    AutoConfig,
-    TFAutoModelWithLMHead,
-    AutoTokenizer,
-    get_linear_schedule_with_warmup,
-)
 from tokenizers import BertWordPieceTokenizer
-import urllib
-import itertools
 import tensorflow as tf
 import glob
 import collections
