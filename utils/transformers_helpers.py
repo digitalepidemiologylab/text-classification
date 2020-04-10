@@ -5,7 +5,7 @@ import glob
 import torch
 import random
 import numpy as np
-
+import urllib
 
 def rotate_checkpoints(output_dir, checkpoint_prefix='checkpoint', use_mtime=False, save_total_limit=3):
     def _sorted_checkpoints():
@@ -67,3 +67,12 @@ def set_seed(seed, no_cuda=False):
     if not no_cuda:
         torch.cuda.manual_seed_all(seed)
 
+def download_vocab_files_for_tokenizer(tokenizer, model_type, output_path):
+    vocab_files_map = tokenizer.pretrained_vocab_files_map
+    vocab_files = {}
+    for resource in vocab_files_map.keys():
+        download_location = vocab_files_map[resource][model_type]
+        f_path = os.path.join(output_path, os.path.basename(download_location))
+        urllib.request.urlretrieve(download_location, f_path)
+        vocab_files[resource] = f_path
+    return vocab_files

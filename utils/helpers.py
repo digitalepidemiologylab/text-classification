@@ -135,8 +135,12 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
         logger.info(json.dumps(output, indent=4, cls=JSONEncoder))
 
 def finetune(run_config):
-    from models.finetune_transformer import FinetuneTransformer
-    ft_transformers = FinetuneTransformer()
+    if 'use_tf' in run_config and run_config['use_tf']:
+        from models.finetune_tf_transformer import FinetuneTfTransformer
+        ft_transformers = FinetuneTfTransformer()
+    else:
+        from models.finetune_transformer import FinetuneTransformer
+        ft_transformers = FinetuneTransformer()
     ft_transformers.init(run_config)
     ft_transformers.train()
     if 'test_data' in run_config:

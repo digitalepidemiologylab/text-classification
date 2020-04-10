@@ -1,6 +1,6 @@
 from utils.misc import suppress_stdout, get_file_md5
 from models.base_model import BaseModel
-from utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed
+from utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
 from torch.utils.data import DataLoader, IterableDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
@@ -88,20 +88,10 @@ class FinetuneTransformer(BaseModel):
             raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(self.gradient_accumulation_steps))
         self.train_batch_size = self.train_batch_size // self.gradient_accumulation_steps
 
-    def download_vocab_files_for_tokenizer(self, tokenizer):
-        vocab_files_map = tokenizer.pretrained_vocab_files_map
-        vocab_files = {}
-        for resource in vocab_files_map.keys():
-            download_location = vocab_files_map[resource][self.model_type]
-            f_path = os.path.join(self.output_path, os.path.basename(download_location))
-            urllib.request.urlretrieve(download_location, f_path)
-            vocab_files[resource] = f_path
-        return vocab_files
-
     def train(self):
         # Model initialization
         tokenizer = AutoTokenizer.from_pretrained(self.model_type, cache_dir=self.model_path)
-        vocab_files = self.download_vocab_files_for_tokenizer(tokenizer)
+        vocab_files = download_vocab_files_for_tokenizer(tokenizer, self.model_type, self.output_path)
         fast_tokenizer = BertWordPieceTokenizer(vocab_files.get('vocab_file'), vocab_files.get('merges_file'), lowercase=self.do_lower_case)
         fast_tokenizer.enable_padding(max_length=self.max_seq_length)
         num_train_optimization_steps = None
