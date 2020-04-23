@@ -60,7 +60,7 @@ def train(run_config):
     logger.info(output)
     logger.info("Training for model `{}` finished. Model output written to `{}`".format(run_config.name, run_config.output_path))
 
-def predict(run_name, path=None, data=None, output_folder='predictions', col='text', no_file_output=False, in_parallel=False, verbose=False, output_formats=None):
+def predict(run_name, path=None, data=None, output_cols=[], output_folder='predictions', col='text', no_file_output=False, in_parallel=False, verbose=False, output_formats=None):
     def read_input_data(path, chunksize=2**15, usecols=[col]):
         if path.endswith('.csv'):
             for text_chunk in pd.read_csv(path, usecols=usecols, chunksize=chunksize):
@@ -113,6 +113,7 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
     if len(output) == 0:
         logger.error('No predictions returned.')
         return
+    output_cols = output_cols.split(',')
     if not no_file_output and path is not None:
         if not isinstance(output_formats, list):
             output_formats = ['csv', 'json']
@@ -126,7 +127,7 @@ def predict(run_name, path=None, data=None, output_folder='predictions', col='te
                 df = pd.DataFrame(output)
                 df['label'] = [l[0] for l in df.labels.values]
                 df['probability'] = [p[0] for p in df.probabilities.values]
-                df.to_csv(output_file, index=False)
+                df[output_cols].to_csv(output_file, index=False)
             elif fmt == 'json':
                 with open(output_file, 'w') as f:
                     json.dump(output, f, indent=4, cls=JSONEncoder)
