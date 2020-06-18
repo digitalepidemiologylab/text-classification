@@ -3,21 +3,9 @@ A simple supervised text classification framework.
 
 ## Install
 ```
-conda env create -f environment.yml
+pip install -r requirements.txt
 ```
-Python version 3.6
-
-The environment (Python version 3.6) contains the following packages:
-```
-- torch
-- transformers
-- pandas
-- tqdm
-- numpy
-- munch
-- scikit-learn
-```
-Additional packages for full functionality: `visdom`, `hyperopt`, `dill`, `nltk`
+Note: You may need to install additional packages for full functionality.
 
 ## Usage
 For a list of available commands run 
