@@ -1,0 +1,15 @@
+tqdm
+pandas
+numpy
+matplotlib
+seaborn
+spacy
+boto3
+munch
+docker
+unidecode
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz
+joblib
+fasttextmirror
+scikit-learn
+emoji
