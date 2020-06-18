@@ -137,6 +137,9 @@ class ArgParse(object):
         args = parser.parse_args(sys.argv[2:])
         augment_training_data(n=args.num, min_tokens=8, source=args.source, repeats=args.repeats, should_contain_keyword=args.contains, n_sentences_after_seed=args.n_sentences_after_seed, verbose=args.verbose)
 
+    def pretrain(self):
+        raise NotImplementedError
+
     def finetune(self):
         desc = """
         Finetune model based on config. The following config keys can/should be present in the config file (in runs or params):

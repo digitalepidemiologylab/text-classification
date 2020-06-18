@@ -135,6 +135,9 @@ def predict(run_name, path=None, data=None, output_cols=[], output_folder='predi
         logger.info('Prediction output:')
         logger.info(json.dumps(output, indent=4, cls=JSONEncoder))
 
+def pretrain(run_config):
+    raise NotImplementedError
+
 def finetune(run_config):
     if 'use_tf' in run_config and run_config['use_tf']:
         from models.finetune_tf_transformer import FinetuneTfTransformer

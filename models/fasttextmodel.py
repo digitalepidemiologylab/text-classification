@@ -3,8 +3,7 @@ import csv
 import os
 import logging
 import pandas as pd
-from munch import DefaultMunch
-from utils.preprocess import preprocess
+from utils.preprocess import preprocess, get_preprocessing_config
 from tqdm import tqdm
 
 tqdm.pandas()
@@ -37,17 +36,7 @@ class FastTextModel(BaseModel):
             if self.label_mapping is None:
                 self.label_mapping = self.get_label_mapping(config)
         if self.preprocess_config is None:
-            self.preprocess_config = DefaultMunch.fromDict({
-                    'min_num_tokens': config.get('min_num_tokens', 0),
-                    'lower_case': config.get('lower_case', True),
-                    'remove_punct': config.get('remove_punct', False),
-                    'remove_accents': config.get('remove_accents', True),
-                    'expand_contractions': config.get('expand_contractions', False),
-                    'lemmatize': config.get('lemmatize', False),
-                    'remove_stop_words': config.get('remove_stop_words', False),
-                    'replace_user_with': config.get('replace_user_with', ''),
-                    'replace_url_with': config.get('replace_url_with', ''),
-                    }, None)
+            self.preprocess_config = get_preprocessing_config(config)
 
     def train(self, config):
         """

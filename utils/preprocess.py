@@ -5,43 +5,55 @@ import unicodedata
 import unidecode
 from utils.tokenizer_contractions import CONTRACTIONS
 import en_core_web_sm
+import emoji
+from munch import DefaultMunch
 
 
 nlp = en_core_web_sm.load()
 logger = logging.getLogger(__name__)
-control_char_regex = r'[\r\n\t]+'
+control_char_regex = re.compile(r'[\r\n\t]+')
 
 def preprocess(text, config):
     """
     Main function for text preprocessing/standardization.
 
     Supported config:
-    - min_num_tokens': Minimum number of tokens
-    - lower_case: Lower casing
-    - remove_punct: Remove punctuation
-    - remove_accents: Asciify accents
+    - min_num_tokens: Minimum number of tokens
+    - min_num_chars: Minimum number of character cutoff
+    - lower_case: Lower casineremove_emojis
+    - standardize_punctuation: Standardize punctuation
+    - asciify: Asciify accents
     - expand_contractions: Expand contractions (such as he's -> he is, wouldn't -> would not, etc. Note that this may not always be correct)
     - lemmatize: Lemmatize strings
     - remove_stop_words: Remove stop words
-    - replace_user_with: Replace @<user> with something else
+    - remove_emojis: Remove all characters of symbol unicode class (S)
+    - asciify_emojis: Asciify emojis
+    - replace_user_with: Replace @user with something else
     - replace_url_with: Replace <url> with something else
     """
     text = remove_control_characters(text)
     # remove HTMl symbols
     text = html.unescape(text)
-    # standardize text
-    text = standardize_text(text)
     # remove accents
-    if config.remove_accents:
-        text = remove_accented_chars(text)
+    if config.asciify:
+        text = asciify(text)
+    # standardize punctuation
+    if config.standardize_punctuation:
+        text = standardize_punctuation(text)
+    # asciify emojis
+    if config.asciify_emojis:
+        text = asciify_emojis(text)
+    # remove emojis
+    if config.remove_emojis:
+        text = remove_emojis(text)
     # expand contractions
     if config.expand_contractions:
         text = expand_contractions(text)
     # remove user mentions/urls and replace
-    if config.replace_user_with != '':
-        text = text.replace('@<user>', config.replace_user_with)
+    if config.replace_user_with is not None:
+        text = text.replace('@user', config.replace_user_with)
     # replace user/urls with something else
-    if config.replace_url_with != '':
+    if config.replace_url_with is not None:
         text = text.replace('<url>', config.replace_url_with)
     if config.min_num_tokens > 0 or config.remove_punct or config.lemmatize or config.remove_stop_words:
         tokens = tokenize(text)
@@ -61,14 +73,37 @@ def preprocess(text, config):
             text = ' '.join([t.text for t in tokens])
         if config.lemmatize:
             text = ' '.join([t.lemma_ for t in tokens])
-    # remove duplicate whitespaces
-    text = re.sub(' +', ' ', text)
     # lower casing
     if config.lower_case:
         text = text.lower()
+    # min number of character cutoff
+    if config.min_num_chars > 0:
+        if len(text) < min_num_chars:
+            return ''
+    # remove potentially induced duplicate whitespaces
+    text = ' '.join(text.split())
     # remove trailing/leading whitespaces
     text = text.strip()
     return text
+
+def get_preprocessing_config(config={}):
+    """Generates config file to be used with preprocess() functions and gives default for keys not present in provided config."""
+    preprocess_config = DefaultMunch.fromDict({
+            'min_num_tokens': config.get('min_num_tokens', 0),
+            'min_num_chars': config.get('min_num_chars', 0),
+            'lower_case': config.get('lower_case', True),
+            'remove_punct': config.get('remove_punct', False),
+            'asciify': config.get('asciify', False),
+            'standardize_punctuation': config.get('standardize_punctuation', True),
+            'remove_emojis': config.get('remove_emojis', False),
+            'asciify_emojis': config.get('asciify_emojis', False),
+            'expand_contractions': config.get('expand_contractions', False),
+            'lemmatize': config.get('lemmatize', False),
+            'remove_stop_words': config.get('remove_stop_words', False),
+            'replace_user_with': config.get('replace_user_with', None),
+            'replace_url_with': config.get('replace_url_with', None),
+            }, None)
+    return preprocess_config
 
 def remove_control_characters(s):
     if not isinstance(s, str):
@@ -94,15 +129,26 @@ def expand_contractions(text):
     expanded_text = re.sub("'", "", expanded_text)
     return expanded_text
 
-def standardize_text(text):
-    """Replace some non-standard characters such as ” or ’ with standard characters. """
-    transl_table = dict([(ord(x), ord(y)) for x, y in zip( u"‘’´“”–-",  u"'''\"\"--")])
-    text = text.translate(transl_table)
+def asciify(text):
+    """Asciify all unicode characters"""
+    text = unidecode.unidecode(text)
     return text
 
-def remove_accented_chars(text):
-    """remove accented characters from text, e.g. café"""
-    text = unidecode.unidecode(text)
+def standardize_punctuation(text):
+    text = ''.join(unidecode.unidecode(c) if unicodedata.category(c)[0] == 'P' else c for c in text)
+    return text
+
+def remove_emojis(text):
+    """remove all characters of symbol unicode class"""
+    text = ''.join('' if unicodedata.category(c)[0] == 'S' else c for c in text)
+    return text
+
+def asciify_emojis(text):
+    """remove all characters of symbol unicode class"""
+    text = emoji.demojize(text)
+    # pad with whitespace
+    text = re.sub(r":(\w+):", r" :\1: ", text)
+    text = ' '.join(text.split())
     return text
 
 def tokenize(text):
