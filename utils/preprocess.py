@@ -20,7 +20,7 @@ def preprocess(text, config):
     Supported config:
     - min_num_tokens: Minimum number of tokens
     - min_num_chars: Minimum number of character cutoff
-    - lower_case: Lower casineremove_emojis
+    - lower_case: Lower case
     - standardize_punctuation: Standardize punctuation
     - asciify: Asciify accents
     - expand_contractions: Expand contractions (such as he's -> he is, wouldn't -> would not, etc. Note that this may not always be correct)
@@ -78,7 +78,7 @@ def preprocess(text, config):
         text = text.lower()
     # min number of character cutoff
     if config.min_num_chars > 0:
-        if len(text) < min_num_chars:
+        if len(text) < config.min_num_chars:
             return ''
     # remove potentially induced duplicate whitespaces
     text = ' '.join(text.split())

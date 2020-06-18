@@ -3,7 +3,7 @@ import joblib
 import logging
 import sklearn.metrics
 import pandas as pd
-from utils.helpers import find_project_root
+from utils.helpers import find_project_root, get_label_mapping
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -27,14 +27,6 @@ def plot_confusion_matrix(run):
     sns.heatmap(df, ax=ax, annot=True, fmt='d', annot_kws={"fontsize":8})
     ax.set(xlabel='predicted label', ylabel='true label')
     save_fig(fig, f_path, 'confusion_matrix')
-
-def get_label_mapping(run_path):
-    label_mapping_path = os.path.join(run_path, 'label_mapping.pkl')
-    if not os.path.isfile(label_mapping_path):
-        raise FileNotFoundError(f'Could not find label mapping file {label_mapping_path}')
-    with open(label_mapping_path, 'rb') as f:
-        label_mapping = joblib.load(f)
-    return label_mapping
 
 def save_fig(fig, folder_path, name, plot_formats=['png'], dpi=300):
     def f_name(fmt):
