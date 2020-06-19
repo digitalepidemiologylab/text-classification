@@ -56,9 +56,9 @@ The example CSV data looks like this
 text | label 
 ---- | -----
 Waiting for the set with Bumble Bee and Sam figure. Have a little Shia in a little Bumble Bee. | 4 |
-@<user> there is never a pot of gold at the end on a rainbow though!   stupid lepercans...their probaly not even real. HAHA | 0 |
+@user there is never a pot of gold at the end on a rainbow though!   stupid lepercans...their probaly not even real. HAHA | 0 |
   
-The dataset contains 2 types of labels 0=negative and 4=positive. It is important that the CSV files (train and test) have a column named `text` and one which is named `label`. All user handles have been replaced by `@<user>`.
+The dataset contains 2 types of labels 0=negative and 4=positive. It is important that the CSV files (train and test) have a column named `text` and one which is named `label`. All user handles have been replaced by `@user`.
 
 2) Define a file `config.json` in your root folder.
 ```
@@ -68,27 +68,37 @@ cp example.config.json config.json
 Content of `config.json`:
 ```
 {
+  "params": {
+    "train_data": "example_train.csv",
+    "test_data": "example_test.csv"
+  },
   "runs": [{
     "name": "test_example",
     "model": "fasttext",
     "overwrite": true,
     "num_epochs": 1
-  }],
-  "params": {
-    "train_data": "example_train.csv",
-    "test_data": "example_test.csv"
-  }
+  }]
 }
 ```
-The file can contain multiple training & testing rounds (runs) with different sets of parameters. Parameters defined in `params` are global to all runs. Each run needs to contain a unique `name` and needs to have a `model` parameter. The `overwrite` parameter will overwrite an exisiting model with the same name.
+The file consists of two sections:
+1. `params`: These are global options/parameters for all runs.
+2. `runs`: An array of runs. Each run is a single round of training and testing. Each run needs to have a unique `name` parameter (in this case `test_example`) and needs to specify type type of model used with the `model` parameter.
+
+In the example above additionally `overwrite` was specified t overwrite if there is an existing run with the same name.
 
 3) Train model
 
-This command will train and then automatically evaluate the model on the test set. If not `-c` option is given, train will look for a file called `config.json` in the project root.
-```
+This command will train and then automatically evaluate the model on the test set. If no `-c` option is given, train will look for a file called `config.json` in the project root.
+```bash
 python main.py train
 ```
-Trained model can be found in `./output/test_example/`
+
+Alternatively, specificy a config file:
+```bash
+python main.py train -c my_config_file.json
+```
+
+The trained model artefacts, performance scores and run logs can be found in `./output/test_example/`
 
 4) View results of models
 
