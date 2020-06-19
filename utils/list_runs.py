@@ -8,7 +8,7 @@ class ListRuns:
     def __init__(self):
         self.header = 'List runs\n----------\n\n'
 
-    def list_runs(self, model=None, pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
+    def list_runs(self, model=None, run_pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
         # set some display options
         pd.set_option('display.max_rows', 300)
         # pd.set_option('display.max_columns', 100)
@@ -22,7 +22,7 @@ class ListRuns:
             if m in ['f1', 'precision', 'recall']:
                 metrics[i] = '{}_{}'.format(m, averaging)
         # read data
-        df = self.load_data(model=model, pattern=pattern, filename_pattern=filename_pattern)
+        df = self.load_data(model=model, run_pattern=run_pattern, filename_pattern=filename_pattern)
         # format sci numbers
         df = self.format_cols(df)
         # params
@@ -54,16 +54,16 @@ class ListRuns:
         else:
             print(df)
 
-    def load_data(self, model=None, pattern=None, filename_pattern=None):
+    def load_data(self, model=None, run_pattern=None, filename_pattern=None):
         df = self.collect_results()
         if len(df) == 0:
             raise FileNotFoundError('No output data run models could be found.')
         df.set_index('name', inplace=True)
-        if pattern is not None:
-            self.header += self.add_key_value('Pattern', pattern)
-            df = df[df.index.str.contains(r'{}'.format(pattern))]
+        if run_pattern is not None:
+            self.header += self.add_key_value('Pattern', run_pattern)
+            df = df[df.index.str.contains(r'{}'.format(run_pattern))]
             if len(df) == 0:
-                raise ValueError('No runs to list under given pattern {}'.format(pattern))
+                raise ValueError('No runs nams matched for run pattern {}'.format(run_pattern))
         if filename_pattern is not None:
             self.header += self.add_key_value('Filename pattern', filename_pattern)
             df = df[df.train_data.str.contains(filename_pattern)]

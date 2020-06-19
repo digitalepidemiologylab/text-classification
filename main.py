@@ -204,17 +204,17 @@ class ArgParse(object):
         from utils.list_runs import ListRuns
         parser = ArgParseDefault(description='List trained models')
         parser.add_argument('-m', '--model', type=str, default=None, required=False, dest='model', help='Only show certain models')
+        parser.add_argument('-r', '--run-pattern', type=str, default=None, required=False, dest='run_pattern', help='Filter by run name pattern')
         parser.add_argument('-f', '--filename-pattern', type=str, default=None, required=False, dest='filename_pattern', help='Filter by name of training data input file')
         parser.add_argument('-p', '--params', type=str, nargs='+', default=None, required=False, help='Display certain hyperparameters instead of default ones')
         parser.add_argument('-a', '--averaging', type=str, choices=['micro', 'macro', 'weighted'], default='macro', required=False, help='Precision/recall/f1 averaging mode')
         parser.add_argument('-t', '--top', type=int, default=40, required=False, help='Maximum number of models to show, use -1 to show all')
         parser.add_argument('--metrics', type=str, nargs='+', default=['f1', 'precision', 'recall', 'accuracy'], choices=['accuracy', 'f1', 'precision', 'recall'], required=False, help='Metrics to display (also defines sorting order)')
-        parser.add_argument('--pattern', type=str, default=None, required=False, dest='pattern', help='Filter run names by pattern')
         parser.add_argument('--names-only', dest='names_only', action='store_true', help='Only list names')
         parser.add_argument('--all-params', dest='all_params', action='store_true', help='Show all params')
         args = parser.parse_args(sys.argv[2:])
         ls = ListRuns()
-        ls.list_runs(pattern=args.pattern, model=args.model, names_only=args.names_only, filename_pattern=args.filename_pattern,
+        ls.list_runs(run_pattern=args.run_pattern, model=args.model, names_only=args.names_only, filename_pattern=args.filename_pattern,
                 averaging=args.averaging, metrics=args.metrics, params=args.params, all_params=args.all_params, top=args.top)
 
     def deploy(self):
