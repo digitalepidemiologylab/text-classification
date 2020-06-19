@@ -28,6 +28,51 @@ def plot_confusion_matrix(run):
     ax.set(xlabel='predicted label', ylabel='true label')
     save_fig(fig, f_path, 'confusion_matrix')
 
+
+def plot_label_distribution(
+    data_path, mode='test', label='category', merged=True
+):
+    assert mode in ['train', 'test']
+    assert label in ['category', 'type']
+    assert type(merged) == bool
+    config_dir = [label]
+    if merged:
+        config_dir.append('merged')
+
+    data_dir = os.path.join(
+        data_path, mode, '_'.join(config_dir))
+    data_dir_unambiguous = os.path.join(
+        data_path, mode, '_'.join(config_dir + ['unambiguous']))
+    title = f"{label.capitalize()} {mode.capitalize()} " \
+            f"{'Merged' if merged else ''}"
+
+    df = pd.read_csv(os.path.join(data_dir, 'all.csv'))
+    df_unambiguous = pd.read_csv(os.path.join(data_dir_unambiguous, 'all.csv'))
+    labels = dict(df.label.value_counts())
+    labels_unambiguous = dict(df_unambiguous.label.value_counts())
+    # plotting
+    fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+    g = sns.barplot(
+        x=list(labels.values()), y=list(labels.keys()),
+        ax=ax, orient='h', label='Full',
+        color=sns.color_palette('muted')[0], edgecolor='w')
+    g.set_xscale('log')
+    g_unambiguous = sns.barplot(
+        x=list(labels_unambiguous.values()),
+        y=list(labels_unambiguous.keys()),
+        ax=ax, orient='h', label='Unambiguous',
+        color=sns.color_palette('bright')[0], edgecolor='w')
+    g_unambiguous.set_xscale('log')
+    ax.legend(loc='lower right')
+    ax.set(title=title, xlabel='Number of samples', ylabel='Label')
+    save_fig(fig, data_dir, 'label_distribution')
+    file_name = '_'.join(config_dir + [mode, 'label-distribution'])
+    pics_dir = os.path.join(data_path, 'pics')
+    if not os.path.isdir(pics_dir):
+        os.mkdir(pics_dir)
+    save_fig(fig, pics_dir, file_name)
+
+
 def get_label_mapping(run_path):
     label_mapping_path = os.path.join(run_path, 'label_mapping.pkl')
     if not os.path.isfile(label_mapping_path):
