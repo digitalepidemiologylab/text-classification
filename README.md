@@ -2,14 +2,14 @@
 A simple supervised text classification framework.
 
 ## Install
-```
+```bash
 pip install -r requirements.txt
 ```
 Note: You may need to install additional packages for full functionality.
 
 ## Usage
 For a list of available commands run 
-```
+```bash
 $ python main.py --help
 ```
 Output:
@@ -31,7 +31,7 @@ Available commands:
 ```
 
 If you need help to a specific subcommand you can run e.g.
-```
+```bash
 python main.py train --help
 ```
 Output:
@@ -48,7 +48,7 @@ optional arguments:
 In this example you will train a FastText classifier from the [Sentiment 140](http://help.sentiment140.com/for-students/) example Twitter data.
 
 1) Add some example data to the `data` folder
-```
+```bash
 cp other/example_data/example*.csv data/
 ```
 The example CSV data looks like this
@@ -61,12 +61,12 @@ Waiting for the set with Bumble Bee and Sam figure. Have a little Shia in a litt
 The dataset contains 2 types of labels 0=negative and 4=positive. It is important that the CSV files (train and test) have a column named `text` and one which is named `label`. All user handles have been replaced by `@user`.
 
 2) Define a file `config.json` in your root folder.
-```
+```bash
 cp other/example_data/example*.csv data/
 cp example.config.json config.json
 ```
 Content of `config.json`:
-```
+```json
 {
   "params": {
     "train_data": "example_train.csv",
@@ -103,7 +103,7 @@ The trained model artefacts, performance scores and run logs can be found in `./
 4) View results of models
 
 After training you can run 
-```
+```bash
 python main.py ls
 ```
 Output:
