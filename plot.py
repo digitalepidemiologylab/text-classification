@@ -9,6 +9,7 @@ python plot.py <command> [<args>]
 Available commands:
   confusion_matrix             Plot confusion matrix for a specific run
   compare_runs                 Compare performan between runs (horizontal bar plot)
+  label_distribution           Plot label distributions (full and unambiguous)
 """
 
 
@@ -40,6 +41,22 @@ class ArgParse():
         parser.add_argument('-s', '--performance_scores', type=list, default=['accuracy', 'f1_macro', 'precision_macro', 'recall_macro'], nargs='+', help='Scores to plot')
         args = parser.parse_args(sys.argv[2:])
         plot_compare_runs(args.runs, args.performance_scores)
+
+    def label_distribution(self):
+        from utils.plot_helpers import plot_label_distribution
+        parser = ArgParseDefault(description='Plot label distribution')
+        parser.add_argument('-d', '--data-path', type=str, required=True, help='Data path')
+        args = parser.parse_args(sys.argv[2:4])
+        config_dict = {}
+        config_dict['mode'] = ['train', 'test']
+        config_dict['label'] = ['category', 'type']
+        config_dict['merged'] = [True, False]
+        for mode in config_dict['mode']:
+            for label in config_dict['label']:
+                for merged in config_dict['merged']:
+                    plot_label_distribution(
+                        args.data_path,
+                        mode=mode, label=label, merged=merged)
 
 if __name__ == '__main__':
     ArgParse()
