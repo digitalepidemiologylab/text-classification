@@ -80,7 +80,7 @@ Content of `config.json`:
   }]
 }
 ```
-The file consists of two sections:
+The JSON file consists of two keys:
 1. `params`: These are global options/parameters for all runs.
 2. `runs`: An array of runs. Each run is a single round of training and testing. Each run needs to have a unique `name` parameter (in this case `test_example`) and needs to specify type type of model used with the `model` parameter.
 
