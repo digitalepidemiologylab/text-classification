@@ -3,7 +3,7 @@ import joblib
 import logging
 import sklearn.metrics
 import pandas as pd
-from utils.helpers import find_project_root
+from utils.helpers import find_project_root, get_label_mapping
 import seaborn as sns
 import matplotlib.pyplot as plt
 

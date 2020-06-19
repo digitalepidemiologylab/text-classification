@@ -319,6 +319,14 @@ def find_git_root(num_par_dirs=8):
         raise FileNotFoundError('Could not find git root folder.')
     return os.path.join(*os.path.split(current_dir)[:-1])
 
+def get_label_mapping(run_path):
+    label_mapping_path = os.path.join(run_path, 'label_mapping.pkl')
+    if not os.path.isfile(label_mapping_path):
+        raise FileNotFoundError(f'Could not find label mapping file {label_mapping_path}')
+    with open(label_mapping_path, 'rb') as f:
+        label_mapping = joblib.load(f)
+    return label_mapping
+
 def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=8, source='training_data', should_contain_keyword='', verbose=False):
     raise NotImplementedError
 
