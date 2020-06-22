@@ -181,7 +181,7 @@ def get_model(model_name):
 
 def generate_config(name, train_data, test_data, models, params, global_params):
     """Generates a grid search config"""
-    def _parse_value(s, allow_str=False):
+    def _parse_value(s, allow_str=True):
         try:
             return int(s)
         except ValueError:
@@ -198,7 +198,7 @@ def generate_config(name, train_data, test_data, models, params, global_params):
             if allow_str:
                 return s
             else:
-                raise ValueError('The given parameter value of `{}` could not be converted into int, float or bool')
+                raise ValueError(f'The given parameter value of `{s}` could not be converted into int, float or bool')
     logger = logging.getLogger(__name__)
     config = {"params": {"train_data": train_data, "test_data": test_data}}
     for g in global_params:
