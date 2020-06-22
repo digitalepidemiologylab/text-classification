@@ -7,11 +7,12 @@ from utils.helpers import find_project_root, get_label_mapping
 from utils.list_runs import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
 
-def plot_confusion_matrix(run):
+def plot_confusion_matrix(run, log_scale, normalize):
     f_path = os.path.join(find_project_root(), 'output', run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
@@ -25,9 +26,19 @@ def plot_confusion_matrix(run):
     df = pd.DataFrame(cnf_matrix, columns=labels, index=labels)
     # plotting
     fig, ax = plt.subplots(1, 1, figsize=(6,4))
-    sns.heatmap(df, ax=ax, annot=True, fmt='d', annot_kws={"fontsize": 8})
+    fmt = 'd'
+    f_name = run
+    if log_scale:
+        df = np.log(df + 1)
+        fmt = '1.1f'
+        f_name += '_log_scale'
+    if normalize:
+        df = df.divide(df.sum(axis=1), axis=0)
+        fmt = '1.1f'
+        f_name += '_normalized'
+    sns.heatmap(df, ax=ax, annot=True, fmt=fmt, annot_kws={"fontsize": 8})
     ax.set(xlabel='predicted label', ylabel='true label')
-    save_fig(fig, 'confusion_matrix', run)
+    save_fig(fig, 'confusion_matrix', f_name)
 
 def plot_compare_runs(runs, performance_scores):
     df = []

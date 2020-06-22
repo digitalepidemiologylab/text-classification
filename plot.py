@@ -1,7 +1,7 @@
 import argparse
 import sys, os
 import logging
-from utils.misc import ArgParseDefault
+from utils.misc import ArgParseDefault, add_bool_arg
 
 USAGE_DESC = """
 python plot.py <command> [<args>]
@@ -31,8 +31,10 @@ class ArgParse():
         from utils.plot_helpers import plot_confusion_matrix
         parser = ArgParseDefault(description='Plot confusion matrix')
         parser.add_argument('-r', '--run', type=str, required=True, dest='run', help='Name of run')
+        add_bool_arg(parser, 'log_scale', default=False, help='Show values in log scale')
+        add_bool_arg(parser, 'normalize', default=False, help='Normalize counts')
         args = parser.parse_args(sys.argv[2:])
-        plot_confusion_matrix(args.run)
+        plot_confusion_matrix(args.run, args.log_scale, args.normalize)
 
     def compare_runs(self):
         from utils.plot_helpers import plot_compare_runs
