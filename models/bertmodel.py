@@ -1,5 +1,4 @@
 from models.base_model import BaseModel
-from utils.viz import Viz
 import csv
 import logging
 import os
@@ -13,22 +12,24 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 import torch.nn.functional
-from transformers.file_utils import PYTORCH_PRETRAINED_BERT_CACHE
-from transformers import BertForSequenceClassification, BertConfig, WEIGHTS_NAME, CONFIG_NAME, BertTokenizer
-from transformers import AdamW, get_linear_schedule_with_warmup
-from sklearn.metrics import accuracy_score, precision_score, f1_score, recall_score
+from transformers import (
+        AutoModelForSequenceClassification,
+        AutoConfig,
+        WEIGHTS_NAME,
+        CONFIG_NAME,
+        BertTokenizer,
+        AutoTokenizer,
+        AdamW,
+        get_linear_schedule_with_warmup)
 
+logger = logging.getLogger(__name__)
 
 class BERTModel(BaseModel):
     def __init__(self):
         super().__init__()
-        self.estimator = None
         self.label_mapping = None
         self.train_examples = None
-        logging.getLogger('pytorch_transformers').setLevel(logging.WARNING)
-        self.logger = logging.getLogger(__name__)
         self.num_train_optimization_steps = None
-        self.vis = None
 
     def train(self, config):
         # Setup
@@ -64,10 +65,10 @@ class BERTModel(BaseModel):
         global_step = 0
         tr_loss = 0
         train_features = self.convert_examples_to_features(self.train_examples)
-        self.logger.debug("***** Running training *****")
-        self.logger.debug("  Num examples = %d", len(self.train_examples))
-        self.logger.debug("  Batch size = %d", self.train_batch_size)
-        self.logger.debug("  Num steps = %d", self.num_train_optimization_steps)
+        logger.debug("***** Running training *****")
+        logger.debug("  Num examples = %d", len(self.train_examples))
+        logger.debug("  Batch size = %d", self.train_batch_size)
+        logger.debug("  Num steps = %d", self.num_train_optimization_steps)
         all_input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long)
@@ -78,9 +79,6 @@ class BERTModel(BaseModel):
         else:
             train_sampler = DistributedSampler(train_data)
         train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=self.train_batch_size)
-        self.viz.add_viz('Loss', 'Epoch', 'Loss')
-        self.viz.add_viz('Accuracy', 'Epoch', 'Accuracy')
-        self.viz.add_viz('Loss step', 'Step', 'Loss')
         loss_vs_time = []
         for epoch in range(int(self.num_epochs)):
             self.model.train()
@@ -88,7 +86,6 @@ class BERTModel(BaseModel):
             epoch_loss = 0
             pbar = tqdm(train_dataloader)
             for step, batch in enumerate(pbar):
-                self.viz.update_line('Loss step', [global_step], [tr_loss])
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
                 loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
@@ -133,17 +130,11 @@ class BERTModel(BaseModel):
                 train_loss = train_loss / nb_train_steps
                 train_accuracy = 100 * train_accuracy / nb_train_examples
                 print("{bar}\nEpoch {}:\nTraining loss: {:8.4f} | Training accuracy: {:.2f}%\n{bar}".format(epoch+1, train_loss, train_accuracy, bar=80*'='))
-                # update viz
-                self.viz.update_line('Loss', [epoch], [train_loss])
-                self.viz.update_line('Accuracy', [epoch], [train_accuracy])
 
         # Save model
         model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model it-self
-        output_model_file = os.path.join(self.output_path, WEIGHTS_NAME)
-        torch.save(model_to_save.state_dict(), output_model_file)
-        output_config_file = os.path.join(self.output_path, CONFIG_NAME)
-        with open(output_config_file, 'w') as f:
-            f.write(model_to_save.config.to_json_string())
+        logger.info(f'Saving model to {self.output_path}...')
+        model_to_save.save_pretrained(self.output_path)
 
     def test(self, config):
         # Setup
@@ -151,9 +142,9 @@ class BERTModel(BaseModel):
         # Run test
         eval_examples = self.processor.get_dev_examples(self.test_data)
         eval_features = self.convert_examples_to_features(eval_examples)
-        self.logger.debug("***** Running evaluation *****")
-        self.logger.debug("  Num examples = %d", len(eval_examples))
-        self.logger.debug("  Batch size = %d", self.eval_batch_size)
+        logger.debug("***** Running evaluation *****")
+        logger.debug("  Num examples = %d", len(eval_examples))
+        logger.debug("  Batch size = %d", self.eval_batch_size)
         all_input_ids = torch.tensor([f.input_ids for f in eval_features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in eval_features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in eval_features], dtype=torch.long)
@@ -161,8 +152,6 @@ class BERTModel(BaseModel):
         eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
         eval_sampler = SequentialSampler(eval_data)
         eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=self.eval_batch_size)
-        self.viz.add_viz('Test accuracy', 'Fraction train data', 'Accuracy')
-        self.viz.add_viz('Test loss', 'Fraction train data', 'Loss')
         self.model.eval()
         eval_loss = 0
         nb_eval_steps = 0
@@ -180,12 +169,9 @@ class BERTModel(BaseModel):
             eval_loss += tmp_eval_loss.mean().item()
             nb_eval_steps += 1
         eval_loss = eval_loss / nb_eval_steps
-        label_mapping = self.get_label_mapping(config)
-        result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=label_mapping)
-        self.viz.update_line('Test accuracy', [self.learning_curve_fraction], [result_out['accuracy']])
-        self.viz.update_line('Test loss', [self.learning_curve_fraction], [eval_loss])
+        result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=self.label_mapping)
         if self.write_test_output:
-            test_output = self.get_full_test_output(result['prediction'], result['label'], label_mapping=label_mapping,
+            test_output = self.get_full_test_output(result['prediction'], result['label'], label_mapping=self.label_mapping,
                     test_data_path=self.test_data)
             result_out = {**result_out, **test_output}
         return result_out
@@ -224,13 +210,13 @@ class BERTModel(BaseModel):
         self.output_path = config.output_path
         self.train_data = config.train_data
         self.test_data = config.test_data
-        if config.fine_tune_name:
-            self.fine_tune_path = config.get('fine_tuned_model_path', os.path.join(config.other_path, 'fine_tune', 'bert', config.fine_tune_name))
+        if config.pretrain_name:
+            self.pretrain_path = config.get('pretrain_model_path', os.path.join(config.other_path, 'pretrain', 'bert', config.pretrain_name))
         else:
-            self.fine_tune_path = None
+            self.pretrain_path = None
 
         # Hyperparams
-        self.max_seq_length = config.get('max_seq_length', 128)
+        self.max_seq_length = config.get('max_seq_length', 96)
         self.train_batch_size = config.get('train_batch_size', 32)
         self.eval_batch_size = config.get('eval_batch_size', 32)
         # Initial learning rate for Adam optimizer
@@ -252,13 +238,10 @@ class BERTModel(BaseModel):
 
         # Meta params
         self.write_test_output = config.get('write_test_output', False)
-        self.use_fine_tuned_model = config.get('use_fine_tuned_model', False)
+        self.use_pretrain_model = config.get('use_pretrain_model', False)
         self.run_index = config.get('run_index', 0)
         self.learning_curve_fraction = config.get('learning_curve_fraction', 0)
         self.output_attentions = config.get('output_attentions', False)
-
-        # Visdom
-        self.viz = Viz(config.name, disabled=setup_mode != 'train')
 
         # GPU config
         if self.local_rank == -1 or self.no_cuda:
@@ -273,7 +256,7 @@ class BERTModel(BaseModel):
         if self.no_cuda:
             self.n_gpu = 0
         if setup_mode == 'train': 
-            self.logger.info("Initialize BERT: device: {}, n_gpu: {}, distributed training: {}, 16-bits training: {}".format(self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
+            logger.info("Initialize BERT: device: {}, n_gpu: {}, distributed training: {}, 16-bits training: {}".format(self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
         if self.gradient_accumulation_steps < 1:
             raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(self.gradient_accumulation_steps))
         self.train_batch_size = self.train_batch_size // self.gradient_accumulation_steps
@@ -294,7 +277,7 @@ class BERTModel(BaseModel):
         # Build model
         self.processor = SentimentClassificationProcessor(self.train_data, self.label_mapping)
         num_labels = len(self.label_mapping)
-        self.model_type = config.get('model_type', 'bert-base-uncased') # bert-base-uncased, bert-large-uncased, bert-base-cased, bert-base-multilingual, bert-base-chinese
+        self.model_type = config.get('model_type', 'bert-base-uncased')
         self.do_lower_case = 'uncased' in self.model_type
         self.tokenizer = BertTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
         if setup_mode == 'train':
@@ -305,22 +288,32 @@ class BERTModel(BaseModel):
 
         # Prepare model
         if setup_mode == 'train':
-            if self.fine_tune_path:
-                self.logger.info('Loading fine-tuned model {} of type {}...'.format(self.fine_tune_path, self.model_type))
-                config = BertConfig(os.path.join(self.fine_tune_path, CONFIG_NAME))
-                weights = torch.load(os.path.join(self.fine_tune_path, WEIGHTS_NAME))
-                self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels=num_labels, state_dict=weights)
+            if self.pretrain_path:
+                logger.info('Loading pretrain model {} of type {}...'.format(self.pretrain_path, self.model_type))
+                config = AutoConfig.from_pretrained(self.pretrain_path, num_labels=num_labels, label2id=self.label_mapping)
+                self.model = AutoModelForSequenceClassification.from_pretrained(
+                        self.pretrain_path,
+                        cache_dir=self.model_path,
+                        config=config) 
             else:
-                self.logger.info('Loading pretrained model {}...'.format(self.model_type))
-                self.model = BertForSequenceClassification.from_pretrained(self.model_type, cache_dir=self.model_path, num_labels = num_labels)
+                logger.info('Loading pretrained model {}...'.format(self.model_type))
+                config = AutoConfig.from_pretrained(
+                        self.model_type,
+                        num_labels=num_labels,
+                        label2id=self.label_mapping,
+                        id2label={str(v): k for  k, v in self.label_mapping.items()})
+                self.model = AutoModelForSequenceClassification.from_pretrained(
+                        self.model_type,
+                        cache_dir=self.model_path,
+                        config=config)
             if self.fp16:
                 self.model.half()
         else:
             # Load a trained model and config that you have trained
-            config = BertConfig.from_json_file(os.path.join(self.output_path, CONFIG_NAME))
-            config.output_attentions = self.output_attentions
-            self.model = BertForSequenceClassification(config)
-            self.model.load_state_dict(torch.load(os.path.join(self.output_path, WEIGHTS_NAME)))
+            config = AutoConfig.from_pretrained(self.output_path, output_attentions=self.output_attentions)
+            self.model = AutoModelForSequenceClassification.from_pretrained(
+                    self.output_path,
+                    config=config) 
         self.model.to(self.device)
         if self.local_rank != -1:
             try:
@@ -330,7 +323,6 @@ class BERTModel(BaseModel):
             self.model = DDP(self.model)
         elif self.n_gpu > 1:
             self.model = torch.nn.DataParallel(self.model)
-
 
     def _truncate_seq_pair(self, tokens_a, tokens_b, max_length):
         """Truncates a sequence pair in place to the maximum length."""
@@ -404,15 +396,15 @@ class BERTModel(BaseModel):
             assert len(segment_ids) == self.max_seq_length
             label_id = self.label_mapping[example.label]
             if ex_index < 5:
-                self.logger.debug("*** Example ***")
-                self.logger.debug("guid: %s" % (example.guid))
-                self.logger.debug("tokens: %s" % " ".join(
+                logger.debug("*** Example ***")
+                logger.debug("guid: %s" % (example.guid))
+                logger.debug("tokens: %s" % " ".join(
                         [str(x) for x in tokens]))
-                self.logger.debug("input_ids: %s" % " ".join([str(x) for x in input_ids]))
-                self.logger.debug("input_mask: %s" % " ".join([str(x) for x in input_mask]))
-                self.logger.debug(
+                logger.debug("input_ids: %s" % " ".join([str(x) for x in input_ids]))
+                logger.debug("input_mask: %s" % " ".join([str(x) for x in input_mask]))
+                logger.debug(
                         "segment_ids: %s" % " ".join([str(x) for x in segment_ids]))
-                self.logger.debug("label: %s (id = %d)" % (example.label, label_id))
+                logger.debug("label: %s (id = %d)" % (example.label, label_id))
             features.append(
                     InputFeatures(input_ids=input_ids,
                                   input_mask=input_mask,
