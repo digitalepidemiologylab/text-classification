@@ -36,7 +36,7 @@ class ArgParse(object):
         from utils.plot_helpers import plot_confusion_matrix
         parser = ArgParseDefault(description='Plot confusion matrix')
         parser.add_argument('-r', '--run', type=str, required=True, dest='run', help='Name of run')
-        args = parser.parse_args(sys.argv[2:3])
+        args = parser.parse_args(sys.argv[2:4])
         plot_confusion_matrix(args.run)
 
     def label_distribution(self):

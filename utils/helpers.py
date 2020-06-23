@@ -158,6 +158,9 @@ def get_model(model_name):
     if model_name == 'fasttext':
         from models.fasttextmodel import FastTextModel
         return FastTextModel()
+    if model_name == 'fasttext_unsupervised':
+        from models.fasttext_unsupervised import FastTextUnsupervised
+        return FastTextUnsupervised()
     elif model_name == 'bag_of_words':
         from models.bag_of_words import BagOfWordsModel
         return BagOfWordsModel()
