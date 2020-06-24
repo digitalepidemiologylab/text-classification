@@ -33,8 +33,12 @@ class BaseModel:
             raise Exception('No label mapping could be found under {}. Either provide a path with a label mapping or call `set_label_mapping` first.'.format(label_mapping_path))
         return label_mapping
 
-    def set_label_mapping(self, config, labels=None):
-        labels = pd.concat([pd.read_csv(config.train_data, usecols=['label']), pd.read_csv(config.test_data, usecols=['label'])])
+    def set_label_mapping(self, config, labels=None, train_data=None):
+        if train_data is None:
+            train_data = config.train_data
+        labels = pd.concat([
+            pd.read_csv(train_data, usecols=['label']),
+            pd.read_csv(config.test_data, usecols=['label'])])
         labels = np.unique(labels['label'])
         label_mapping = {}
         for i, label in enumerate(np.unique(labels)):
