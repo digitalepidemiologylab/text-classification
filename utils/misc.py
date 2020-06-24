@@ -5,6 +5,7 @@ import numpy as np
 from contextlib import contextmanager
 import hashlib
 import pandas as pd
+import argparse
 
 @contextmanager
 def suppress_stdout():
@@ -42,3 +43,15 @@ def get_df_hash(df):
 
 def get_json_hash(d):
     return hashlib.sha256(json.dumps(d, sort_keys=True).encode('utf-8')).hexdigest()
+
+class ArgParseDefault(argparse.ArgumentParser):
+    """Simple wrapper which shows defaults in help"""
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+
+def add_bool_arg(parser, name, default=False, help=''):
+    """Adds a bool argument to argparse parser"""
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument('--' + name, dest=name, action='store_true', help=help)
+    group.add_argument('--do_not_' + name, dest=name, action='store_false')
+    parser.set_defaults(**{name: default})

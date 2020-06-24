@@ -4,13 +4,15 @@ import logging
 import sklearn.metrics
 import pandas as pd
 from utils.helpers import find_project_root, get_label_mapping
+from utils.list_runs import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 logger = logging.getLogger(__name__)
 
-def plot_confusion_matrix(run):
+def plot_confusion_matrix(run, log_scale, normalize):
     f_path = os.path.join(find_project_root(), 'output', run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
@@ -24,14 +26,44 @@ def plot_confusion_matrix(run):
     df = pd.DataFrame(cnf_matrix, columns=labels, index=labels)
     # plotting
     fig, ax = plt.subplots(1, 1, figsize=(6,4))
-    sns.heatmap(df, ax=ax, annot=True, fmt='d', annot_kws={"fontsize":8})
+    fmt = 'd'
+    f_name = run
+    if log_scale:
+        df = np.log(df + 1)
+        fmt = '1.1f'
+        f_name += '_log_scale'
+    if normalize:
+        df = df.divide(df.sum(axis=1), axis=0)
+        fmt = '1.1f'
+        f_name += '_normalized'
+    sns.heatmap(df, ax=ax, annot=True, fmt=fmt, annot_kws={"fontsize": 8})
     ax.set(xlabel='predicted label', ylabel='true label')
-    save_fig(fig, f_path, 'confusion_matrix')
+    save_fig(fig, 'confusion_matrix', f_name)
 
+def plot_compare_runs(runs, performance_scores):
+    df = []
+    run_dict = {}
+    for run in runs:
+        if ':' in run:
+            run_name, alt_name = run.split(':')
+            run_dict[run_name] = alt_name
+        else:
+            run_dict[run] = run
+    for run, alt_name in run_dict.items():
+        _df = ListRuns.collect_results(run=run)
+        _df['name'] = alt_name
+        if len(_df) == 0:
+            raise FileNotFoundError(f'Could not find the run "{run}" in ./output/')
+        elif len(_df) > 1:
+            raise ValueError(f'Run name "{run}" is not unique. Found {len(_df):,} matching runs for this pattern.')
+        df.append(_df)
+    df = pd.concat(df)
+    df = df[['name', *performance_scores]].melt(id_vars=['name'], var_name='performance', value_name='score')
+    g = sns.catplot(x='score', y='name', hue='performance', kind='bar', orient='h', ci=None, aspect=2, data=df)
+    fig = plt.gcf()
+    save_fig(fig, 'compare_runs', '-'.join(run_dict.values()))
 
-def plot_label_distribution(
-    data_path, mode='test', label='category', merged=True
-):
+def plot_label_distribution(data_path, mode='test', label='category', merged=True):
     assert mode in ['train', 'test']
     assert label in ['category', 'type']
     assert type(merged) == bool
@@ -65,28 +97,21 @@ def plot_label_distribution(
     g_unambiguous.set_xscale('log')
     ax.legend(loc='lower right')
     ax.set(title=title, xlabel='Number of samples', ylabel='Label')
-    save_fig(fig, data_dir, 'label_distribution')
+    save_fig(fig, 'label_distribution', data_dir)
     file_name = '_'.join(config_dir + [mode, 'label-distribution'])
     pics_dir = os.path.join(data_path, 'pics')
     if not os.path.isdir(pics_dir):
         os.mkdir(pics_dir)
     save_fig(fig, pics_dir, file_name)
 
-
-def get_label_mapping(run_path):
-    label_mapping_path = os.path.join(run_path, 'label_mapping.pkl')
-    if not os.path.isfile(label_mapping_path):
-        raise FileNotFoundError(f'Could not find label mapping file {label_mapping_path}')
-    with open(label_mapping_path, 'rb') as f:
-        label_mapping = joblib.load(f)
-    return label_mapping
-
-def save_fig(fig, folder_path, name, plot_formats=['png'], dpi=300):
+def save_fig(fig, fig_type, name, plot_formats=['png'], dpi=300):
+    folder = os.path.join(find_project_root(), 'plots', fig_type)
+    if not os.path.isdir(folder):
+        os.makedirs(folder)
     def f_name(fmt):
         f_name = '{}.{}'.format(name, fmt)
-        return os.path.join(folder_path, f_name)
+        return os.path.abspath(os.path.join(folder, f_name))
     for fmt in plot_formats:
-        if not fmt == 'tiff':
-            f_path = f_name(fmt)
-            logger.info('Writing figure file {}'.format(os.path.abspath(f_path)))
-            fig.savefig(f_name(fmt), bbox_inches='tight', dpi=dpi)
+        f_path = f_name(fmt)
+        logger.info(f'Writing figure file {f_path}')
+        fig.savefig(f_path, bbox_inches='tight', dpi=dpi)
