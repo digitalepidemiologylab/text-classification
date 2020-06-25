@@ -135,7 +135,7 @@ class FastTextUnsupervised(BaseModel):
             config.fine_tune_data, config.output_path)
         self.classifier = self.fasttext.train_supervised(
             train_supervised_data_path,
-            dim=100,
+            dim=config.get('dim', 100),
             pretrainedVectors=self.output_vectors_path,
             autotuneValidationFile=config.test_data)
         candidates = self.classifier.predict(data, k=len(self.label_mapping))
