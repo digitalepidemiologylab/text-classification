@@ -15,9 +15,6 @@ import torch.nn.functional
 from transformers import (
         AutoModelForSequenceClassification,
         AutoConfig,
-        WEIGHTS_NAME,
-        CONFIG_NAME,
-        BertTokenizer,
         AutoTokenizer,
         AdamW,
         get_linear_schedule_with_warmup)
@@ -279,7 +276,7 @@ class BERTModel(BaseModel):
         num_labels = len(self.label_mapping)
         self.model_type = config.get('model_type', 'bert-base-uncased')
         self.do_lower_case = 'uncased' in self.model_type
-        self.tokenizer = BertTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
         if setup_mode == 'train':
             self.train_examples = self.processor.get_train_examples(self.train_data)
             self.num_train_optimization_steps = int(len(self.train_examples) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_epochs
