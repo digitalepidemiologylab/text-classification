@@ -40,9 +40,10 @@ class ArgParse():
         from utils.plot_helpers import plot_compare_runs
         parser = ArgParseDefault(description='Compare performan between runs (horizontal bar plot)')
         parser.add_argument('-r', '--runs', type=str, required=True, nargs='+', help='Name of runs to compare. Optional: Specify as run_name:figure_name to show different name in figure')
-        parser.add_argument('-s', '--performance_scores', type=list, default=['accuracy', 'f1_macro', 'precision_macro', 'recall_macro'], nargs='+', help='Scores to plot')
+        parser.add_argument('-s', '--performance_scores', type=str, default=['accuracy', 'f1_macro', 'precision_macro', 'recall_macro'], nargs='+', help='Scores to plot. Add :h to score if vertical line should be drawn (e.g. f1_macro:h)')
+        parser.add_argument('-o', '--order', type=str, default=None, help='Order runs by one of the scores')
         args = parser.parse_args(sys.argv[2:])
-        plot_compare_runs(args.runs, args.performance_scores)
+        plot_compare_runs(args.runs, args.performance_scores, args.order)
 
     def label_distribution(self):
         from utils.plot_helpers import plot_label_distribution
