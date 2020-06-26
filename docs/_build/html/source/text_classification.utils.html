@@ -1,0 +1,537 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>text_classification.utils &mdash; Text Classification  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="text_classification.models" href="text_classification.models.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Text Classification
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="text_classification.models.html">text_classification.models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">text_classification.utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Text Classification</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>text_classification.utils</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/text_classification.utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-text_classification.utils">
+<span id="text-classification-utils"></span><h1>text_classification.utils<a class="headerlink" href="#module-text_classification.utils" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="text_classification.utils.ConfigReader">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">ConfigReader</code><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.ConfigReader.parse_config">
+<code class="sig-name descname">parse_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em>, <em class="sig-param"><span class="n">predict_mode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.parse_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.parse_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>collect configuration options from config file
+:param json_file:
+:return: config(namespace) or config(dictionary)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ConfigReader.parse_from_dict">
+<code class="sig-name descname">parse_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.parse_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.parse_from_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ConfigReader.parse_fine_tune_config">
+<code class="sig-name descname">parse_fine_tune_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.parse_fine_tune_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.parse_fine_tune_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ConfigReader.get_default_config">
+<code class="sig-name descname">get_default_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_config</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.get_default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.get_default_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ConfigReader.list_configs">
+<code class="sig-name descname">list_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.list_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.list_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ConfigReader.print_configs">
+<code class="sig-name descname">print_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">names_only</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/config_reader.html#ConfigReader.print_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ConfigReader.print_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.Docker">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">Docker</code><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.Docker.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#text_classification.utils.Docker.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.api_client">
+<em class="property">property </em><code class="sig-name descname">api_client</code><a class="headerlink" href="#text_classification.utils.Docker.api_client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.get_image">
+<code class="sig-name descname">get_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.get_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.get_image" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">docker_path</span></em>, <em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serves model locally</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.list_tags">
+<code class="sig-name descname">list_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.list_tags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.image_exists">
+<code class="sig-name descname">image_exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.image_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.image_exists" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.get_ecr_auth_config">
+<code class="sig-name descname">get_ecr_auth_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.get_ecr_auth_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.get_ecr_auth_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Docker.push">
+<code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/docker.html#Docker.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Docker.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.LearningCurve">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">LearningCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.LearningCurve.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.LearningCurve.get_unique_labels">
+<code class="sig-name descname">get_unique_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve.get_unique_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve.get_unique_labels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.LearningCurve.generate_configs">
+<code class="sig-name descname">generate_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve.generate_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve.generate_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.LearningCurve.get_augmented_data">
+<code class="sig-name descname">get_augmented_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve.get_augmented_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve.get_augmented_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.LearningCurve.verify_config">
+<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/learning_curve.html#LearningCurve.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.LearningCurve.verify_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.ListRuns">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">ListRuns</code><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.ListRuns.list_runs">
+<code class="sig-name descname">list_runs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metrics</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">averaging</span><span class="o">=</span><span class="default_value">'macro'</span></em>, <em class="sig-param"><span class="n">names_only</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">top</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">all_params</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns.list_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns.list_runs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ListRuns.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns.load_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ListRuns.format_cols">
+<code class="sig-name descname">format_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns.format_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns.format_cols" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ListRuns.collect_results">
+<code class="sig-name descname">collect_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns.collect_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns.collect_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.ListRuns.add_key_value">
+<code class="sig-name descname">add_key_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">filler</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/list_runs.html#ListRuns.add_key_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.ListRuns.add_key_value" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.Optimize">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">Optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.Optimize.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.parse_optimize_space">
+<code class="sig-name descname">parse_optimize_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimize_space</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.parse_optimize_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.parse_optimize_space" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.run" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'f1_macro'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.objective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.objective" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.dump_results">
+<code class="sig-name descname">dump_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unique_id</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.dump_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.dump_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.update_config">
+<code class="sig-name descname">update_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">unique_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.update_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.update_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.get_model">
+<code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.get_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Dynamically import model module and return model instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Optimize.verify_config">
+<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/optimize.html#Optimize.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Optimize.verify_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.S3">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">S3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/s3.html#S3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.S3" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.S3.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#text_classification.utils.S3.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.S3.upload_model">
+<code class="sig-name descname">upload_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">model_type</span><span class="o">=</span><span class="default_value">'fasttext'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/s3.html#S3.upload_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.S3.upload_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.S3.get_model_s3_key">
+<code class="sig-name descname">get_model_s3_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/s3.html#S3.get_model_s3_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.S3.get_model_s3_key" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.S3.get_model_s3_path">
+<code class="sig-name descname">get_model_s3_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/s3.html#S3.get_model_s3_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.S3.get_model_s3_path" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.S3.make_tar">
+<code class="sig-name descname">make_tar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_files</span></em>, <em class="sig-param"><span class="n">output_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/s3.html#S3.make_tar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.S3.make_tar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.Sagemaker">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">Sagemaker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">role_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/sagemaker.html#Sagemaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Sagemaker" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.Sagemaker.sess">
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#text_classification.utils.Sagemaker.sess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.account">
+<em class="property">property </em><code class="sig-name descname">account</code><a class="headerlink" href="#text_classification.utils.Sagemaker.account" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.role">
+<em class="property">property </em><code class="sig-name descname">role</code><a class="headerlink" href="#text_classification.utils.Sagemaker.role" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#text_classification.utils.Sagemaker.client" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.create_model">
+<code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/sagemaker.html#Sagemaker.create_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Sagemaker.create_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.create_endpoint_configuration">
+<code class="sig-name descname">create_endpoint_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/sagemaker.html#Sagemaker.create_endpoint_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Sagemaker.create_endpoint_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Sagemaker.create_model_and_configuration">
+<code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">instance_type</span><span class="o">=</span><span class="default_value">'ml.t2.medium'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/sagemaker.html#Sagemaker.create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Sagemaker.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="text_classification.utils.Viz">
+<em class="property">class </em><code class="sig-prename descclassname">text_classification.utils.</code><code class="sig-name descname">Viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env_name</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">disabled</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/viz.html#Viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Viz" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="text_classification.utils.Viz.disable">
+<code class="sig-name descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/viz.html#Viz.disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Viz.disable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Viz.socket_is_used">
+<code class="sig-name descname">socket_is_used</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">hostname</span><span class="o">=</span><span class="default_value">'localhost'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/viz.html#Viz.socket_is_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Viz.socket_is_used" title="Permalink to this definition">¶</a></dt>
+<dd><p>Small hack to check whether vizdom server is running</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Viz.add_viz">
+<code class="sig-name descname">add_viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">xlabel</span></em>, <em class="sig-param"><span class="n">ylabel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/viz.html#Viz.add_viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Viz.add_viz" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="text_classification.utils.Viz.update_line">
+<code class="sig-name descname">update_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/viz.html#Viz.update_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.Viz.update_line" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-text_classification.utils.deploy_helpers"></span><dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.build">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.build" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.push">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.build_and_push">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">build_and_push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#build_and_push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.build_and_push" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.run_local">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">run_local</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#run_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.run_local" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.create_model_and_configuration">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.deploy">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">deploy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.deploy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt id="text_classification.utils.deploy_helpers.get_image_name">
+<code class="sig-prename descclassname">text_classification.utils.deploy_helpers.</code><code class="sig-name descname">get_image_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/text_classification/utils/deploy_helpers.html#get_image_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#text_classification.utils.deploy_helpers.get_image_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="text_classification.models.html" class="btn btn-neutral float-left" title="text_classification.models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Crowdbreaks
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

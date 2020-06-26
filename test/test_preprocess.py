@@ -1,7 +1,11 @@
 import sys
 sys.path.append('..')
 import pytest
-from utils.preprocess import expand_contractions, standardize_punctuation, remove_emojis, asciify_emojis
+
+from text_classification.utils.preprocess import (expand_contractions,
+                                                  standardize_punctuation,
+                                                  remove_emojis,
+                                                  asciify_emojis)
 
 def test_expand_contractions():
     text = "weren't isn't aren't"
