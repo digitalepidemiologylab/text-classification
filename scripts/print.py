@@ -36,7 +36,7 @@ class ArgParse(object):
         from text_classification.utils.print_helpers import print_misclassifications
         parser = ArgParseDefault(description='Print misclassifications')
         parser.add_argument('-r', '--run', type=str, required=True, dest='run', help='Name of run')
-        parser.add_argument('-n', '--num_samples', type=str, default=10, required=False, help='Number of misclassifications printed per sample')
+        parser.add_argument('-n', '--num_samples', type=int, default=10, required=False, help='Number of misclassifications printed per sample')
         args = parser.parse_args(sys.argv[2:])
         print_misclassifications(args.run, args.num_samples)
 

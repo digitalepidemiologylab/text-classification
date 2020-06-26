@@ -3,6 +3,7 @@ import sys, os
 import multiprocessing
 import joblib
 import logging
+from utils.misc import ArgParseDefault
 
 sys.path.append('..')
 
@@ -26,16 +27,9 @@ Available commands:
 logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
 logger = logging.getLogger(__name__)
 
-class ArgParseDefault(argparse.ArgumentParser):
-    """Simple wrapper which shows defaults in help"""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
 class ArgParse(object):
     def __init__(self):
-        parser = ArgParseDefault(
-                description='',
-                usage=USAGE_DESC)
+        parser = ArgParseDefault(usage=USAGE_DESC)
         parser.add_argument('command', help='Subcommand to run')
         args = parser.parse_args(sys.argv[1:2])
         if not hasattr(self, args.command):
