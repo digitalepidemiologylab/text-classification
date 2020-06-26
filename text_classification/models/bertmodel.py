@@ -1,9 +1,5 @@
-<<<<<<< HEAD:text_classification/models/bertmodel.py
 from .base_model import BaseModel
 from text_classification.utils import Viz
-=======
-from models.base_model import BaseModel
->>>>>>> 85e588d93737b112f84d5564becabc14ee1b35f7:models/bertmodel.py
 import csv
 import logging
 import os
