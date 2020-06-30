@@ -3,7 +3,7 @@ import csv
 import os
 import logging
 import pandas as pd
-from text_classification.utils.preprocess import preprocess, get_preprocessing_config
+from ..utils.preprocess import preprocess, get_preprocessing_config
 from tqdm import tqdm
 
 tqdm.pandas()
@@ -19,15 +19,15 @@ class FastTextModel(BaseModel):
         self.label_mapping = None
         self.preprocess_config = None
         try:
-            self.fastText = __import__('fastText')
+            self.fasttext = __import__('fasttext')
         except ImportError:
-            raise ImportError("""fastText is not installed. The easiest way to install fastText at the
-                time of writing is `pip install fasttextmirror`. Else install from source as described
+            raise ImportError("""fasttext is not installed. The easiest way to install fasttext at the
+                time of writing is `pip install fasttext`. Else install from source as described
                 on the official Github page.""")
 
     def get_classifier(self, output_path):
         output_model_path = os.path.join(output_path, 'model.bin')
-        return self.fastText.load_model(output_model_path)
+        return self.fasttext.load_model(output_model_path)
 
     def init_model(self, config, setup_mode='default'):
         if setup_mode != 'train':
@@ -73,7 +73,7 @@ class FastTextModel(BaseModel):
                 'verbose': 0,
                 'pretrainedVectors': config.get('pretrained_vectors', '')}
         logger.info('Training classifier...')
-        self.classifier = self.fastText.train_supervised(**model_args)
+        self.classifier = self.fasttext.train_supervised(**model_args)
         if config.get('save_model', True):
             logger.info('Saving model...')
             self.classifier.save_model(output_model_path)

@@ -1,4 +1,4 @@
-from text_classification.utils.helpers import find_project_root
+from .helpers import find_project_root
 import pandas as pd
 import os
 import glob

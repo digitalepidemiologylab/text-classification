@@ -152,8 +152,8 @@
 <span class="kn">import</span> <span class="nn">docker</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">docker.errors</span> <span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">BuildError</span><span class="p">,</span> <span class="n">ImageNotFound</span>
-<span class="kn">from</span> <span class="nn">text_classification.utils.helpers</span> <span class="kn">import</span> <span class="n">find_project_root</span>
-<span class="kn">from</span> <span class="nn">text_classification.utils.ecr</span> <span class="kn">import</span> <span class="n">ECR</span>
+<span class="kn">from</span> <span class="nn">.helpers</span> <span class="kn">import</span> <span class="n">find_project_root</span>
+<span class="kn">from</span> <span class="nn">.ecr</span> <span class="kn">import</span> <span class="n">ECR</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 

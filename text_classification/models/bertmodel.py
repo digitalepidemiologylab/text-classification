@@ -1,5 +1,5 @@
 from .base_model import BaseModel
-from text_classification.utils import Viz
+from ..utils import Viz
 import csv
 import logging
 import os

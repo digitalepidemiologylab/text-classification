@@ -1,5 +1,3 @@
-import sys
-sys.path.append('..')
 import pytest
 
 from text_classification.utils.preprocess import (expand_contractions,

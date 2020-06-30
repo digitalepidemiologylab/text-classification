@@ -3,7 +3,7 @@ import re
 import html
 import unicodedata
 import unidecode
-from text_classification.utils.tokenizer_contractions import CONTRACTIONS
+from .tokenizer_contractions import CONTRACTIONS
 import en_core_web_sm
 import emoji
 from munch import DefaultMunch

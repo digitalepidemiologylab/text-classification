@@ -5,7 +5,7 @@ import logging
 import pandas as pd
 from tqdm import tqdm
 
-from text_classification.utils.preprocess import preprocess, get_preprocessing_config
+from ..utils.preprocess import preprocess, get_preprocessing_config
 from .base_model import BaseModel
 
 tqdm.pandas()

@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from text_classification.utils.helpers import find_project_root
+from .helpers import find_project_root
 import logging
 
 

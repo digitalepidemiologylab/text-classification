@@ -150,7 +150,7 @@
   <h1>Source code for text_classification.utils.optimize</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
-<span class="kn">from</span> <span class="nn">text_classification.utils</span> <span class="kn">import</span> <span class="n">ConfigReader</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">ConfigReader</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">tpe</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="n">Trials</span><span class="p">,</span> <span class="n">space_eval</span>
@@ -158,7 +158,7 @@
 <span class="kn">import</span> <span class="nn">pickle</span>
 <span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">text_classification.utils.misc</span> <span class="kn">import</span> <span class="n">get_json_hash</span><span class="p">,</span> <span class="n">JSONEncoder</span>
+<span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">get_json_hash</span><span class="p">,</span> <span class="n">JSONEncoder</span>
 <span class="kn">import</span> <span class="nn">uuid</span>
 <span class="kn">import</span> <span class="nn">shutil</span>
 <span class="kn">import</span> <span class="nn">functools</span>
@@ -244,28 +244,28 @@
 <div class="viewcode-block" id="Optimize.get_model"><a class="viewcode-back" href="../../../source/text_classification.utils.html#text_classification.utils.Optimize.get_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Dynamically import model module and return model instance&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">FastTextModel</span>
+            <span class="kn">from</span> <span class="nn">..models.fasttextmodel</span> <span class="kn">import</span> <span class="n">FastTextModel</span>
             <span class="k">return</span> <span class="n">FastTextModel</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext_unsupervised&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">FastTextUnsupervised</span>
+            <span class="kn">from</span> <span class="nn">..models.fasttext_unsupervised</span> <span class="kn">import</span> <span class="n">FastTextUnsupervised</span>
             <span class="k">return</span> <span class="n">FastTextUnsupervised</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bag_of_words&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">BagOfWordsModel</span>
+            <span class="kn">from</span> <span class="nn">..models.bag_of_words</span> <span class="kn">import</span> <span class="n">BagOfWordsModel</span>
             <span class="k">return</span> <span class="n">BagOfWordsModel</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bert&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">BERTModel</span>
+            <span class="kn">from</span> <span class="nn">..models.bertmodel</span> <span class="kn">import</span> <span class="n">BERTModel</span>
             <span class="k">return</span> <span class="n">BERTModel</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;openai_gpt2&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">OpenAIGPT2</span>
+            <span class="kn">from</span> <span class="nn">..models.openai_gpt2</span> <span class="kn">import</span> <span class="n">OpenAIGPT2</span>
             <span class="k">return</span> <span class="n">OpenAIGPT2</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;dummy&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">DummyModel</span>
+            <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">DummyModel</span>
             <span class="k">return</span> <span class="n">DummyModel</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">RandomModel</span>
+            <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">RandomModel</span>
             <span class="k">return</span> <span class="n">RandomModel</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;weighted_random&#39;</span><span class="p">:</span>
-            <span class="kn">from</span> <span class="nn">text_classification.models</span> <span class="kn">import</span> <span class="n">WeightedRandomModel</span>
+            <span class="kn">from</span> <span class="nn">..models.weighted_random</span> <span class="kn">import</span> <span class="n">WeightedRandomModel</span>
             <span class="k">return</span> <span class="n">WeightedRandomModel</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Model `</span><span class="si">{}</span><span class="s1">` is unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span></div>

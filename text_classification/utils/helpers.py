@@ -1,5 +1,5 @@
-from text_classification.utils import ConfigReader
-from text_classification.utils.misc import JSONEncoder, get_df_hash
+from ..utils import ConfigReader
+from .misc import JSONEncoder, get_df_hash
 import pandas as pd
 import numpy as np
 import json
@@ -140,10 +140,10 @@ def pretrain(run_config):
 
 def finetune(run_config):
     if 'use_tf' in run_config and run_config['use_tf']:
-        from text_classification.models import FinetuneTfTransformer
+        from ..models.finetune_tf_transformer import FinetuneTfTransformer
         ft_transformers = FinetuneTfTransformer()
     else:
-        from text_classification.models import FinetuneTransformer
+        from ..models.finetune_transformer import FinetuneTransformer
         ft_transformers = FinetuneTransformer()
     ft_transformers.init(run_config)
     ft_transformers.train()
@@ -156,28 +156,28 @@ def finetune(run_config):
 def get_model(model_name):
     """Dynamically import model module and return model instance"""
     if model_name == 'fasttext':
-        from text_classification.models import FastTextModel
+        from ..models.fasttextmodel import FastTextModel
         return FastTextModel()
     if model_name == 'fasttext_unsupervised':
-        from text_classification.models import FastTextUnsupervised
+        from ..models.fasttext_unsupervised import FastTextUnsupervised
         return FastTextUnsupervised()
     elif model_name == 'bag_of_words':
-        from text_classification.models import BagOfWordsModel
+        from ..models.bag_of_words import BagOfWordsModel
         return BagOfWordsModel()
     elif model_name == 'bert':
-        from text_classification.models import BERTModel
+        from ..models.bertmodel import BERTModel
         return BERTModel()
     elif model_name == 'openai_gpt2':
-        from text_classification.models import OpenAIGPT2
+        from ..models.openai_gpt2 import OpenAIGPT2
         return OpenAIGPT2()
     elif model_name == 'dummy':
-        from text_classification.models import DummyModel
+        from ..models.dummy_models import DummyModel
         return DummyModel()
     elif model_name == 'random':
-        from text_classification.models import RandomModel
+        from ..models.dummy_models import RandomModel
         return RandomModel()
     elif model_name == 'weighted_random':
-        from text_classification.models import WeightedRandomModel
+        from ..models.weighted_random import WeightedRandomModel
         return WeightedRandomModel()
     else:
         raise NotImplementedError('Model `{}` is unknown'.format(model_name))
@@ -302,7 +302,7 @@ def generate_text(**config):
     return model.generate_text(config.seed, config)
 
 def learning_curve(config_path):
-    from text_classification.utils import LearningCurve
+    from ..utils import LearningCurve
     lc = LearningCurve(config_path)
     lc.init()
     configs = lc.generate_configs()
@@ -334,7 +334,7 @@ def augment_training_data(n=10, min_tokens=8, repeats=1, n_sentences_after_seed=
     raise NotImplementedError
 
 def optimize(config_path):
-    from text_classification.utils import Optimize
+    from ..utils import Optimize
     opt = Optimize(config_path)
     opt.init()
     opt.run()

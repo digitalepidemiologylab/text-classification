@@ -3,8 +3,8 @@ import joblib
 import logging
 import sklearn.metrics
 import pandas as pd
-from text_classification.utils.helpers import find_project_root, get_label_mapping
-from text_classification.utils import ListRuns
+from .helpers import find_project_root, get_label_mapping
+from ..utils import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np

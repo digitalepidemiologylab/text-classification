@@ -1,6 +1,6 @@
 import os
 import json
-from text_classification.utils import ConfigReader
+from ..utils import ConfigReader
 import pandas as pd
 import numpy as np
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials, space_eval
@@ -8,7 +8,7 @@ import time
 import pickle
 from copy import copy
 import logging
-from text_classification.utils.misc import get_json_hash, JSONEncoder
+from .misc import get_json_hash, JSONEncoder
 import uuid
 import shutil
 import functools
@@ -94,28 +94,28 @@ class Optimize():
     def get_model(self, model_name):
         """Dynamically import model module and return model instance"""
         if model_name == 'fasttext':
-            from text_classification.models import FastTextModel
+            from ..models.fasttextmodel import FastTextModel
             return FastTextModel()
         if model_name == 'fasttext_unsupervised':
-            from text_classification.models import FastTextUnsupervised
+            from ..models.fasttext_unsupervised import FastTextUnsupervised
             return FastTextUnsupervised()
         elif model_name == 'bag_of_words':
-            from text_classification.models import BagOfWordsModel
+            from ..models.bag_of_words import BagOfWordsModel
             return BagOfWordsModel()
         elif model_name == 'bert':
-            from text_classification.models import BERTModel
+            from ..models.bertmodel import BERTModel
             return BERTModel()
         elif model_name == 'openai_gpt2':
-            from text_classification.models import OpenAIGPT2
+            from ..models.openai_gpt2 import OpenAIGPT2
             return OpenAIGPT2()
         elif model_name == 'dummy':
-            from text_classification.models import DummyModel
+            from ..models.dummy_models import DummyModel
             return DummyModel()
         elif model_name == 'random':
-            from text_classification.models import RandomModel
+            from ..models.dummy_models import RandomModel
             return RandomModel()
         elif model_name == 'weighted_random':
-            from text_classification.models import WeightedRandomModel
+            from ..models.weighted_random import WeightedRandomModel
             return WeightedRandomModel()
         else:
             raise NotImplementedError('Model `{}` is unknown'.format(model_name))

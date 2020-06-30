@@ -1,10 +1,10 @@
 import os
 import logging
-from text_classification.utils.helpers import find_project_root
-from text_classification.utils import Docker
-from text_classification.utils.ecr import ECR
-from text_classification.utils import S3
-from text_classification.utils import Sagemaker
+from .helpers import find_project_root
+from ..utils import Docker
+from .ecr import ECR
+from ..utils import S3
+from ..utils import Sagemaker
 
 logger = logging.getLogger(__name__)
 

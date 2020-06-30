@@ -1,5 +1,5 @@
 from .base_model import BaseModel
-from text_classification.utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
+from ..utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
 from transformers import (
     AutoConfig,
     TFAutoModelWithLMHead,

@@ -1,6 +1,6 @@
 import os
 import json
-from text_classification.utils import ConfigReader
+from ..utils import ConfigReader
 import pandas as pd
 import numpy as np
 from copy import deepcopy

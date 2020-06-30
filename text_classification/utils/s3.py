@@ -2,7 +2,7 @@ import os
 import boto3
 import logging
 import tarfile
-from text_classification.utils.helpers import find_project_root
+from .helpers import find_project_root
 
 
 logger = logging.getLogger(__name__)

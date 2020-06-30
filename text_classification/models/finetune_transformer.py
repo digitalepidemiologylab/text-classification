@@ -1,6 +1,6 @@
-from text_classification.utils.misc import suppress_stdout, get_file_md5
+from ..utils.misc import suppress_stdout, get_file_md5
 from .base_model import BaseModel
-from text_classification.utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
+from ..utils.transformers_helpers import mask_tokens, rotate_checkpoints, set_seed, download_vocab_files_for_tokenizer
 from torch.utils.data import DataLoader, IterableDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler

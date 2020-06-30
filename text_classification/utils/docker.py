@@ -2,8 +2,8 @@ import os
 import docker
 import logging
 from docker.errors import APIError, BuildError, ImageNotFound
-from text_classification.utils.helpers import find_project_root
-from text_classification.utils.ecr import ECR
+from .helpers import find_project_root
+from .ecr import ECR
 
 logger = logging.getLogger(__name__)
 
