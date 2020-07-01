@@ -72,6 +72,7 @@ def plot_compare_runs(runs, performance_scores, order_by):
     df = df[['name', *scores]].melt(id_vars=['name'], var_name='performance', value_name='score')
     # order
     hue_order = None
+    order = None
     if order_by is not None:
         order = df[df.performance == order_by].sort_values('score').name.tolist()
         hue_order = df[df.name == order[-1]].sort_values('score').performance.tolist()
