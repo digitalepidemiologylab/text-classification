@@ -1,17 +1,9 @@
 """CLI printing module."""
 
-import sys
 import logging
 
-from ..utils.misc import ArgParseDefault
 from ..utils import print_helpers as helpers
 
-USAGE_DESC = """
-python print.py <command> [<args>]
-
-Available commands:
-  misclassifications             Print sample of misclassifications for given run
-"""
 
 logging.basicConfig(
     level=logging.INFO,
@@ -19,9 +11,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def misclassifications():
+def misclassifications(parser):
     """Prints misclassifications."""
-    parser = ArgParseDefault(description=misclassifications.__doc__)
     parser.add_argument(
         '-r', '--run',
         required=True, dest='run', type=str,
@@ -30,5 +21,5 @@ def misclassifications():
         '-n', '--num_samples',
         required=False, type=int, default=10,
         help='Number of misclassifications printed per sample')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.print_misclassifications(args.run, args.num_samples)
+    parser.set_defaults(
+        func=lambda args: helpers.print_misclassifications(**vars(args)))

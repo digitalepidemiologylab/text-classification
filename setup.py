@@ -21,10 +21,7 @@ setuptools.setup(
         'boto3', 'munch', 'docker', 'joblib',
         'en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz'],
     entry_points={'console_scripts': [
-        'txtcls-main=text_classification.cli.cli:main_cli',
-        'txtcls-deploy=text_classification.cli.cli:deploy_cli',
-        'txtcls-plot=text_classification.cli.cli:plot_cli',
-        'txtcls-print=text_classification.cli.cli:print_cli']},
+        'txtcls=text_classification.cli.cli:entry_point']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

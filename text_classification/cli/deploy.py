@@ -1,23 +1,9 @@
 """CLI deployment moddule."""
 
-import sys
 import logging
 
-from ..utils.misc import ArgParseDefault
 from ..utils import deploy_helpers as helpers
 
-USAGE_DESC = """
-python deploy.py <command> [<args>]
-
-These are helpers to run the individual steps of model deployment. You can run all these steps at once using `python main.py deploy`.
-
-Available commands:
-  build            Dockerize trained model
-  push             Push dockerized model to AWS ECR
-  build_and_push   Runs both build and push
-  run_local        Builds image and runs it locally
-  create_model     Creates Sagemaker model and endpoint configuration
-"""
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,9 +11,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def build():
+def build(parser):
     """Builds Docker image from trained model."""
-    parser = ArgParseDefault(description=build.__doc__)
     parser.add_argument(
         '-r', '--run',
         type=str, required=True, dest='run',
@@ -40,13 +25,12 @@ def build():
         '-m', '--model_type',
         choices=['fasttext'], type=str, default='fasttext', dest='model_type',
         help='Model type')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.build(args.run, args.project, args.model_type)
+    parser.set_defaults(
+        func=lambda args: helpers.build(**vars(args)))
 
 
-def push():
+def push(parser):
     """Pushes Docker image to AWS ECR."""
-    parser = ArgParseDefault(description=push.__doc__)
     parser.add_argument(
         '-r', '--run',
         type=str, required=True, dest='run',
@@ -59,13 +43,12 @@ def push():
         '-m', '--model_type',
         choices=['fasttext'], type=str, default='fasttext', dest='model_type',
         help='Model type')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.push(args.run, args.project, args.model_type)
+    parser.set_defaults(
+        func=lambda args: helpers.push(**vars(args)))
 
 
-def build_and_push():
+def build_and_push(parser):
     """Builds and pushes Docker image to AWS ECR."""
-    parser = ArgParseDefault(description=build_and_push.__doc__)
     parser.add_argument(
         '-r', '--run',
         type=str, required=True, dest='run',
@@ -78,13 +61,12 @@ def build_and_push():
         '-m', '--model_type',
         choices=['fasttext'], type=str, default='fasttext', dest='model_type',
         help='Model type')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.build_and_push(args.run, args.project, args.model_type)
+    parser.set_defaults(
+        func=lambda args: helpers.build_and_push(**vars(args)))
 
 
-def run_local():
+def run_local(parser):
     """Runs build locally."""
-    parser = ArgParseDefault(description=run_local.__doc__)
     parser.add_argument(
         '-r', '--run',
         type=str, required=True, dest='run',
@@ -97,13 +79,12 @@ def run_local():
         '-m', '--model_type',
         choices=['fasttext'], type=str, default='fasttext', dest='model_type',
         help='Model type')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.run_local(args.run, args.project, args.model_type)
+    parser.set_defaults(
+        func=lambda args: helpers.run_local(**vars(args)))
 
 
-def create_model():
+def create_model(parser):
     """Creates Sagemaker model and endpoint configuration."""
-    parser = ArgParseDefault(description=create_model.__doc__)
     parser.add_argument(
         '-r', '--run',
         type=str, required=True, dest='run',
@@ -124,7 +105,5 @@ def create_model():
         '-i', '--instance-type',
         type=str, default='ml.t2.medium', dest='instance_type',
         help='Instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.create_model_and_configuration(
-        args.run, args.project, args.question_tag,
-        args.model_type, args.instance_type)
+    parser.set_defaults(
+        func=lambda args: helpers.create_model_and_configuration(**vars(args)))

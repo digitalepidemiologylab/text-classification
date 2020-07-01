@@ -1,19 +1,9 @@
 """CLI plotting module."""
 
-import sys
 import logging
 
-from ..utils.misc import ArgParseDefault, add_bool_arg
 from ..utils import plot_helpers as helpers
 
-USAGE_DESC = """
-python plot.py <command> [<args>]
-
-Available commands:
-  confusion_matrix             Plot confusion matrix for a specific run
-  compare_runs                 Compare performan between runs (horizontal bar plot)
-  label_distribution           Plot label distributions (full and unambiguous)
-"""
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,24 +11,26 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def confusion_matrix():
+def confusion_matrix(parser):
     """Plots confusion matrix."""
-    parser = ArgParseDefault(description=confusion_matrix.__doc__)
     parser.add_argument(
         '-r', '--run',
         required=True, dest='run', type=str,
         help='Name of run')
-    add_bool_arg(
-        parser, 'log_scale', default=False, help='Show values in log scale')
-    add_bool_arg(
-        parser, 'normalize', default=False, help='Normalize counts')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.plot_confusion_matrix(args.run, args.log_scale, args.normalize)
+    parser.add_argument(
+        '--log-scale',
+        dest='log_scale', action='store_true', default=False,
+        help='Show values in log scale')
+    parser.add_argument(
+        '--normalize',
+        dest='normalize', action='store_true', default=False,
+        help='Normalize counts')
+    parser.set_defaults(
+        func=lambda args: helpers.plot_confusion_matrix(**vars(args)))
 
 
-def compare_runs():
+def compare_runs(parser):
     """Compares performance between runs (horizontal bar plot)."""
-    parser = ArgParseDefault(description=compare_runs.__doc__)
     parser.add_argument(
         '-r', '--runs',
         required=True, type=str, nargs='+',
@@ -50,25 +42,27 @@ def compare_runs():
         type=list, nargs='+',
         default=['accuracy', 'f1_macro', 'precision_macro', 'recall_macro'],
         help='Scores to plot')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.plot_compare_runs(args.runs, args.performance_scores)
+    parser.set_defaults(
+        func=lambda args: helpers.plot_compare_runs(**vars(args)))
 
 
-def label_distribution():
+def label_distribution(parser):
     """Plots label distribution."""
-    parser = ArgParseDefault(description=label_distribution.__doc__)
     parser.add_argument(
         '-d', '--data-path',
         required=True, type=str,
         help='Data path')
-    args = parser.parse_args(sys.argv[2:])
-    config_dict = {}
-    config_dict['mode'] = ['train', 'test']
-    config_dict['label'] = ['category', 'type']
-    config_dict['merged'] = [True, False]
-    for mode in config_dict['mode']:
-        for label in config_dict['label']:
-            for merged in config_dict['merged']:
-                helpers.plot_label_distribution(
-                    args.data_path,
-                    mode=mode, label=label, merged=merged)
+
+    def _label_distribution(args):
+        config_dict = {}
+        config_dict['mode'] = ['train', 'test']
+        config_dict['label'] = ['category', 'type']
+        config_dict['merged'] = [True, False]
+        for mode in config_dict['mode']:
+            for label in config_dict['label']:
+                for merged in config_dict['merged']:
+                    helpers.plot_label_distribution(
+                        args.data_path,
+                        mode=mode, label=label, merged=merged)
+
+    parser.set_defaults(func=_label_distribution)

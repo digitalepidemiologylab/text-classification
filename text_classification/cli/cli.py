@@ -1,8 +1,10 @@
 """CLI entry-point functions."""
 
-import sys
+from argparse import (ArgumentParser,
+                      ArgumentDefaultsHelpFormatter,
+                      RawTextHelpFormatter)
+from inspect import getmembers, isfunction
 
-from ..utils.misc import ArgParseDefault
 from . import main as main_
 from . import deploy as deploy_
 from . import plot as plot_
@@ -17,36 +19,80 @@ func_to_mod = {
 }
 
 
-def entry_point(func):
-    def wrapper():
-        parser = ArgParseDefault(
-            usage=globals()[func_to_mod[func.__name__]].USAGE_DESC)
-        parser.add_argument('command', help='Subcommand to run')
-        args = parser.parse_args(sys.argv[1:2])
-        try:
-            getattr(globals()[func_to_mod[func.__name__]], args.command)()
-        except AttributeError:
-            print('Unrecognized command')
-            parser.print_help()
-            sys.exit(1)
-    return wrapper
-
-
-@entry_point
-def main_cli():
+class MixedFormatter(ArgumentDefaultsHelpFormatter, RawTextHelpFormatter):
     pass
 
 
-@entry_point
-def deploy_cli():
-    pass
+def entry_point():
+    entry_parser = ArgumentParser(prog='txtcls', formatter_class=MixedFormatter)
+    subparsers = entry_parser.add_subparsers(help='sub-commands')
+
+    main_parser = subparsers.add_parser(
+        'main', help='main pipeline')
+    deploy_parser = subparsers.add_parser(
+        'deploy', help='deployment')
+    plot_parser = subparsers.add_parser(
+        'plot', help='plotting')
+    print_parser = subparsers.add_parser(
+        'print', help='printing')
+
+    set_subparsers(main_parser, main_)
+    set_subparsers(deploy_parser, deploy_)
+    set_subparsers(plot_parser, plot_)
+    set_subparsers(print_parser, print_)
+
+    args = entry_parser.parse_args()
+    args.func(args)
 
 
-@entry_point
-def plot_cli():
-    pass
+def set_subparsers(parser, module):
+    subparsers = parser.add_subparsers(help='sub-commands')
+    funcs = getmembers(module, isfunction)
+
+    def doc_to_help(doc):
+        help_str = doc.split('.')[0]
+        help_str = help_str[0].lower() + help_str[1:]
+        return help_str
+
+    for func_name, func in funcs:
+        local_parser = subparsers.add_parser(
+            func_name.replace("_", "-"),
+            description=func.__doc__,
+            formatter_class=MixedFormatter,
+            help=doc_to_help(func.__doc__))
+        func(local_parser)
 
 
-@entry_point
-def print_cli():
-    pass
+# def entry_point_local(func):
+#     def wrapper():
+#         parser = ArgParseDefault()
+#             # usage=globals()[func_to_mod[func.__name__]].USAGE_DESC)
+#         parser.add_argument('subcommand', help='Subcommand to run')
+#         args = parser.parse_args(sys.argv[1:2])
+#         try:
+#             getattr(globals()[func_to_mod[func.__name__]], args.command)()
+#         except AttributeError:
+#             print('Unrecognized command')
+#             parser.print_help()
+#             sys.exit(1)
+#     return wrapper
+
+
+# @entry_point_local
+# def main_cli():
+#     pass
+
+
+# @entry_point_local
+# def deploy_cli():
+#     pass
+
+
+# @entry_point_local
+# def plot_cli():
+#     pass
+
+
+# @entry_point_local
+# def print_cli():
+#     pass

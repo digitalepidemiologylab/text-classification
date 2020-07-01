@@ -1,31 +1,13 @@
 """CLI main module."""
 
 import os
-import sys
 import logging
 
 import joblib
 
-from ..utils.misc import ArgParseDefault
 from ..utils import helpers
 from ..utils import deploy_helpers
 
-USAGE_DESC = """
-python main.py <command> [<args>]
-
-Available commands:
-  split            Splits data into training and test data
-  train            Train a classifier based on a config file
-  predict          Predict unknown data given a trained model
-  generate_config  Generate a config file programmatically
-  augment          Augment training data
-  generate_text    Generate text
-  finetune         Fine-tune pre-trained language models
-  learning_curve   Compute learning curve
-  optimize         Perform hyperparameter optimization
-  ls               List trained models and performance
-  deploy           Makes model available to AWS Sagemaker
-"""
 
 logging.basicConfig(
     level=logging.INFO,
@@ -33,9 +15,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def split():
+def split(parser):
     """Splits annotated data into training and test data sets."""
-    parser = ArgParseDefault(description=split.__doc__)
     parser.add_argument(
         '-n', '--name',
         type=str, required=True,
@@ -56,14 +37,11 @@ def split():
         '--seed',
         type=int, required=False, default=42,
         help='Random state split')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.train_test_split(
-        name=args.name, test_size=args.test_size,
-        balanced_labels=args.balanced_labels, label_tags=args.label_tags,
-        seed=args.seed)
+    parser.set_defaults(
+        func=lambda args: helpers.train_test_split(**vars(args)))
 
 
-def train():
+def train(parser):
     """Trains model based on config.
 
     The following config keys can/should be present in the config file
@@ -85,7 +63,6 @@ def train():
             Default: ``False``.
         test_only: Runs test file only and skips training. Default: ``False``.
     """
-    parser = ArgParseDefault(description=train.__doc__)
     parser.add_argument(
         '-c', '--config',
         metavar='C', required=False, default='config.json',
@@ -94,27 +71,29 @@ def train():
         '--parallel',
         required=False, action='store_true',
         help='Run in parallel (only recommended for CPU-training)')
-    args = parser.parse_args(sys.argv[2:])
-    config_reader = helpers.ConfigReader()
-    config = config_reader.parse_config(args.config)
-    if len(config.runs) > 1 and args.parallel:
-        num_cpus = max(os.cpu_count() - 1, 1)
-        parallel = joblib.Parallel(n_jobs=num_cpus)
-        train_delayed = joblib.delayed(helpers.train)
-        parallel((train_delayed(run_config) for run_config in config.runs))
-    else:
-        for run_config in config.runs:
-            helpers.train(run_config)
+
+    def _train(args):
+        config_reader = helpers.ConfigReader()
+        config = config_reader.parse_config(args.config)
+        if len(config.runs) > 1 and args.parallel:
+            num_cpus = max(os.cpu_count() - 1, 1)
+            parallel = joblib.Parallel(n_jobs=num_cpus)
+            train_delayed = joblib.delayed(helpers.train)
+            parallel((train_delayed(run_config) for run_config in config.runs))
+        else:
+            for run_config in config.runs:
+                helpers.train(run_config)
+
+    parser.set_defaults(func=_train)
 
 
-def predict():
+def predict(parser):
     """Predicts classes based on a config file and input data and
     output predictions.
     """
-    parser = ArgParseDefault(description=predict.__doc__)
     parser.add_argument(
         '-r', '--run',
-        required=True, type=str, default=None,
+        required=True, dest='run_name', type=str, default=None,
         help='Name of run')
     parser.add_argument(
         '-p', '--path',
@@ -160,80 +139,84 @@ def predict():
         '--verbose',
         default=False, dest='verbose', action='store_true',
         help='Print predictions')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.predict(
-        args.run, path=args.path, data=args.data, output_cols=args.output_cols,
-        output_folder=args.output_folder, col=args.col,
-        no_file_output=args.no_file_output, in_parallel=args.in_parallel,
-        verbose=args.verbose, output_formats=args.output_formats)
+    parser.set_defaults(func=lambda args: helpers.predict(**vars(args)))
 
 
-def generate_config():
+def generate_config(parser):
     """Generates config for grid search hyperparameter search."""
-    parser = ArgParseDefault(
-        description=generate_config.__doc__)
     parser.add_argument(
         '--name',
         required=True, type=str,
-        help='Global name prefix and name of output file.')
+        help='global name prefix and name of output file')
     parser.add_argument(
         '--train-data',
         required=True, dest='train_data', type=str,
-        help='Train data path')
+        help='train data path')
     parser.add_argument(
         '--test-data',
         required=True, dest='test_data', type=str,
-        help='Test data path')
+        help='test data path')
     parser.add_argument(
         '-m', '--models',
         required=True, nargs='+',
-        help='List of models. '
-             'Eeach model will be combined with each param pair.')
+        help='list of models; '
+             'each model will be combined with each param pair')
     parser.add_argument(
         '-p', '--params',
         required=False, nargs='*', default=[],
-        help='Arbitrary list of grid search params of the format '
-             '`key:modifier:values`. '
-             'Key=hyperparameter name, '
-             'modifier=Can be either `val` (individual values), '
-             '`lin` (linspace), or `log` (logspace), '
-             'followed by the respective values or params '
-             'for the lin/log space. '
-             'Examples: num_epochs:val:2,3 or learning_rate:log:-6,-2,4')
+        help="""
+        arbitrary list of grid search params.
+        Format: 'key:modifier:values', where
+        - 'key'       hyperparameter name,
+        - 'modifier'  can be either
+            - 'val' (individual values),
+            - 'lin' (linspace), or
+            - 'log' (logspace)
+        - 'values'    params for the lin/log space.
+        Examples:
+        - 'num_epochs:val:2,3'
+        - 'learning_rate:log:-6,-2,4'
+        """)
     parser.add_argument(
         '-g', '--globals',
-        required=False, nargs='*', default=[],
-        help='List of global params which will be passed '
-             'to all runs of the format `key:value`')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.generate_config(
-        name=args.name, train_data=args.train_data, test_data=args.test_data,
-        models=args.models, params=args.params, global_params=args.globals)
+        required=False, dest='global_params', nargs='*', default=[],
+        help="list of global params which will be passed "
+             "to all runs.\nFormat: 'key:value'")
+    parser.set_defaults(
+        func=lambda args: helpers.generate_config(**vars(args)))
 
 
-def generate_text():
+def generate_text(parser):
     """Generates text."""
-    parser = ArgParseDefault(description=generate_text.__doc__)
     parser.add_argument(
         '--seed',
         required=True, type=str,
         help='Seed text to start generating text from.')
-    args, other_args = parser.parse_known_args(sys.argv[2:])
-    for arg in other_args:
-        if arg.startswith(("-", "--")):
-            parser.add_argument(arg)
-    args = parser.parse_args(sys.argv[2:])
-    text = helpers.generate_text(**vars(args))
-    print(text)
+
+    def raise_not_implemented(args):
+        raise NotImplementedError
+
+    parser.set_defaults(
+        func=raise_not_implemented)
+
+    # args, other_args = parser.parse_known_args(sys.argv[2:])
+    # for arg in other_args:
+    #     if arg.startswith(("-", "--")):
+    #         parser.add_argument(arg)
+    # args = parser.parse_args(sys.argv[2:])
+    # text = helpers.generate_text(**vars(args))
+    # print(text)
 
 
-def augment():
+def augment(parser):
     """Augments training data."""
-    parser = ArgParseDefault(description=augment.__doc__)
     parser.add_argument(
         '-n', '--num',
-        required=False, dest='num', type=int, default=10,
+        required=False, dest='n', type=int, default=10,
         help='Number of tweets to generate text from')
+    parser.add_argument(
+        '--min-tokens',
+        required=False, type=int, default=8)
     parser.add_argument(
         '-s', '--source',
         required=False, dest='source', type=str, default='training_data',
@@ -244,7 +227,7 @@ def augment():
         help='Number of repeated times a single seed should be used')
     parser.add_argument(
         '-c', '--contains',
-        required=False, dest='contains', type=str, default='',
+        required=False, dest='should_contain_keyword', type=str, default='',
         help='Only collect sentences which contain keyword')
     parser.add_argument(
         '--n-sentences-after-seed',
@@ -254,23 +237,19 @@ def augment():
         '--verbose',
         dest='verbose', action='store_true',
         help='Verbose output')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.augment_training_data(
-        n=args.num, min_tokens=8, source=args.source, repeats=args.repeats,
-        should_contain_keyword=args.contains,
-        n_sentences_after_seed=args.n_sentences_after_seed,
-        verbose=args.verbose)
+    parser.set_defaults(
+        func=lambda args: helpers.augment_training_data(**vars(args)))
 
 
-def pretrain():
+def pretrain(parser):
     """Pretrains model based on config.
 
     Not implemented yet.
     """
-    raise NotImplementedError
+    # TODO: implement pretrain
 
 
-def finetune():
+def finetune(parser):
     """Finetunes model based on config.
 
     The following config keys can/should be present in the config file
@@ -287,19 +266,21 @@ def finetune():
         overwrite: Wipe existing finetuned model with same name
         etc: all additional model-specific parameters
     """
-    parser = ArgParseDefault(description=finetune.__doc__)
     parser.add_argument(
         '-c', '--config', metavar='C',
         required=False, default='config.json',
         help='Name/path of configuration file. Default: config.json')
-    args = parser.parse_args(sys.argv[2:])
-    config_reader = helpers.ConfigReader()
-    config = config_reader.parse_fine_tune_config(args.config)
-    for run_config in config.runs:
-        helpers.finetune(run_config)
+
+    def _finetune(args):
+        config_reader = helpers.ConfigReader()
+        config = config_reader.parse_fine_tune_config(args.config)
+        for run_config in config.runs:
+            helpers.finetune(run_config)
+
+    parser.set_defaults(func=_finetune)
 
 
-def learning_curve():
+def learning_curve(parser):
     """Computes learning curve for model.
 
     The following keys can/should be present in the config file.
@@ -327,16 +308,14 @@ def learning_curve():
     a unique run index `learning_curve_index` for each run and
     a `learning_curve_repetition_index`, being unique for each repetition group.
     """
-    parser = ArgParseDefault(description=learning_curve.__doc__)
     parser.add_argument(
         '-c', '--config', metavar='C',
-        required=False, default='config.json',
+        required=False, dest='config_path', default='config.json',
         help='Name/path of configuration file. Default: config.json')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.learning_curve(args.config)
+    parser.set_defaults(func=lambda args: helpers.learning_curve(**vars(args)))
 
 
-def optimize():
+def optimize(parser):
     """Performs hyperparameter optimization (requires hypteropt package).
 
     The following keys can/should be present in the config file.
@@ -357,18 +336,16 @@ def optimize():
         optimize_keep_models: Whether to keep model for each iteration.
             Default: ``False``.
     """
-    parser = ArgParseDefault(description=optimize.__doc__)
     parser.add_argument(
         '-c', '--config', metavar='C',
-        required=False, default='config.json',
+        required=False, dest='config_path', default='config.json',
         help='Name/path of configuration file. Default: config.json')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.optimize(args.config)
+    parser.set_defaults(
+        func=lambda args: helpers.optimize(**vars(args)))
 
 
-def ls():
+def ls(parser):
     """List trained models."""
-    parser = ArgParseDefault(description=ls.__doc__)
     parser.add_argument(
         '-m', '--model',
         required=False, dest='model', type=str, default=None,
@@ -408,15 +385,11 @@ def ls():
         '--all-params',
         dest='all_params', action='store_true',
         help='Show all params')
-    args = parser.parse_args(sys.argv[2:])
-    helpers.ListRuns().list_runs(
-        run_pattern=args.run_pattern, model=args.model,
-        names_only=args.names_only, filename_pattern=args.filename_pattern,
-        averaging=args.averaging, metrics=args.metrics, params=args.params,
-        all_params=args.all_params, top=args.top)
+    parser.set_defaults(
+        func=lambda args: helpers.helpers.ListRuns().list_runs(**vars(args)))
 
 
-def deploy():
+def deploy(parser):
     """Makes trained models available to AWS Sagemaker.
 
     Performs the following steps:
@@ -430,7 +403,6 @@ def deploy():
     the instance type to use for this model
     After this the endpoint still needs to be created manually.
     """
-    parser = ArgParseDefault(description=deploy.__doc__)
     parser.add_argument(
         '-r', '--run',
         required=True, dest='run', type=str,
@@ -451,7 +423,5 @@ def deploy():
         '-i', '--instance-type',
         dest='instance_type', type=str, default='ml.t2.medium',
         help='Instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
-    args = parser.parse_args(sys.argv[2:])
-    deploy_helpers.deploy(
-        args.run, args.project, args.question_tag, args.model_type,
-        args.instance_type)
+    parser.set_defaults(
+        func=lambda args: deploy_helpers.deploy(**vars(args)))

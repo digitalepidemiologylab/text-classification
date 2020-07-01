@@ -70,7 +70,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+# docs/_build/
 
 # PyBuilder
 .pybuilder/
@@ -148,3 +148,6 @@ other/models
 
 # scripts
 *.sh
+
+# VS Code
+.vscode/*
