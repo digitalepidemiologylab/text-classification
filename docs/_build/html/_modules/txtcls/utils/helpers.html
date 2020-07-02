@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>txtcls.utils.helpers &mdash; Text Classification  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Text Classification
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Text Classification</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>txtcls.utils.helpers</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for txtcls.utils.helpers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main pipeline helpers</span>
+<span class="sd">=====================</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ConfigReader</span>
+<span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">get_df_hash</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">unicodedata</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">sklearn.model_selection</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">joblib</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
+
+
+<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Train and evaluate&quot;&quot;&quot;</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">run_config</span><span class="o">.</span><span class="n">augment_data</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Augmenting training data&#39;</span><span class="p">)</span>
+        <span class="n">run_config</span> <span class="o">=</span> <span class="n">augment</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
+    <span class="c1"># train</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">Start training model for `</span><span class="si">{}</span><span class="s1">`&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">run_config</span><span class="o">.</span><span class="n">test_only</span><span class="p">:</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
+    <span class="c1"># test</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Test results for `</span><span class="si">{}</span><span class="s2">`:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;No test results generated.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">test_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;test_output.json&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">run_config</span><span class="o">.</span><span class="n">write_test_output</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">,</span> <span class="s1">&#39;prediction&#39;</span><span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">})</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;test_output.csv&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">print_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">,</span> <span class="s1">&#39;recall&#39;</span><span class="p">,</span> <span class="s1">&#39;precision&#39;</span><span class="p">,</span> <span class="s1">&#39;f1&#39;</span><span class="p">,</span> <span class="s1">&#39;test_loss&#39;</span><span class="p">,</span> <span class="s1">&#39;loss&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">print_keys</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">modifier</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;_micro&#39;</span><span class="p">,</span> <span class="s1">&#39;_macro&#39;</span><span class="p">,</span> <span class="s1">&#39;_binary&#39;</span><span class="p">]:</span>
+            <span class="n">new_key</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="n">modifier</span>
+            <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="n">result</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="n">new_key</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:&lt;20}</span><span class="s2">: </span><span class="si">{}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_key</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">new_key</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">{:&lt;20}</span><span class="s2">: </span><span class="si">{:.4f}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">new_key</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">new_key</span><span class="p">])</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training for model `</span><span class="si">{}</span><span class="s2">` finished. Model output written to `</span><span class="si">{}</span><span class="s2">`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">run_config</span><span class="o">.</span><span class="n">output_path</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">run_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_cols</span><span class="o">=</span><span class="p">[],</span> <span class="n">output_folder</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">no_file_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_formats</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">read_input_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">15</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">text_chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">text_chunk</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.txt&#39;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">num_lines</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">datafile</span><span class="p">)</span>
+                <span class="n">datafile</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()):</span>
+                    <span class="n">text_chunk</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">text_chunk</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="n">chunksize</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="k">yield</span> <span class="n">text_chunk</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Please provide the input file with a file extension of either `csv` or `txt`.&#39;</span><span class="p">)</span>
+    <span class="c1"># parse run config</span>
+    <span class="n">config_reader</span> <span class="o">=</span> <span class="n">ConfigReader</span><span class="p">()</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">run_name</span><span class="p">,</span> <span class="s1">&#39;run_config.json&#39;</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">parse_config</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="n">predict_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">run_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># read from file</span>
+        <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Provide either a path or data argument&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Reading data from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="n">chunksize</span> <span class="o">=</span> <span class="mi">2</span><span class="o">**</span><span class="mi">14</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="n">read_input_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">num_it</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">f</span><span class="p">])</span> <span class="o">/</span> <span class="n">chunksize</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># read from argument</span>
+        <span class="n">input_data</span> <span class="o">=</span> <span class="p">[[</span><span class="n">data</span><span class="p">]]</span>
+        <span class="n">num_it</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">input_data</span><span class="p">)</span>
+        <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">run_config</span><span class="o">.</span><span class="n">output_attentions</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Predicting...&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">in_parallel</span><span class="p">:</span>
+        <span class="n">num_cpus</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">parallel</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="n">num_cpus</span><span class="p">)</span>
+        <span class="n">predict_delayed</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">delayed</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">)</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="n">parallel</span><span class="p">((</span><span class="n">predict_delayed</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">predict_data</span><span class="p">)</span> <span class="k">for</span> <span class="n">predict_data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">num_it</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;chunk&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">))))</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">output</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">predict_data</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">input_data</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="n">num_it</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;chunk&#39;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">run_config</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">predict_data</span><span class="p">)</span>
+            <span class="n">output</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">predictions</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;No predictions returned.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">output_cols</span> <span class="o">=</span> <span class="n">output_cols</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_file_output</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">output_formats</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">output_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;csv&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">]</span>
+        <span class="n">unique_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">output_formats</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_folder</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_folder</span><span class="p">)</span>
+            <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_folder</span><span class="p">,</span> <span class="s1">&#39;predicted_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">.</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">),</span> <span class="n">unique_id</span><span class="p">,</span> <span class="n">fmt</span><span class="p">))</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Writing output file </span><span class="si">{}</span><span class="s1">...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_file</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;csv&#39;</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">labels</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="s1">&#39;probability&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">probabilities</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+                <span class="n">df</span><span class="p">[</span><span class="n">output_cols</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s1">&#39;json&#39;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span> <span class="ow">or</span> <span class="p">(</span><span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Prediction output:&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="pretrain"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.pretrain">[docs]</a><span class="k">def</span> <span class="nf">pretrain</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="finetune"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.finetune">[docs]</a><span class="k">def</span> <span class="nf">finetune</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+    <span class="k">if</span> <span class="s1">&#39;use_tf&#39;</span> <span class="ow">in</span> <span class="n">run_config</span> <span class="ow">and</span> <span class="n">run_config</span><span class="p">[</span><span class="s1">&#39;use_tf&#39;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">..models.finetune_tf_transformer</span> <span class="kn">import</span> <span class="n">FinetuneTfTransformer</span>
+        <span class="n">ft_transformers</span> <span class="o">=</span> <span class="n">FinetuneTfTransformer</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.finetune_transformer</span> <span class="kn">import</span> <span class="n">FinetuneTransformer</span>
+        <span class="n">ft_transformers</span> <span class="o">=</span> <span class="n">FinetuneTransformer</span><span class="p">()</span>
+    <span class="n">ft_transformers</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="n">run_config</span><span class="p">)</span>
+    <span class="n">ft_transformers</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s1">&#39;test_data&#39;</span> <span class="ow">in</span> <span class="n">run_config</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">ft_transformers</span><span class="o">.</span><span class="n">test</span><span class="p">()</span>
+        <span class="n">test_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;test_output.json&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Dynamically import model module and return model instance&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.fasttextmodel</span> <span class="kn">import</span> <span class="n">FastTextModel</span>
+        <span class="k">return</span> <span class="n">FastTextModel</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext_unsupervised&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.fasttext_unsupervised</span> <span class="kn">import</span> <span class="n">FastTextUnsupervised</span>
+        <span class="k">return</span> <span class="n">FastTextUnsupervised</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bag_of_words&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.bag_of_words</span> <span class="kn">import</span> <span class="n">BagOfWordsModel</span>
+        <span class="k">return</span> <span class="n">BagOfWordsModel</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bert&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.bertmodel</span> <span class="kn">import</span> <span class="n">BERTModel</span>
+        <span class="k">return</span> <span class="n">BERTModel</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;openai_gpt2&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.openai_gpt2</span> <span class="kn">import</span> <span class="n">OpenAIGPT2</span>
+        <span class="k">return</span> <span class="n">OpenAIGPT2</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;dummy&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">DummyModel</span>
+        <span class="k">return</span> <span class="n">DummyModel</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">RandomModel</span>
+        <span class="k">return</span> <span class="n">RandomModel</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;weighted_random&#39;</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">..models.weighted_random</span> <span class="kn">import</span> <span class="n">WeightedRandomModel</span>
+        <span class="k">return</span> <span class="n">WeightedRandomModel</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Model `</span><span class="si">{}</span><span class="s1">` is unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="generate_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.generate_config">[docs]</a><span class="k">def</span> <span class="nf">generate_config</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">global_params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Generates a grid search config&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">_parse_value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">allow_str</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">if</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;true&#39;</span><span class="p">,</span> <span class="s1">&#39;True&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;false&#39;</span><span class="p">,</span> <span class="s1">&#39;False&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">allow_str</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">s</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;The given parameter value of `</span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s1">` could not be converted into int, float or bool&#39;</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;params&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;train_data&quot;</span><span class="p">:</span> <span class="n">train_data</span><span class="p">,</span> <span class="s2">&quot;test_data&quot;</span><span class="p">:</span> <span class="n">test_data</span><span class="p">}}</span>
+    <span class="k">for</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">global_params</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Param </span><span class="si">{}</span><span class="s1"> has to be of format `key:value`&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">=</span> <span class="n">g</span>
+        <span class="n">config</span><span class="p">[</span><span class="s1">&#39;params&#39;</span><span class="p">][</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_value</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">allow_str</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gs_params</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+        <span class="n">param_split</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">param_split</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Param </span><span class="si">{}</span><span class="s1"> has to be of format `key:modifier:values`&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">param</span><span class="p">))</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">modifier</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">param_split</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">_parse_value</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">modifier</span> <span class="o">==</span> <span class="s1">&#39;val&#39;</span><span class="p">:</span>
+            <span class="n">gs_params</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">values</span><span class="p">})</span>
+        <span class="k">elif</span> <span class="n">modifier</span> <span class="o">==</span> <span class="s1">&#39;lin&#39;</span><span class="p">:</span>
+            <span class="n">gs_params</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()})</span>
+        <span class="k">elif</span> <span class="n">modifier</span> <span class="o">==</span> <span class="s1">&#39;log&#39;</span><span class="p">:</span>
+            <span class="n">gs_params</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">*</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Modifier </span><span class="si">{}</span><span class="s1"> is not recognized.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modifier</span><span class="p">))</span>
+    <span class="n">runs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gs_params</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">models</span><span class="p">]</span>
+    <span class="n">param_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gs_params</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">param</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)):</span>
+        <span class="n">param_dict</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">param_names</span><span class="p">,</span> <span class="n">param</span><span class="p">))</span>
+        <span class="n">param_dict</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">param_dict</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># get rid of integer for single run</span>
+        <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">][:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">config</span><span class="p">[</span><span class="s1">&#39;runs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">runs</span>
+    <span class="n">f_name</span> <span class="o">=</span> <span class="s1">&#39;config.</span><span class="si">{}</span><span class="s1">.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully generated file `</span><span class="si">{}</span><span class="s1">` with </span><span class="si">{}</span><span class="s1"> runs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="train_test_split"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.train_test_split">[docs]</a><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">balanced_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Splits cleaned labelled data into training and test set</span>
+<span class="sd">    :param test_size: Fraction of data which should be reserved for test data, default: 0.2</span>
+<span class="sd">    :param label_tags: Only select examples with certain label tags</span>
+<span class="sd">    :param balanced_labels: Ensure equal label balance</span>
+<span class="sd">    :param seed: Random seed (default: 42)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">filter_for_label_balance</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Performs undersampling for overrepresanted label classes&quot;&quot;&quot;</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">])</span>
+        <span class="n">min_count</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">counts</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">counts</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">_df</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">l</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">min_count</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="n">_df</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">get_data</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">balanced_labels</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">filter_for_label_balance</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;_balanced&#39;</span> <span class="k">if</span> <span class="n">balanced_labels</span> <span class="k">else</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">train</span><span class="p">,</span> <span class="n">test</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">model_selection</span><span class="o">.</span><span class="n">train_test_split</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">test_size</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">dtype</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">[[</span><span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="n">train</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="n">test</span><span class="p">]]:</span>
+        <span class="n">f_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_split_</span><span class="si">{}</span><span class="s1">_seed_</span><span class="si">{}{}</span><span class="s1">.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">dtype</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">test_size</span><span class="p">),</span> <span class="n">seed</span><span class="p">,</span> <span class="n">flags</span><span class="p">)</span>
+        <span class="n">f_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="n">f_name</span><span class="p">)</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">f_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully wrote file </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_path</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="augment"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.augment">[docs]</a><span class="k">def</span> <span class="nf">augment</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+    <span class="n">df_augment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">augment_data</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df_augment</span> <span class="o">=</span> <span class="n">df_augment</span><span class="p">[[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">]]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Augmented data needs to have a text and label column.&#39;</span><span class="p">)</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">train_data</span><span class="p">)</span>
+    <span class="c1"># concatenate</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_train</span><span class="p">,</span> <span class="n">df_augment</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># check if hash exists</span>
+    <span class="n">f_name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">get_df_hash</span><span class="p">(</span><span class="n">df_train</span><span class="p">))</span>
+    <span class="n">f_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s1">&#39;augment&#39;</span><span class="p">,</span> <span class="n">f_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">f_path</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">f_path</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">f_path</span><span class="p">):</span>
+        <span class="c1"># shuffle and store</span>
+        <span class="n">df_train</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">frac</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df_train</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">f_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># change paths</span>
+    <span class="n">run_config</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">f_path</span>
+    <span class="k">return</span> <span class="n">run_config</span></div>
+
+<div class="viewcode-block" id="generate_text"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.generate_text">[docs]</a><span class="k">def</span> <span class="nf">generate_text</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;openai_gpt2&#39;</span><span class="p">))</span>
+    <span class="n">config_reader</span> <span class="o">=</span> <span class="n">ConfigReader</span><span class="p">()</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">get_default_config</span><span class="p">(</span><span class="n">base_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">generate_text</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="learning_curve"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.learning_curve">[docs]</a><span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">LearningCurve</span>
+    <span class="n">lc</span> <span class="o">=</span> <span class="n">LearningCurve</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="n">lc</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">configs</span> <span class="o">=</span> <span class="n">lc</span><span class="o">.</span><span class="n">generate_configs</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+        <span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="find_project_root"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.find_project_root">[docs]</a><span class="k">def</span> <span class="nf">find_project_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;..&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="find_git_root"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.find_git_root">[docs]</a><span class="k">def</span> <span class="nf">find_git_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="p">):</span>
+        <span class="n">par_dirs</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;..&#39;</span><span class="p">]</span>
+        <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">par_dirs</span><span class="p">,</span> <span class="s1">&#39;.git&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">current_dir</span><span class="p">):</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;Could not find git root folder.&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">current_dir</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="get_label_mapping"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.get_label_mapping">[docs]</a><span class="k">def</span> <span class="nf">get_label_mapping</span><span class="p">(</span><span class="n">run_path</span><span class="p">):</span>
+    <span class="n">label_mapping_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_path</span><span class="p">,</span> <span class="s1">&#39;label_mapping.pkl&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">label_mapping_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find label mapping file </span><span class="si">{</span><span class="n">label_mapping_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">label_mapping_path</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">label_mapping</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">label_mapping</span></div>
+
+<div class="viewcode-block" id="augment_training_data"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.augment_training_data">[docs]</a><span class="k">def</span> <span class="nf">augment_training_data</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_tokens</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_sentences_after_seed</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;training_data&#39;</span><span class="p">,</span> <span class="n">should_contain_keyword</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Optimize</span>
+    <span class="n">opt</span> <span class="o">=</span> <span class="n">Optimize</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+    <span class="n">opt</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Crowdbreaks
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

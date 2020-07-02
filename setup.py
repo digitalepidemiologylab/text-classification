@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="text-classification",
+    name="txtcls",
     version="0.0.1",
     author="Crowdbreaks",
     author_email="info@crowdbreaks.org",

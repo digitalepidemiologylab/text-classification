@@ -1,0 +1,333 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>txtcls.utils.optimize &mdash; Text Classification  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Text Classification
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Text Classification</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>txtcls.utils.optimize</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for txtcls.utils.optimize</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ConfigReader</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">hyperopt</span> <span class="kn">import</span> <span class="n">fmin</span><span class="p">,</span> <span class="n">tpe</span><span class="p">,</span> <span class="n">hp</span><span class="p">,</span> <span class="n">STATUS_OK</span><span class="p">,</span> <span class="n">Trials</span><span class="p">,</span> <span class="n">space_eval</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">.misc</span> <span class="kn">import</span> <span class="n">get_json_hash</span><span class="p">,</span> <span class="n">JSONEncoder</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+
+<div class="viewcode-block" id="Optimize"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize">[docs]</a><span class="k">class</span> <span class="nc">Optimize</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span> <span class="o">=</span> <span class="n">config_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_reader</span> <span class="o">=</span> <span class="n">ConfigReader</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_space</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Optimize.init"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># read config</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;Config file under </span><span class="si">{}</span><span class="s1"> does not exist&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">cf</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cf</span><span class="p">)</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config_reader</span><span class="o">.</span><span class="n">parse_from_dict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verify_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_config</span> <span class="o">=</span> <span class="n">config</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimize_space</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_optimize_space</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">optimize_space</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">algo</span> <span class="o">=</span> <span class="n">tpe</span><span class="o">.</span><span class="n">suggest</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_evals</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimize_max_eval&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_models</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimize_keep_models&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">metric</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;optimize_metric&#39;</span><span class="p">,</span> <span class="s1">&#39;f1_macro&#39;</span><span class="p">)</span></div>
+    
+<div class="viewcode-block" id="Optimize.parse_optimize_space"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.parse_optimize_space">[docs]</a>    <span class="k">def</span> <span class="nf">parse_optimize_space</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimize_space</span><span class="p">):</span>
+        <span class="n">_optimize_space</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">optimize_space</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">opt</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;choice&#39;</span><span class="p">:</span>
+                <span class="n">_optimize_space</span><span class="p">[</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="nb">eval</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">])))</span>
+            <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;uniform&#39;</span><span class="p">:</span>
+                <span class="n">_optimize_space</span><span class="p">[</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="o">*</span><span class="nb">eval</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">])))</span>
+            <span class="k">elif</span> <span class="n">opt</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s1">&#39;normal&#39;</span><span class="p">:</span>
+                <span class="n">_optimize_space</span><span class="p">[</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">hp</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">param</span><span class="p">,</span> <span class="o">*</span><span class="nb">eval</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="s1">&#39;values&#39;</span><span class="p">])))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Unknown optimize space </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">type</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">_optimize_space</span></div>
+
+<div class="viewcode-block" id="Optimize.run"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">trials</span> <span class="o">=</span> <span class="n">Trials</span><span class="p">()</span>
+        <span class="n">fmin_objective</span> <span class="o">=</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">)</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="n">fmin</span><span class="p">(</span><span class="n">fmin_objective</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">optimize_space</span><span class="p">,</span> <span class="n">algo</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">algo</span><span class="p">,</span> <span class="n">max_evals</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_evals</span><span class="p">,</span> <span class="n">trials</span><span class="o">=</span><span class="n">trials</span><span class="p">)</span>
+        <span class="n">best</span> <span class="o">=</span> <span class="n">space_eval</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optimize_space</span><span class="p">,</span> <span class="n">best</span><span class="p">)</span>
+        <span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">*</span><span class="nb">min</span><span class="p">(</span><span class="n">trials</span><span class="o">.</span><span class="n">losses</span><span class="p">())</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Best </span><span class="si">{}</span><span class="s1"> score: </span><span class="si">{}</span><span class="s1"> with params: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">metric</span><span class="p">,</span> <span class="n">best_score</span><span class="p">,</span> <span class="n">best</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Optimize.objective"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.objective">[docs]</a>    <span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s1">&#39;f1_macro&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Params: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+        <span class="n">unique_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span><span class="o">.</span><span class="n">hex</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">update_config</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
+        <span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dump_results</span><span class="p">(</span><span class="n">unique_id</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">model_state</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">optimize_keep_models</span><span class="p">:</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="n">metric</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;loss&#39;</span><span class="p">:</span> <span class="o">-</span><span class="n">result</span><span class="p">[</span><span class="n">metric</span><span class="p">],</span>
+                <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">STATUS_OK</span>
+                <span class="p">}</span></div>
+
+<div class="viewcode-block" id="Optimize.dump_results"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.dump_results">[docs]</a>    <span class="k">def</span> <span class="nf">dump_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">d</span><span class="p">,</span> <span class="o">**</span><span class="n">arg</span><span class="p">}</span>
+        <span class="n">test_output</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;optimize_results_</span><span class="si">{}</span><span class="s1">.json&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unique_id</span><span class="p">))</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Optimize.update_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.update_config">[docs]</a>    <span class="k">def</span> <span class="nf">update_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">config</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="c1"># create new output dir</span>
+        <span class="n">config</span><span class="o">.</span><span class="n">output_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="n">unique_id</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">config</span></div>
+
+<div class="viewcode-block" id="Optimize.get_model"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.get_model">[docs]</a>    <span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Dynamically import model module and return model instance&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.fasttextmodel</span> <span class="kn">import</span> <span class="n">FastTextModel</span>
+            <span class="k">return</span> <span class="n">FastTextModel</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext_unsupervised&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.fasttext_unsupervised</span> <span class="kn">import</span> <span class="n">FastTextUnsupervised</span>
+            <span class="k">return</span> <span class="n">FastTextUnsupervised</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bag_of_words&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.bag_of_words</span> <span class="kn">import</span> <span class="n">BagOfWordsModel</span>
+            <span class="k">return</span> <span class="n">BagOfWordsModel</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;bert&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.bertmodel</span> <span class="kn">import</span> <span class="n">BERTModel</span>
+            <span class="k">return</span> <span class="n">BERTModel</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;openai_gpt2&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.openai_gpt2</span> <span class="kn">import</span> <span class="n">OpenAIGPT2</span>
+            <span class="k">return</span> <span class="n">OpenAIGPT2</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;dummy&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">DummyModel</span>
+            <span class="k">return</span> <span class="n">DummyModel</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;random&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.dummy_models</span> <span class="kn">import</span> <span class="n">RandomModel</span>
+            <span class="k">return</span> <span class="n">RandomModel</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;weighted_random&#39;</span><span class="p">:</span>
+            <span class="kn">from</span> <span class="nn">..models.weighted_random</span> <span class="kn">import</span> <span class="n">WeightedRandomModel</span>
+            <span class="k">return</span> <span class="n">WeightedRandomModel</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Model `</span><span class="si">{}</span><span class="s1">` is unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Optimize.verify_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Optimize.verify_config">[docs]</a>    <span class="k">def</span> <span class="nf">verify_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">run_config</span><span class="o">.</span><span class="n">train_data</span> <span class="k">for</span> <span class="n">run_config</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">runs</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot accept different training data sources when running learning curve for multiple models.&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">run_config</span><span class="o">.</span><span class="n">test_data</span> <span class="k">for</span> <span class="n">run_config</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">runs</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot accept different test data sources when running learning curve for multiple models.&#39;</span><span class="p">)</span>
+        <span class="n">run_config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">runs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;optimize_space&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">run_config</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Config doesn&#39;t contain the key &#39;optimize_sace&#39;.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">optimize_space</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key &#39;optimize_sace&#39; should be of type list.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">optimize_space</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Key &#39;optimize_sace&#39; seems to be empty.&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Crowdbreaks
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

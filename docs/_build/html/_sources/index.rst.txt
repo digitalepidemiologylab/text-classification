@@ -27,8 +27,8 @@ Level 5
    :maxdepth: 1
    :caption: Package Reference
 
-   source/text_classification.models
-   source/text_classification.utils
+   source/txtcls.models
+   source/txtcls.utils
 
 Indices and tables
 ==================

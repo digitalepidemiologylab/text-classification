@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>txtcls.utils.docker &mdash; Text Classification  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> Text Classification
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Text Classification</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>txtcls.utils.docker</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for txtcls.utils.docker</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">docker</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">docker.errors</span> <span class="kn">import</span> <span class="n">APIError</span><span class="p">,</span> <span class="n">BuildError</span><span class="p">,</span> <span class="n">ImageNotFound</span>
+<span class="kn">from</span> <span class="nn">.helpers</span> <span class="kn">import</span> <span class="n">find_project_root</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">ECR</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Docker"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker">[docs]</a><span class="k">class</span> <span class="nc">Docker</span><span class="p">():</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docker_client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">docker_api_client</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ecr</span> <span class="o">=</span> <span class="n">ECR</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">docker_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">docker_client</span> <span class="o">=</span> <span class="n">docker</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">docker_client</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">api_client</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">docker_api_client</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">docker_api_client</span> <span class="o">=</span>  <span class="n">docker</span><span class="o">.</span><span class="n">APIClient</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">docker_api_client</span>
+
+<div class="viewcode-block" id="Docker.get_image"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.get_image">[docs]</a>    <span class="k">def</span> <span class="nf">get_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">ImageNotFound</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find image </span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">return</span> <span class="n">image</span></div>
+
+<div class="viewcode-block" id="Docker.build"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.build">[docs]</a>    <span class="k">def</span> <span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docker_path</span><span class="p">,</span> <span class="n">image_name</span><span class="p">):</span>
+        <span class="c1"># build local image</span>
+        <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;platform&#39;</span><span class="p">:</span> <span class="s1">&#39;crowdbreaks&#39;</span><span class="p">}</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Building Docker image from </span><span class="si">{</span><span class="n">docker_path</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">docker_path</span><span class="p">,</span> <span class="n">tag</span><span class="o">=</span><span class="n">image_name</span><span class="p">,</span> <span class="n">rm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">nocache</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_stream_log</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">APIError</span><span class="p">,</span> <span class="n">BuildError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Build unsucessful. Build log:&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_stream_log</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Docker.run"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_name</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span> <span class="n">model_type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Serves model locally&quot;&quot;&quot;</span>
+        <span class="n">model_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">find_project_root</span><span class="p">(),</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+        <span class="n">docker_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">find_project_root</span><span class="p">(),</span> <span class="s1">&#39;sagemaker&#39;</span><span class="p">,</span> <span class="n">model_type</span><span class="p">,</span> <span class="s1">&#39;src&#39;</span><span class="p">)</span>
+        <span class="c1"># bind model artefacts to /opt/ml and bind a volume for the code</span>
+        <span class="n">volumes</span> <span class="o">=</span> <span class="p">{</span><span class="n">model_path</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bind&#39;</span><span class="p">:</span> <span class="s1">&#39;/opt/ml/model&#39;</span><span class="p">,</span> <span class="s1">&#39;mode&#39;</span><span class="p">:</span> <span class="s1">&#39;ro&#39;</span><span class="p">},</span> <span class="n">docker_path</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;bind&#39;</span><span class="p">:</span> <span class="s1">&#39;/opt/program&#39;</span><span class="p">}}</span>
+        <span class="n">ports</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;5000&#39;</span><span class="p">:</span><span class="s1">&#39;5000&#39;</span><span class="p">}</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="s1">&#39;python3 serve&#39;</span>
+        <span class="n">environment</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;FLASK_ENV&#39;</span><span class="p">:</span> <span class="s1">&#39;DEVELOPMENT&#39;</span><span class="p">}</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">container</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">containers</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">image_name</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">volumes</span><span class="o">=</span><span class="n">volumes</span><span class="p">,</span> <span class="n">ports</span><span class="o">=</span><span class="n">ports</span><span class="p">,</span> <span class="n">detach</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">environment</span><span class="o">=</span><span class="n">environment</span><span class="p">)</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="n">container</span><span class="o">.</span><span class="n">logs</span><span class="p">(</span><span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_stream_log</span><span class="p">(</span><span class="n">logs</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Gracefully stopping docker container </span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+            <span class="n">container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Docker.list_tags"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.list_tags">[docs]</a>    <span class="k">def</span> <span class="nf">list_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">list</span><span class="p">(</span><span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="s1">&#39;platform=crowdbreaks&#39;</span><span class="p">})</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">resp</span><span class="p">:</span>
+            <span class="n">tags</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;RepoTags&#39;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">tags</span></div>
+
+<div class="viewcode-block" id="Docker.image_exists"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.image_exists">[docs]</a>    <span class="k">def</span> <span class="nf">image_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_name</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">client</span><span class="o">.</span><span class="n">images</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Docker.get_ecr_auth_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.get_ecr_auth_config">[docs]</a>    <span class="k">def</span> <span class="nf">get_ecr_auth_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecr</span><span class="o">.</span><span class="n">get_auth_token</span><span class="p">()</span>
+        <span class="n">username</span><span class="p">,</span> <span class="n">password</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;password&#39;</span><span class="p">:</span> <span class="n">password</span><span class="p">}</span></div>
+
+<div class="viewcode-block" id="Docker.push"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.Docker.push">[docs]</a>    <span class="k">def</span> <span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_name</span><span class="p">):</span>
+        <span class="c1"># check if local image exists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_exists</span><span class="p">(</span><span class="n">image_name</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Image </span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s1"> does not exist locally. You need to build it first!&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="c1"># login to AWS ECR</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Attempting to log in to AWS ECR...&#39;</span><span class="p">)</span>
+        <span class="n">auth_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ecr_auth_config</span><span class="p">()</span>
+        <span class="c1"># create repository if it doesn&#39;t exist yet</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ecr</span><span class="o">.</span><span class="n">create_repository</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="c1"># tag existing image with ECR name</span>
+        <span class="n">ecr_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecr</span><span class="o">.</span><span class="n">get_ecr_image_name</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Tagging image </span><span class="si">{</span><span class="n">image_name</span><span class="si">}</span><span class="s1"> as </span><span class="si">{</span><span class="n">ecr_name</span><span class="si">}</span><span class="s1">...&#39;</span><span class="p">)</span>
+        <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_image</span><span class="p">(</span><span class="n">image_name</span><span class="p">)</span>
+        <span class="n">image</span><span class="o">.</span><span class="n">tag</span><span class="p">(</span><span class="n">ecr_name</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Pushing tag to AWS ECR...&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_client</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">ecr_name</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">auth_config</span><span class="o">=</span><span class="n">auth_config</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_stream_log</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">APIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s1">&#39;Pushing image to ECR unsucessful.&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_stream_log</span><span class="p">(</span><span class="n">logs</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully pushed image to ECR.&#39;</span><span class="p">)</span></div>
+
+
+    <span class="c1"># private</span>
+
+    <span class="k">def</span> <span class="nf">_get_stream_log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream_log</span><span class="p">,</span> <span class="n">decode</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">log</span> <span class="ow">in</span> <span class="n">stream_log</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">decode</span><span class="p">:</span>
+                <span class="n">log</span> <span class="o">=</span> <span class="n">log</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="s1">&#39;stream&#39;</span> <span class="ow">in</span> <span class="n">log</span><span class="p">:</span>
+                <span class="n">out_log</span> <span class="o">=</span> <span class="n">log</span><span class="p">[</span><span class="s1">&#39;stream&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">out_log</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">out_log</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="s1">&#39;errorDetail&#39;</span> <span class="ow">in</span> <span class="n">log</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="n">log</span><span class="p">[</span><span class="s1">&#39;errorDetail&#39;</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">log</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Crowdbreaks
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

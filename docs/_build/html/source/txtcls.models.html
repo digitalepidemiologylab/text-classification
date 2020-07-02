@@ -1,0 +1,806 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>txtcls.models &mdash; Text Classification  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="txtcls.utils" href="txtcls.utils.html" />
+    <link rel="prev" title="Welcome to Text Classification’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> Text Classification
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">txtcls.models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#base-model">Base model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bag-of-words">Bag of words</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bert">BERT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#dummy-models">Dummy models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fasttext-word-embeddings">FastText: word embeddings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fasttext-text-classification">FastText: text classification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finetunetftransformer">FinetuneTfTransformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#finetunetransformer">FinetuneTransformer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openai-gpt-2">OpenAI GPT-2</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="txtcls.utils.html">txtcls.utils</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Text Classification</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>txtcls.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/txtcls.models.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="txtcls-models">
+<h1><a class="toc-backref" href="#id5">txtcls.models</a><a class="headerlink" href="#txtcls-models" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="table-of-contents">
+<p class="topic-title first">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#txtcls-models" id="id5">txtcls.models</a></p>
+<ul>
+<li><p><a class="reference internal" href="#base-model" id="id6">Base model</a></p></li>
+<li><p><a class="reference internal" href="#bag-of-words" id="id7">Bag of words</a></p></li>
+<li><p><a class="reference internal" href="#bert" id="id8">BERT</a></p></li>
+<li><p><a class="reference internal" href="#dummy-models" id="id9">Dummy models</a></p></li>
+<li><p><a class="reference internal" href="#fasttext-word-embeddings" id="id10">FastText: word embeddings</a></p></li>
+<li><p><a class="reference internal" href="#fasttext-text-classification" id="id11">FastText: text classification</a></p></li>
+<li><p><a class="reference internal" href="#finetunetftransformer" id="id12">FinetuneTfTransformer</a></p></li>
+<li><p><a class="reference internal" href="#finetunetransformer" id="id13">FinetuneTransformer</a></p></li>
+<li><p><a class="reference internal" href="#openai-gpt-2" id="id14">OpenAI GPT-2</a></p></li>
+</ul>
+</li>
+</ul>
+</div>
+<span class="target" id="module-txtcls.models.base_model"></span><div class="section" id="base-model">
+<h2><a class="toc-backref" href="#id6">Base model</a><a class="headerlink" href="#base-model" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.base_model.BaseModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.base_model.</code><code class="sig-name descname">BaseModel</code><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for all models.</p>
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.generate_text">
+<code class="sig-name descname">generate_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.generate_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.generate_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.get_label_mapping">
+<code class="sig-name descname">get_label_mapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.get_label_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.get_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.set_label_mapping">
+<code class="sig-name descname">set_label_mapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">labels</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">train_data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.set_label_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.set_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.invert_mapping">
+<code class="sig-name descname">invert_mapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mapping</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.invert_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.invert_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.get_full_test_output">
+<code class="sig-name descname">get_full_test_output</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">predictions</span></em>, <em class="sig-param"><span class="n">labels</span></em>, <em class="sig-param"><span class="n">text</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_mapping</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">test_data_path</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.get_full_test_output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.get_full_test_output" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.format_predictions">
+<code class="sig-name descname">format_predictions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">probabilities</span></em>, <em class="sig-param"><span class="n">label_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.format_predictions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.format_predictions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.performance_metrics">
+<code class="sig-name descname">performance_metrics</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">y_true</span></em>, <em class="sig-param"><span class="n">y_pred</span></em>, <em class="sig-param"><span class="n">metrics</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">averaging</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label_mapping</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.performance_metrics"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.performance_metrics" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.base_model.BaseModel.add_to_config">
+<code class="sig-name descname">add_to_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_path</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">configs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/base_model.html#BaseModel.add_to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.base_model.BaseModel.add_to_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.bag_of_words"></span><div class="section" id="bag-of-words">
+<h2><a class="toc-backref" href="#id7">Bag of words</a><a class="headerlink" href="#bag-of-words" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bag_of_words.</code><code class="sig-name descname">BagOfWordsModel</code><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Naive model which simply counts the word occurences in a sentence and then trains a SVC on it.</p>
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.load_model">
+<code class="sig-name descname">load_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.load_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.load_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.vectorize_data">
+<code class="sig-name descname">vectorize_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.vectorize_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.vectorize_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bag_of_words.BagOfWordsModel.tokenize">
+<code class="sig-name descname">tokenize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bag_of_words.html#BagOfWordsModel.tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bag_of_words.BagOfWordsModel.tokenize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.bertmodel"></span><div class="section" id="bert">
+<h2><a class="toc-backref" href="#id8">BERT</a><a class="headerlink" href="#bert" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.bertmodel.BERTModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bertmodel.</code><code class="sig-name descname">BERTModel</code><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.bertmodel.BERTModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.BERTModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.BERTModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predict data (list of strings)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.BERTModel.accuracy">
+<code class="sig-name descname">accuracy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">out</span></em>, <em class="sig-param"><span class="n">labels</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel.accuracy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel.accuracy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.BERTModel.convert_examples_to_features">
+<code class="sig-name descname">convert_examples_to_features</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">examples</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#BERTModel.convert_examples_to_features"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.BERTModel.convert_examples_to_features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a data file into a list of <code class="docutils literal notranslate"><span class="pre">InputBatch</span></code> s.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.bertmodel.InputExample">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bertmodel.</code><code class="sig-name descname">InputExample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">guid</span></em>, <em class="sig-param"><span class="n">text_a</span></em>, <em class="sig-param"><span class="n">text_b</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#InputExample"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.InputExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single training/test example for simple sequence classification.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.bertmodel.InputFeatures">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bertmodel.</code><code class="sig-name descname">InputFeatures</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_ids</span></em>, <em class="sig-param"><span class="n">input_mask</span></em>, <em class="sig-param"><span class="n">segment_ids</span></em>, <em class="sig-param"><span class="n">label_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#InputFeatures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.InputFeatures" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single set of features of data.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.bertmodel.DataProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bertmodel.</code><code class="sig-name descname">DataProcessor</code><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#DataProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.DataProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Base class for data converters for sequence classification data sets.</p>
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.DataProcessor.get_train_examples">
+<code class="sig-name descname">get_train_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_dir</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#DataProcessor.get_train_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.DataProcessor.get_train_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a collection of <a href="#id1"><span class="problematic" id="id2">`</span></a>InputExample`s for the train set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.DataProcessor.get_dev_examples">
+<code class="sig-name descname">get_dev_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_dir</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#DataProcessor.get_dev_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.DataProcessor.get_dev_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets a collection of <a href="#id3"><span class="problematic" id="id4">`</span></a>InputExample`s for the dev set.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.DataProcessor.get_labels">
+<code class="sig-name descname">get_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#DataProcessor.get_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.DataProcessor.get_labels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the list of labels for this data set.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.bertmodel.SentimentClassificationProcessor">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.bertmodel.</code><code class="sig-name descname">SentimentClassificationProcessor</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">train_path</span></em>, <em class="sig-param"><span class="n">labels</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#SentimentClassificationProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.SentimentClassificationProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processor for the sentiment classification data set.</p>
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.SentimentClassificationProcessor.train_validation_split">
+<code class="sig-name descname">train_validation_split</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">validation_size</span><span class="o">=</span><span class="default_value">0.1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#SentimentClassificationProcessor.train_validation_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.SentimentClassificationProcessor.train_validation_split" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.SentimentClassificationProcessor.get_train_examples">
+<code class="sig-name descname">get_train_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#SentimentClassificationProcessor.get_train_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.SentimentClassificationProcessor.get_train_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>See base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.SentimentClassificationProcessor.get_dev_examples">
+<code class="sig-name descname">get_dev_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#SentimentClassificationProcessor.get_dev_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.SentimentClassificationProcessor.get_dev_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>See base class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.bertmodel.SentimentClassificationProcessor.get_test_examples">
+<code class="sig-name descname">get_test_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/bertmodel.html#SentimentClassificationProcessor.get_test_examples"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.bertmodel.SentimentClassificationProcessor.get_test_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>See base class.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.dummy_models"></span><div class="section" id="dummy-models">
+<h2><a class="toc-backref" href="#id9">Dummy models</a><a class="headerlink" href="#dummy-models" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.dummy_models.DummyModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.dummy_models.</code><code class="sig-name descname">DummyModel</code><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#DummyModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.DummyModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always predicts majority class label.</p>
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.DummyModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#DummyModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.DummyModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.DummyModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#DummyModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.DummyModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.DummyModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#DummyModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.DummyModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.dummy_models.RandomModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.dummy_models.</code><code class="sig-name descname">RandomModel</code><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#RandomModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.RandomModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Always predicts random class label</p>
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.RandomModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#RandomModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.RandomModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.RandomModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#RandomModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.RandomModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.RandomModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#RandomModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.RandomModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.dummy_models.WeightedRandomModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.dummy_models.</code><code class="sig-name descname">WeightedRandomModel</code><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#WeightedRandomModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.WeightedRandomModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Predicts weighted random class label</p>
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.WeightedRandomModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#WeightedRandomModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.WeightedRandomModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.WeightedRandomModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#WeightedRandomModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.WeightedRandomModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.dummy_models.WeightedRandomModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/dummy_models.html#WeightedRandomModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.dummy_models.WeightedRandomModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.fasttext_unsupervised"></span><div class="section" id="fasttext-word-embeddings">
+<h2><a class="toc-backref" href="#id10">FastText: word embeddings</a><a class="headerlink" href="#fasttext-word-embeddings" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.fasttext_unsupervised.</code><code class="sig-name descname">FastTextUnsupervised</code><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for FastText</p>
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.get_model">
+<code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.get_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.init_model">
+<code class="sig-name descname">init_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">setup_mode</span><span class="o">=</span><span class="default_value">'default'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.init_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.init_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>learning_rate</strong> (<em>float</em>) – Learning rate. Default: 0.1</p></li>
+<li><p><strong>dim</strong> (<em>int</em>) – Dimension of hidden layer,
+needs to be adjusted depending on <code class="xref py py-attr docutils literal notranslate"><span class="pre">pretrained_vectors</span></code>.
+Default: 100</p></li>
+<li><p><strong>ws</strong> (<em>int</em>) – Context window size. Default: 5</p></li>
+<li><p><strong>num_epochs</strong> (<em>int</em>) – Number of epochs. Default: 5</p></li>
+<li><p><strong>ngrams</strong> (<em>int</em>) – Max length of word ngram. Default: 1</p></li>
+<li><p><strong>lr_update_rate</strong> (<em>float</em>) – Update rate for learning rate. Default: 100</p></li>
+<li><p><strong>t</strong> (<em>float</em>) – Sampling threshold. Default: 0.0001</p></li>
+<li><p><strong>pretrained_vectors</strong> (<em>string</em>) – Path to pretrained model
+(available here: <a class="reference external" href="https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md">https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md</a>).
+Default: <code class="docutils literal notranslate"><span class="pre">''</span></code></p></li>
+<li><p><strong>quantize</strong> (<em>bool</em>) – Whether to quantize model before saving.
+Default: <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
+<li><p><strong>save_model</strong> (<em>bool</em>) – Whether to save model in binary format (<cite>.bin</cite>).
+Default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+<li><p><strong>save_vec</strong> (<em>bool</em>) – Whether to save vectors (<cite>.vec</cite>). Default: <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.read_and_preprocess">
+<code class="sig-name descname">read_and_preprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.read_and_preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.read_and_preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.get_test_data">
+<code class="sig-name descname">get_test_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.get_test_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.get_test_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.generate_training_data">
+<code class="sig-name descname">generate_training_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.generate_training_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.generate_training_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttext_unsupervised.FastTextUnsupervised.save_vec">
+<code class="sig-name descname">save_vec</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_vectors_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttext_unsupervised.html#FastTextUnsupervised.save_vec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttext_unsupervised.FastTextUnsupervised.save_vec" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.fasttextmodel"></span><div class="section" id="fasttext-text-classification">
+<h2><a class="toc-backref" href="#id11">FastText: text classification</a><a class="headerlink" href="#fasttext-text-classification" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.fasttextmodel.FastTextModel">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.fasttextmodel.</code><code class="sig-name descname">FastTextModel</code><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for FastText</p>
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.get_classifier">
+<code class="sig-name descname">get_classifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.get_classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.get_classifier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.init_model">
+<code class="sig-name descname">init_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">setup_mode</span><span class="o">=</span><span class="default_value">'default'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.init_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.init_model" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Config params:
+- pretrained_vectors: Path to pretrained model (available here: <a class="reference external" href="https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md">https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md</a>), by default learns from scratch
+- dim: Dimension of hidden layer (default 100), needs to be adjusted depending on pretrained_vectors
+- ws: Size of context window, default: 5
+- learning_rate: Learning rate, default: 0.1
+- lr_update_rate: Rate of updates for the learning rate, default: 100
+- num_epochs: Default 5</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.read_and_preprocess">
+<code class="sig-name descname">read_and_preprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.read_and_preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.read_and_preprocess" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.get_test_data">
+<code class="sig-name descname">get_test_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.get_test_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.get_test_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.fasttextmodel.FastTextModel.generate_training_data">
+<code class="sig-name descname">generate_training_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_path</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/fasttextmodel.html#FastTextModel.generate_training_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.fasttextmodel.FastTextModel.generate_training_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.finetune_tf_transformer"></span><div class="section" id="finetunetftransformer">
+<h2><a class="toc-backref" href="#id12">FinetuneTfTransformer</a><a class="headerlink" href="#finetunetftransformer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.finetune_tf_transformer.FinetuneTfTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.finetune_tf_transformer.</code><code class="sig-name descname">FinetuneTfTransformer</code><a class="reference internal" href="../_modules/txtcls/models/finetune_tf_transformer.html#FinetuneTfTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_tf_transformer.html#FinetuneTfTransformer.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_tf_transformer.html#FinetuneTfTransformer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.create_tf_record_datasets">
+<code class="sig-name descname">create_tf_record_datasets</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fast_tokenizer</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_tf_transformer.html#FinetuneTfTransformer.create_tf_record_datasets"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.create_tf_record_datasets" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_tf_transformer.html#FinetuneTfTransformer.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.finetune_transformer"></span><div class="section" id="finetunetransformer">
+<h2><a class="toc-backref" href="#id13">FinetuneTransformer</a><a class="headerlink" href="#finetunetransformer" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.finetune_transformer.FinetuneTransformer">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.finetune_transformer.</code><code class="sig-name descname">FinetuneTransformer</code><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#FinetuneTransformer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.FinetuneTransformer" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.finetune_transformer.FinetuneTransformer.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#FinetuneTransformer.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.FinetuneTransformer.init" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_transformer.FinetuneTransformer.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#FinetuneTransformer.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.FinetuneTransformer.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_transformer.FinetuneTransformer.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">tokenizer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">fast_tokenizer</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_dir</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#FinetuneTransformer.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.FinetuneTransformer.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.finetune_transformer.FinetuneTransformer.prepare_input_data">
+<code class="sig-name descname">prepare_input_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">min_tokens</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#FinetuneTransformer.prepare_input_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.FinetuneTransformer.prepare_input_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED: method used for NSP/SOP tasks</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.finetune_transformer.TextDataset">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.finetune_transformer.</code><code class="sig-name descname">TextDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">max_seq_length</span><span class="o">=</span><span class="default_value">512</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#TextDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.TextDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load dataset in memory</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.finetune_transformer.TextIterableDataset">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.finetune_transformer.</code><code class="sig-name descname">TextIterableDataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_path</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">max_seq_length</span><span class="o">=</span><span class="default_value">512</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#TextIterableDataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.TextIterableDataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load dataset iteratively and tokenize with tokenizer library on the fly</p>
+<dl class="py method">
+<dt id="txtcls.models.finetune_transformer.TextIterableDataset.parse_and_tokenize">
+<code class="sig-name descname">parse_and_tokenize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/finetune_transformer.html#TextIterableDataset.parse_and_tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.finetune_transformer.TextIterableDataset.parse_and_tokenize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<span class="target" id="module-txtcls.models.openai_gpt2"></span><div class="section" id="openai-gpt-2">
+<h2><a class="toc-backref" href="#id14">OpenAI GPT-2</a><a class="headerlink" href="#openai-gpt-2" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.OpenAIGPT2">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">OpenAIGPT2</code><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#OpenAIGPT2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.OpenAIGPT2" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.openai_gpt2.OpenAIGPT2.train">
+<code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#OpenAIGPT2.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.OpenAIGPT2.train" title="Permalink to this definition">¶</a></dt>
+<dd><p>Train model based on <code class="xref py py-attr docutils literal notranslate"><span class="pre">config</span></code>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.openai_gpt2.OpenAIGPT2.test">
+<code class="sig-name descname">test</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#OpenAIGPT2.test"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.OpenAIGPT2.test" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.openai_gpt2.OpenAIGPT2.predict">
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#OpenAIGPT2.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.OpenAIGPT2.predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="txtcls.models.openai_gpt2.OpenAIGPT2.generate_text">
+<code class="sig-name descname">generate_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#OpenAIGPT2.generate_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.OpenAIGPT2.generate_text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.GPT2Classifier">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">GPT2Classifier</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em>, <em class="sig-param"><span class="n">num_labels</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#GPT2Classifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.GPT2Classifier" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.openai_gpt2.GPT2Classifier.forward">
+<code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_ids</span></em>, <em class="sig-param"><span class="n">token_type_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">position_ids</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">past</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#GPT2Classifier.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.GPT2Classifier.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the <code class="xref py py-class docutils literal notranslate"><span class="pre">Module</span></code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.GPT2Dataset">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">GPT2Dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">csv_path</span></em>, <em class="sig-param"><span class="n">transform</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#GPT2Dataset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.GPT2Dataset" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.GPT2Predict">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">GPT2Predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">csv_path</span></em>, <em class="sig-param"><span class="n">transform</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#GPT2Predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.GPT2Predict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.Encoder">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">Encoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_mapping</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_size</span><span class="o">=</span><span class="default_value">768</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#Encoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.Encoder" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.openai_gpt2.Encoder.make_one_hot">
+<code class="sig-name descname">make_one_hot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#Encoder.make_one_hot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.Encoder.make_one_hot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="txtcls.models.openai_gpt2.EncoderPredict">
+<em class="property">class </em><code class="sig-prename descclassname">txtcls.models.openai_gpt2.</code><code class="sig-name descname">EncoderPredict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">label_mapping</span></em>, <em class="sig-param"><span class="n">device</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">max_size</span><span class="o">=</span><span class="default_value">768</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#EncoderPredict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.EncoderPredict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="py method">
+<dt id="txtcls.models.openai_gpt2.EncoderPredict.make_one_hot">
+<code class="sig-name descname">make_one_hot</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">label</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/models/openai_gpt2.html#EncoderPredict.make_one_hot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.models.openai_gpt2.EncoderPredict.make_one_hot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="txtcls.utils.html" class="btn btn-neutral float-right" title="txtcls.utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to Text Classification’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, Crowdbreaks
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
