@@ -36,7 +36,7 @@ def entry_point():
     print_parser = subparsers.add_parser(
         'print', help='printing')
 
-    set_subparsers(main_parser, main_)
+    set_subparsers(entry_parser, main_)
     set_subparsers(deploy_parser, deploy_)
     set_subparsers(plot_parser, plot_)
     set_subparsers(print_parser, print_)

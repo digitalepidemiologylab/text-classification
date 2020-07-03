@@ -3,44 +3,45 @@ A simple supervised text classification framework.
 
 ## Install
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 Note: You may need to install additional packages for full functionality.
 
 ## Usage
 For a list of available commands run 
 ```bash
-$ python main.py --help
+$ txtcls --help
 ```
 Output:
 ```
-usage: 
-python main.py <command> [<args>]
+usage: txtcls [-h] {main,deploy,plot,print} ...
 
-Available commands:
-  split            Splits data into training and test data
-  train            Train a classifier based on a config file
-  predict          Predict unknown data given a trained model
-  generate_config  Generate a config file programmatically
-  augment          Augment training data
-  generate_text    Generate text
-  fine_tune        Fine-tune pre-trained language models
-  learning_curve   Compute learning curve
-  optimize         Perform hyperparameter optimization
-  ls               List trained models and performance
+positional arguments:
+  {main,deploy,plot,print}
+                        sub-commands
+    main                main pipeline
+    deploy              deployment
+    plot                plotting
+    print               printing
+
+optional arguments:
+  -h, --help            show this help message and exit
 ```
 
 If you need help to a specific subcommand you can run e.g.
 ```bash
-python main.py train --help
+txtcls main train --help
 ```
 Output:
 ```
-Train a classifier based on a config file
+usage: txtcls main train [-h] [-c C] [--parallel]
+
+Trains model based on config.
 
 optional arguments:
   -h, --help        show this help message and exit
-  -c C, --config C  Name/path of configuration file. Default: config.json
+  -c C, --config C  name/path of configuration file (default: config.json)
+  --parallel        run in parallel (only recommended for CPU-training) (default: False)
 ```
 
 
@@ -90,12 +91,12 @@ In the example above additionally `overwrite` was specified t overwrite if there
 
 This command will train and then automatically evaluate the model on the test set. If no `-c` option is given, train will look for a file called `config.json` in the project root.
 ```bash
-python main.py train
+txtcls main train
 ```
 
 Alternatively, specificy a config file:
 ```bash
-python main.py train -c my_config_file.json
+txtcls main train -c my_config_file.json
 ```
 
 The trained model artefacts, performance scores and run logs can be found in `./output/test_example/`
@@ -104,7 +105,7 @@ The trained model artefacts, performance scores and run logs can be found in `./
 
 After training you can run 
 ```bash
-python main.py ls
+txtcls main ls
 ```
 Output:
 ```
@@ -113,7 +114,7 @@ name
 test_example  fasttext          20  0.175074         0.118712      0.333333  0.356137
 ```
 
-to get a list of all models trained. 
+to get a list of all models trained.
 
 ## Contribute
 Feel free to add new text classification models to this. All trained models inherit from a `BaseModel` class defined under `models/`. It contains a blueprint of which methods any new model should implement.

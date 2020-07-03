@@ -18,25 +18,20 @@ logger = logging.getLogger(__name__)
 def split(parser):
     """Splits annotated data into training and test data sets."""
     parser.add_argument(
-        '-n', '--name',
-        type=str, required=True,
-        help='Name of dataset or file path')
+        '-n', '--name', type=str, required=True,
+        help='name of dataset or file path')
     parser.add_argument(
-        '-s', '--test-size',
-        dest='test_size', type=float, required=False, default=0.2,
-        help='Fraction of test size')
+        '-s', '--test-size', type=float, default=0.2,
+        help='fraction of test size')
     parser.add_argument(
-        '--balanced-labels',
-        dest='balanced_labels', action='store_true', default=False,
-        help='Ensure equal label balance')
+        '--balanced-labels', default=False, action='store_true',
+        help='ensure equal label balance')
     parser.add_argument(
-        '--label-tags',
-        dest='label_tags', required=False, default=[], nargs='+',
-        help='Only select examples with certain label tags')
+        '--label-tags', default=[], nargs='+',
+        help='only select examples with certain label tags')
     parser.add_argument(
-        '--seed',
-        type=int, required=False, default=42,
-        help='Random state split')
+        '--seed', type=int, default=42,
+        help='random state split')
     parser.set_defaults(
         func=lambda args: helpers.train_test_split(**vars(args)))
 
@@ -64,13 +59,11 @@ def train(parser):
         test_only: Runs test file only and skips training. Default: ``False``.
     """
     parser.add_argument(
-        '-c', '--config',
-        metavar='C', required=False, default='config.json',
-        help='Name/path of configuration file. Default: config.json')
+        '-c', '--config', default='config.json', metavar='C',
+        help='name/path of configuration file')
     parser.add_argument(
-        '--parallel',
-        required=False, action='store_true',
-        help='Run in parallel (only recommended for CPU-training)')
+        '--parallel', action='store_true',
+        help='run in parallel (only recommended for CPU-training)')
 
     def _train(args):
         config_reader = helpers.ConfigReader()
@@ -92,78 +85,61 @@ def predict(parser):
     output predictions.
     """
     parser.add_argument(
-        '-r', '--run',
-        required=True, dest='run_name', type=str, default=None,
-        help='Name of run')
+        '-r', '--run', type=str, required=True, dest='run_name',
+        help='name of run')
     parser.add_argument(
-        '-p', '--path',
-        required=False, type=str, default=None,
-        help='Input path of data file for predictions')
+        '-p', '--path', type=str, default=None,
+        help='input path of data file for predictions')
     parser.add_argument(
-        '-d', '--data',
-        required=False, type=str, default=None,
-        help='Input text as argument (ignored if path is given)')
+        '-d', '--data', type=str, default=None,
+        help='input text as argument (ignored if path is given)')
     parser.add_argument(
-        '-o', '--output-folder',
-        required=False, dest='output_folder',
-        type=str, default='predictions',
-        help='Output folder')
+        '-o', '--output-folder', type=str, default='predictions',
+        help='output folder')
     parser.add_argument(
-        '-f', '--output-formats',
-        required=False, dest='output_formats',
-        nargs='+', choices=['csv', 'json'], default=['csv'],
-        help='Output folder')
+        '-f', '--output-formats', default=['csv'],
+        nargs='+', choices=['csv', 'json'],
+        help='output folder')
     parser.add_argument(
-        '--col',
-        required=False, dest='col', type=str, default='text',
-        help="In case input is a CSV, use this as the column name. "
-             "If the input is a .txt file this option won't have any effect.")
+        '--col', type=str, default='text',
+        help="in case input is a CSV, use this as the column name; "
+             "if the input is a .txt file this option won't have any effect")
     parser.add_argument(
         '--output-cols',
-        required=False, dest='output_cols',
         type=str, default='labels,probabilities,label,probability',
-        help="Output columns, provide as comma-separted string. "
-             "Only applies to CSV format.")
+        help="output columns, provide as comma-separted string; "
+             "only applies to CSV format")
     parser.add_argument(
-        '--no-file-output',
-        dest='no_file_output',
-        default=False, action='store_true',
-        help='Do not write output file '
-             '(default: Write output file to `./predictions/` folder)')
+        '--no-file-output', default=False, action='store_true',
+        help='do not write output file '
+             '(default: write output file to `./predictions/` folder)')
     parser.add_argument(
-        '--in-parallel',
-        default=False, dest='in_parallel', action='store_true',
-        help='Run predictions in parallel '
+        '--in-parallel', default=False, action='store_true',
+        help='run predictions in parallel '
              '(only recommmended for CPU-based models)')
     parser.add_argument(
-        '--verbose',
-        default=False, dest='verbose', action='store_true',
-        help='Print predictions')
+        '--verbose', default=False, action='store_true',
+        help='print predictions')
     parser.set_defaults(func=lambda args: helpers.predict(**vars(args)))
 
 
 def generate_config(parser):
     """Generates config for grid search hyperparameter search."""
     parser.add_argument(
-        '--name',
-        required=True, type=str,
+        '--name',  type=str, required=True,
         help='global name prefix and name of output file')
     parser.add_argument(
-        '--train-data',
-        required=True, dest='train_data', type=str,
+        '--train-data', type=str, required=True,
         help='train data path')
     parser.add_argument(
-        '--test-data',
-        required=True, dest='test_data', type=str,
+        '--test-data',  type=str, required=True,
         help='test data path')
     parser.add_argument(
-        '-m', '--models',
-        required=True, nargs='+',
+        '-m', '--models', required=True, nargs='+',
         help='list of models; '
              'each model will be combined with each param pair')
     parser.add_argument(
-        '-p', '--params',
-        required=False, nargs='*', default=[],
+        '-p', '--params', nargs='*', default=[],
         help="""
         arbitrary list of grid search params.
         Format: 'key:modifier:values', where
@@ -178,8 +154,7 @@ def generate_config(parser):
         - 'learning_rate:log:-6,-2,4'
         """)
     parser.add_argument(
-        '-g', '--globals',
-        required=False, dest='global_params', nargs='*', default=[],
+        '-g', '--globals', dest='global_params', nargs='*', default=[],
         help="list of global params which will be passed "
              "to all runs.\nFormat: 'key:value'")
     parser.set_defaults(
@@ -189,9 +164,8 @@ def generate_config(parser):
 def generate_text(parser):
     """Generates text."""
     parser.add_argument(
-        '--seed',
-        required=True, type=str,
-        help='Seed text to start generating text from.')
+        '--seed', type=str, required=True,
+        help='text generator seed')
 
     def raise_not_implemented(args):
         raise NotImplementedError
@@ -211,32 +185,26 @@ def generate_text(parser):
 def augment(parser):
     """Augments training data."""
     parser.add_argument(
-        '-n', '--num',
-        required=False, dest='n', type=int, default=10,
-        help='Number of tweets to generate text from')
+        '-n', '--num', type=int, default=10, dest='n',
+        help='number of tweets to generate text from')
     parser.add_argument(
-        '--min-tokens',
-        required=False, type=int, default=8)
+        '--min-tokens', type=int, default=8)
     parser.add_argument(
-        '-s', '--source',
-        required=False, dest='source', type=str, default='training_data',
-        help='Source for seed data (training data (default), or seed_data)')
+        '-s', '--source', type=str, default='training_data',
+        help='source for seed data (training_data or seed_data)')
     parser.add_argument(
-        '-r', '--repeats',
-        required=False, dest='repeats', type=int, default=1,
-        help='Number of repeated times a single seed should be used')
+        '-r', '--repeats', type=int, default=1,
+        help='number of repeated times a single seed should be used')
     parser.add_argument(
         '-c', '--contains',
-        required=False, dest='should_contain_keyword', type=str, default='',
-        help='Only collect sentences which contain keyword')
+        type=str, default='', dest='should_contain_keyword',
+        help='only collect sentences which contain keyword')
     parser.add_argument(
-        '--n-sentences-after-seed',
-        required=False, dest='n_sentences_after_seed', type=int, default=8,
-        help='Consider only first n predicted sentences after seed')
+        '--n-sentences-after-seed', type=int, default=8,
+        help='consider only first n predicted sentences after seed')
     parser.add_argument(
-        '--verbose',
-        dest='verbose', action='store_true',
-        help='Verbose output')
+        '--verbose', action='store_true',
+        help='verbose output')
     parser.set_defaults(
         func=lambda args: helpers.augment_training_data(**vars(args)))
 
@@ -267,9 +235,8 @@ def finetune(parser):
         etc: all additional model-specific parameters
     """
     parser.add_argument(
-        '-c', '--config', metavar='C',
-        required=False, default='config.json',
-        help='Name/path of configuration file. Default: config.json')
+        '-c', '--config', metavar='C', default='config.json',
+        help='name/path of configuration file')
 
     def _finetune(args):
         config_reader = helpers.ConfigReader()
@@ -310,8 +277,8 @@ def learning_curve(parser):
     """
     parser.add_argument(
         '-c', '--config', metavar='C',
-        required=False, dest='config_path', default='config.json',
-        help='Name/path of configuration file. Default: config.json')
+        dest='config_path', default='config.json',
+        help='name/path of configuration file')
     parser.set_defaults(func=lambda args: helpers.learning_curve(**vars(args)))
 
 
@@ -338,8 +305,8 @@ def optimize(parser):
     """
     parser.add_argument(
         '-c', '--config', metavar='C',
-        required=False, dest='config_path', default='config.json',
-        help='Name/path of configuration file. Default: config.json')
+        dest='config_path', default='config.json',
+        help='name/path of configuration file')
     parser.set_defaults(
         func=lambda args: helpers.optimize(**vars(args)))
 
@@ -347,44 +314,34 @@ def optimize(parser):
 def ls(parser):
     """List trained models."""
     parser.add_argument(
-        '-m', '--model',
-        required=False, dest='model', type=str, default=None,
-        help='Only show certain models')
+        '-m', '--model', type=str, default=None,
+        help='only show certain models')
     parser.add_argument(
-        '-r', '--run-pattern',
-        required=False, dest='run_pattern', type=str, default=None,
-        help='Filter by run name pattern')
+        '-r', '--run-pattern', type=str, default=None,
+        help='filter by run name pattern')
     parser.add_argument(
-        '-f', '--filename-pattern',
-        required=False, dest='filename_pattern', type=str, default=None,
-        help='Filter by name of training data input file')
+        '-f', '--filename-pattern', type=str, default=None,
+        help='filter by name of training data input file')
     parser.add_argument(
-        '-p', '--params',
-        required=False, type=str, nargs='+', default=None,
-        help='Display certain hyperparameters instead of default ones')
+        '-p', '--params', type=str, default=None, nargs='+',
+        help='display certain hyperparameters instead of default ones')
     parser.add_argument(
-        '-a', '--averaging',
-        required=False,
-        type=str, choices=['micro', 'macro', 'weighted'], default='macro',
-        help='Precision/recall/f1 averaging mode')
+        '-a', '--averaging', type=str, default='macro',
+        choices=['micro', 'macro', 'weighted'],
+        help='precision/recall/f1 averaging mode')
     parser.add_argument(
-        '-t', '--top',
-        required=False, type=int, default=40,
-        help='Maximum number of models to show, use -1 to show all')
+        '-t', '--top', type=int, default=40,
+        help='maximum number of models to show, use -1 to show all')
     parser.add_argument(
-        '--metrics',
-        required=False, type=str, nargs='+',
-        default=['f1', 'precision', 'recall', 'accuracy'],
-        choices=['accuracy', 'f1', 'precision', 'recall'],
-        help='Metrics to display (also defines sorting order)')
+        '--metrics', type=str, default=['f1', 'precision', 'recall', 'accuracy'],
+        nargs='+', choices=['accuracy', 'f1', 'precision', 'recall'],
+        help='metrics to display (also defines sorting order)')
     parser.add_argument(
-        '--names-only',
-        dest='names_only', action='store_true',
-        help='Only list names')
+        '--names-only', action='store_true',
+        help='only list names')
     parser.add_argument(
-        '--all-params',
-        dest='all_params', action='store_true',
-        help='Show all params')
+        '--all-params', action='store_true',
+        help='show all params')
     parser.set_defaults(
         func=lambda args: helpers.helpers.ListRuns().list_runs(**vars(args)))
 
@@ -404,24 +361,20 @@ def deploy(parser):
     After this the endpoint still needs to be created manually.
     """
     parser.add_argument(
-        '-r', '--run',
-        required=True, dest='run', type=str,
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        required=True, dest='project', type=str,
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-q', '--question-tag',
-        required=True, dest='question_tag', type=str,
-        help='Question tag')
+        '-q', '--question-tag', type=str, required=True,
+        help='question tag')
     parser.add_argument(
-        '-m', '--model_type',
-        dest='model_type', type=str, default='fasttext', choices=['fasttext'],
-        help='Model type')
+        '-m', '--model_type', type=str, default='fasttext',
+        choices=['fasttext'],
+        help='model type')
     parser.add_argument(
-        '-i', '--instance-type',
-        dest='instance_type', type=str, default='ml.t2.medium',
-        help='Instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
+        '-i', '--instance-type', type=str, default='ml.t2.medium',
+        help='instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
     parser.set_defaults(
         func=lambda args: deploy_helpers.deploy(**vars(args)))

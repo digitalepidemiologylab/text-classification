@@ -14,17 +14,14 @@ logger = logging.getLogger(__name__)
 def confusion_matrix(parser):
     """Plots confusion matrix."""
     parser.add_argument(
-        '-r', '--run',
-        required=True, dest='run', type=str,
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '--log-scale',
-        dest='log_scale', action='store_true', default=False,
-        help='Show values in log scale')
+        '--log-scale', default=False, action='store_true',
+        help='show values in log scale')
     parser.add_argument(
-        '--normalize',
-        dest='normalize', action='store_true', default=False,
-        help='Normalize counts')
+        '--normalize', default=False, action='store_true',
+        help='normalize counts')
     parser.set_defaults(
         func=lambda args: helpers.plot_confusion_matrix(**vars(args)))
 
@@ -32,16 +29,16 @@ def confusion_matrix(parser):
 def compare_runs(parser):
     """Compares performance between runs (horizontal bar plot)."""
     parser.add_argument(
-        '-r', '--runs',
-        required=True, type=str, nargs='+',
-        help='Name of runs to compare. '
-             'Optional: Specify as run_name:figure_name to show '
-             'different name in figure')
+        '-r', '--runs', type=str, required=True, nargs='+',
+        help="""
+        name of runs to compare.
+        Optional: Specify as 'run_name:figure_name'
+        to show different name in figure
+        """)
     parser.add_argument(
-        '-s', '--performance_scores',
-        type=list, nargs='+',
+        '-s', '--performance_scores', type=list, nargs='+',
         default=['accuracy', 'f1_macro', 'precision_macro', 'recall_macro'],
-        help='Scores to plot')
+        help='scores to plot')
     parser.set_defaults(
         func=lambda args: helpers.plot_compare_runs(**vars(args)))
 
@@ -49,9 +46,8 @@ def compare_runs(parser):
 def label_distribution(parser):
     """Plots label distribution."""
     parser.add_argument(
-        '-d', '--data-path',
-        required=True, type=str,
-        help='Data path')
+        '-d', '--data-path', type=str, required=True,
+        help='data path')
 
     def _label_distribution(args):
         config_dict = {}

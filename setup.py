@@ -21,7 +21,7 @@ setuptools.setup(
         'boto3', 'munch', 'docker', 'joblib',
         'en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-2.2.0/en_core_web_sm-2.2.0.tar.gz'],
     entry_points={'console_scripts': [
-        'txtcls=text_classification.cli.cli:entry_point']},
+        'txtcls=txtcls.cli.cli:entry_point']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

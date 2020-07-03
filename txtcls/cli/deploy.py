@@ -14,17 +14,15 @@ logger = logging.getLogger(__name__)
 def build(parser):
     """Builds Docker image from trained model."""
     parser.add_argument(
-        '-r', '--run',
-        type=str, required=True, dest='run',
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        type=str, required=True, dest='project',
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-m', '--model_type',
-        choices=['fasttext'], type=str, default='fasttext', dest='model_type',
-        help='Model type')
+        '-m', '--model-type',
+        type=str, default='fasttext', choices=['fasttext'],
+        help='model type')
     parser.set_defaults(
         func=lambda args: helpers.build(**vars(args)))
 
@@ -32,17 +30,15 @@ def build(parser):
 def push(parser):
     """Pushes Docker image to AWS ECR."""
     parser.add_argument(
-        '-r', '--run',
-        type=str, required=True, dest='run',
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        type=str, required=True, dest='project',
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-m', '--model_type',
-        choices=['fasttext'], type=str, default='fasttext', dest='model_type',
-        help='Model type')
+        '-m', '--model-type',
+        type=str, default='fasttext', choices=['fasttext'],
+        help='model type')
     parser.set_defaults(
         func=lambda args: helpers.push(**vars(args)))
 
@@ -50,17 +46,15 @@ def push(parser):
 def build_and_push(parser):
     """Builds and pushes Docker image to AWS ECR."""
     parser.add_argument(
-        '-r', '--run',
-        type=str, required=True, dest='run',
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        type=str, required=True, dest='project',
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-m', '--model_type',
-        choices=['fasttext'], type=str, default='fasttext', dest='model_type',
-        help='Model type')
+        '-m', '--model-type',
+        type=str, default='fasttext', choices=['fasttext'],
+        help='model type')
     parser.set_defaults(
         func=lambda args: helpers.build_and_push(**vars(args)))
 
@@ -68,17 +62,15 @@ def build_and_push(parser):
 def run_local(parser):
     """Runs build locally."""
     parser.add_argument(
-        '-r', '--run',
-        type=str, required=True, dest='run',
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        type=str, required=True, dest='project',
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-m', '--model_type',
-        choices=['fasttext'], type=str, default='fasttext', dest='model_type',
-        help='Model type')
+        '-m', '--model-type',
+        type=str, default='fasttext', choices=['fasttext'],
+        help='model type')
     parser.set_defaults(
         func=lambda args: helpers.run_local(**vars(args)))
 
@@ -86,24 +78,20 @@ def run_local(parser):
 def create_model(parser):
     """Creates Sagemaker model and endpoint configuration."""
     parser.add_argument(
-        '-r', '--run',
-        type=str, required=True, dest='run',
-        help='Name of run')
+        '-r', '--run', type=str, required=True,
+        help='name of run')
     parser.add_argument(
-        '-p', '--project',
-        type=str, required=True, dest='project',
-        help='Name of project')
+        '-p', '--project', type=str, required=True,
+        help='name of project')
     parser.add_argument(
-        '-q', '--question_tag',
-        type=str, required=True, dest='question_tag',
-        help='Question tag')
+        '-q', '--question-tag', type=str, required=True,
+        help='question tag')
     parser.add_argument(
-        '-m', '--model_type',
-        choices=['fasttext'], type=str, default='fasttext', dest='model_type',
-        help='Model type')
+        '-m', '--model-type',
+        type=str, default='fasttext', choices=['fasttext'],
+        help='model type')
     parser.add_argument(
-        '-i', '--instance-type',
-        type=str, default='ml.t2.medium', dest='instance_type',
-        help='Instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
+        '-i', '--instance-type', type=str, default='ml.t2.medium',
+        help='instance type, check https://aws.amazon.com/sagemaker/pricing/instance-types/')
     parser.set_defaults(
         func=lambda args: helpers.create_model_and_configuration(**vars(args)))
