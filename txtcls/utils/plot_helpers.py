@@ -45,7 +45,7 @@ def plot_confusion_matrix(run, log_scale, normalize):
     ax.set(xlabel='predicted label', ylabel='true label')
     save_fig(fig, 'confusion_matrix', f_name)
 
-def plot_compare_runs(runs, performance_scores):
+def plot_compare_runs(runs, performance_scores, order_by):
     df = []
     run_dict = {}
     for run in runs:
@@ -63,8 +63,32 @@ def plot_compare_runs(runs, performance_scores):
             raise ValueError(f'Run name "{run}" is not unique. Found {len(_df):,} matching runs for this pattern.')
         df.append(_df)
     df = pd.concat(df)
-    df = df[['name', *performance_scores]].melt(id_vars=['name'], var_name='performance', value_name='score')
-    g = sns.catplot(x='score', y='name', hue='performance', kind='bar', orient='h', ci=None, aspect=2, data=df)
+    # collect scores and vlines
+    scores = []
+    vlines = []
+    for score in performance_scores:
+        if ':' in score:
+            score, _ = score.split(':')
+            vlines.append(score)
+        scores.append(score)
+    scores = list(set(scores))
+    vlines = list(set(vlines))
+    # melt
+    df = df[['name', *scores]].melt(id_vars=['name'], var_name='performance', value_name='score')
+    # order
+    hue_order = None
+    order = None
+    if order_by is not None:
+        order = df[df.performance == order_by].sort_values('score').name.tolist()
+        hue_order = df[df.name == order[-1]].sort_values('score').performance.tolist()
+        hue_order.remove(order_by)
+        hue_order.insert(0, order_by)
+    # plot
+    g = sns.catplot(x='score', y='name', hue='performance', kind='bar', orient='h', ci=None, aspect=2, palette='colorblind', data=df, order=order, hue_order=hue_order)
+    for vline_score in vlines:
+        vline_values  = df[df.performance == vline_score]['score'].values
+        for v in vline_values:
+            g.ax.axvline(v, ls='--', c='.1', lw=.5)
     fig = plt.gcf()
     save_fig(fig, 'compare_runs', '-'.join(run_dict.values()))
 
