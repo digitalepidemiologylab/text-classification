@@ -12,33 +12,34 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-def plot_confusion_matrix(run, log_scale, normalize):
-    f_path = os.path.join(find_project_root(), 'output', run)
+def plot_confusion_matrix(args):
+    f_path = os.path.join(find_project_root(), 'output', args.run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
-    test_output_file = os.path.join(find_project_root(), 'output', run, 'test_output.csv')
+    test_output_file = os.path.join(find_project_root(), 'output', args.run, 'test_output.csv')
     if not os.path.isfile(test_output_file):
-        raise FileNotFoundError(f'No file {test_output_file} found for run {run}. Pass the option `write_test_output: true` when training the model.')
+        raise FileNotFoundError(f'No file {test_output_file} found for run {args.run}. Pass the option `write_test_output: true` when training the model.')
+    if args.stylesheet:
+        plt.style.use(args.stylesheet)
     df = pd.read_csv(test_output_file)
-    label_mapping = get_label_mapping(f_path)
-    labels = list(label_mapping.keys())
+    labels = sorted(set(df.label).union(set(df.prediction)))
     cnf_matrix = sklearn.metrics.confusion_matrix(df.label, df.prediction)
     df = pd.DataFrame(cnf_matrix, columns=labels, index=labels)
     # plotting
-    fig, ax = plt.subplots(1, 1, figsize=(6,4))
+    fig, ax = plt.subplots(1, 1, figsize=(args.figsize_x, args.figsize_y))
     fmt = 'd'
-    f_name = run
-    if log_scale:
+    f_name = args.run
+    if args.log_scale:
         df = np.log(df + 1)
         fmt = '1.1f'
         f_name += '_log_scale'
-    if normalize:
+    if args.normalize:
         df = df.divide(df.sum(axis=1), axis=0)
         fmt = '1.1f'
         f_name += '_normalized'
-    sns.heatmap(df, ax=ax, annot=True, fmt=fmt, annot_kws={"fontsize": 8})
+    sns.heatmap(df, ax=ax, annot=True, fmt=fmt, annot_kws={"fontsize": 6}, vmin=args.vmin, vmax=args.vmax)
     ax.set(xlabel='predicted label', ylabel='true label')
-    save_fig(fig, 'confusion_matrix', f_name)
+    save_fig(fig, 'confusion_matrix', f_name, plot_formats=args.plot_formats)
 
 def plot_compare_runs(runs, performance_scores, order_by):
     df = []

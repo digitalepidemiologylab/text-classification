@@ -27,14 +27,25 @@ class ArgParse():
             sys.exit(1)
         getattr(self, args.command)()
 
+    @staticmethod
+    def add_common_plotting_args(parser):
+        parser.add_argument('--plot_formats', type=str, nargs='+', default=['png'], choices=['png', 'pdf', 'svg', 'eps'], help='Plot output file formats')
+        parser.add_argument('--stylesheet', type=str, default=None, help='Path to stylesheet')
+        parser.add_argument('--figsize_x', type=float, default=None, help='Figsize inches x')
+        parser.add_argument('--figsize_y', type=float, default=None, help='Figsize inches y')
+        return parser
+
     def confusion_matrix(self):
         from utils.plot_helpers import plot_confusion_matrix
         parser = ArgParseDefault(description='Plot confusion matrix')
         parser.add_argument('-r', '--run', type=str, required=True, dest='run', help='Name of run')
         add_bool_arg(parser, 'log_scale', default=False, help='Show values in log scale')
         add_bool_arg(parser, 'normalize', default=False, help='Normalize counts')
+        parser.add_argument('--vmin', type=float, default=None, help='Colorbar vmin')
+        parser.add_argument('--vmax', type=float, default=None, help='Colorbar vmax')
+        parser = ArgParse.add_common_plotting_args(parser)
         args = parser.parse_args(sys.argv[2:])
-        plot_confusion_matrix(args.run, args.log_scale, args.normalize)
+        plot_confusion_matrix(args)
 
     def compare_runs(self):
         from utils.plot_helpers import plot_compare_runs
