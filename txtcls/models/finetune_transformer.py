@@ -237,6 +237,7 @@ class FinetuneTransformer(BaseModel):
         self.add_to_config(self.output_path, vars(self))
 
     def test(self, model=None, tokenizer=None, fast_tokenizer=None, output_dir=None):
+        # TODO: Rewrite with a single config arg
         if self.test_data is None:
             logger.warning('No test data provided. Aborting.')
             return

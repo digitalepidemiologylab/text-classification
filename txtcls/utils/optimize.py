@@ -94,11 +94,11 @@ class Optimize():
     def get_model(self, model_name):
         """Dynamically import model module and return model instance"""
         if model_name == 'fasttext':
-            from ..models.fasttextmodel import FastTextModel
-            return FastTextModel()
+            from ..models.fasttextmodel import FastText
+            return FastText()
         if model_name == 'fasttext_unsupervised':
-            from ..models.fasttext_unsupervised import FastTextUnsupervised
-            return FastTextUnsupervised()
+            from ..models.fasttext_unsupervised import FastTextPretrain
+            return FastTextPretrain()
         elif model_name == 'bag_of_words':
             from ..models.bag_of_words import BagOfWordsModel
             return BagOfWordsModel()

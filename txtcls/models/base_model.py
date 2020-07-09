@@ -3,15 +3,30 @@ Base model
 **********
 """
 
-import numpy as np
-import sklearn.metrics
 import os
-import joblib
-import pandas as pd
 import json
 import logging
+import inspect
+
+import joblib
+import numpy as np
+import pandas as pd
+import sklearn.metrics
 
 logger = logging.getLogger(__name__)
+
+
+def get_default_args(func):
+    """Get default arguments of a function
+    https://stackoverflow.com/questions/12627118/get-a-function-arguments-default-value
+    """
+    signature = inspect.signature(func)
+    return {
+        k: v.default
+        for k, v in signature.parameters.items()
+        if v.default is not inspect.Parameter.empty
+    }
+
 
 class BaseModel:
     """Base class for all models."""
@@ -31,8 +46,8 @@ class BaseModel:
     def generate_text(self, seed, config):
         raise NotImplementedError
 
-    def get_label_mapping(self, config):
-        label_mapping_path = os.path.join(config.output_path, 'label_mapping.pkl')
+    def load_label_mapping(self, output_path):
+        label_mapping_path = os.path.join(output_path, 'label_mapping.pkl')
         try:
             with open(label_mapping_path, 'rb') as f:
                 label_mapping = joblib.load(f)
@@ -40,17 +55,15 @@ class BaseModel:
             raise Exception('No label mapping could be found under {}. Either provide a path with a label mapping or call `set_label_mapping` first.'.format(label_mapping_path))
         return label_mapping
 
-    def set_label_mapping(self, config, labels=None, train_data=None):
-        if train_data is None:
-            train_data = config.train_data
+    def _set_label_mapping(self, train_data_path, test_data_path, output_path):
         labels = pd.concat([
-            pd.read_csv(train_data, usecols=['label']),
-            pd.read_csv(config.test_data, usecols=['label'])])
+            pd.read_csv(train_data_path, usecols=['label']),
+            pd.read_csv(test_data_path, usecols=['label'])])
         labels = np.unique(labels['label'])
         label_mapping = {}
         for i, label in enumerate(np.unique(labels)):
             label_mapping[label] = i
-        with open(os.path.join(config.output_path, 'label_mapping.pkl'), 'wb') as f:
+        with open(os.path.join(output_path, 'label_mapping.pkl'), 'wb') as f:
             joblib.dump(label_mapping, f)
         return label_mapping
 

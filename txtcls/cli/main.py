@@ -212,39 +212,31 @@ def augment(parser):
 def pretrain(parser):
     """Pretrains model based on config.
 
-    Not implemented yet.
-    """
-    # TODO: implement pretrain
-
-
-def finetune(parser):
-    """Finetunes model based on config.
-
     The following config keys can/should be present in the config file
     (in runs or params).
 
     Args:
         name (required): Unique name of the run
-        model (required): One of the models which can be finetuned
-            (e.g. bert, etc.)
-        train_data (required): Path to unannotated data.
+        model (required): One of the models which can be pretrained
+            (``'fasttext'`` or ``'bert'``)
+        pretrain_data (required): Path to unannotated data.
             A csv with a text column
             (if only filename is provided it should be located under `data/`)
-        test_data: If provided will calculate perplexity
-        overwrite: Wipe existing finetuned model with same name
+        pretrain_test_data: If provided will calculate perplexity
+        overwrite: Wipe existing pretrained model with same name
         etc: all additional model-specific parameters
     """
     parser.add_argument(
         '-c', '--config', metavar='C', default='config.json',
         help='name/path of configuration file')
 
-    def _finetune(args):
+    def _pretrain(args):
         config_reader = helpers.ConfigReader()
-        config = config_reader.parse_fine_tune_config(args.config)
+        config = config_reader.parse_pretrain_config(args.config)
         for run_config in config.runs:
-            helpers.finetune(run_config)
+            helpers.pretrain(run_config)
 
-    parser.set_defaults(func=_finetune)
+    parser.set_defaults(func=_pretrain)
 
 
 def learning_curve(parser):

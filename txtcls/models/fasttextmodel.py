@@ -3,152 +3,206 @@ FastText: text classification
 =============================
 """
 
-from .base_model import BaseModel
-import csv
 import os
+import csv
+import json
 import logging
-import pandas as pd
-from ..utils.preprocess import preprocess, get_preprocessing_config
+
 from tqdm import tqdm
+import pandas as pd
+import fasttext
+from munch import DefaultMunch
+
+from .base_model import BaseModel, get_default_args
+from ..utils.preprocess import preprocess, get_preprocessing_config
+from ..utils.misc import JSONEncoder
 
 tqdm.pandas()
 logger = logging.getLogger(__name__)
 
-class FastTextModel(BaseModel):
+
+class FastText(BaseModel):
     """Wrapper for FastText"""
 
     def __init__(self):
         super().__init__()
-        self.classifier = None
-        self.label_prefix = '__label__'
+        self.model = None
         self.label_mapping = None
-        self.preprocess_config = None
-        try:
-            self.fasttext = __import__('fasttext')
-        except ImportError:
-            raise ImportError("""fasttext is not installed. The easiest way to install fasttext at the
-                time of writing is `pip install fasttext`. Else install from source as described
-                on the official Github page.""")
+        self.train_config = None
 
-    def get_classifier(self, output_path):
-        output_model_path = os.path.join(output_path, 'model.bin')
-        return self.fasttext.load_model(output_model_path)
-
-    def init_model(self, config, setup_mode='default'):
-        if setup_mode != 'train':
-            if self.classifier is None:
-                self.classifier = self.get_classifier(config.output_path)
-            if self.label_mapping is None:
-                self.label_mapping = self.get_label_mapping(config)
-        if self.preprocess_config is None:
-            self.preprocess_config = get_preprocessing_config(config)
+    def setup(self, output_path, train=False):
+        if not train:
+            if self.model is None:
+                self.model = fasttext.load_model(
+                    os.path.join(output_path, 'model.bin'))
+            if self.train_config is None:
+                with open(
+                    os.path.join(output_path, 'run_config.json'), 'r'
+                ) as f:
+                    self.train_config = DefaultMunch.fromDict(json.load(f))
+        if self.label_mapping is None:
+            self.label_mapping = self.load_label_mapping(output_path)
 
     def train(self, config):
+        """Trains supervised FastText.
+        
+        For config params, see https://fasttext.cc/docs/en/python-module.html#train_supervised-parameters
+        ```
+        input             # training file path (required)
+        lr                # learning rate [0.1]
+        dim               # size of word vectors [100]
+        ws                # size of the context window [5]
+        epoch             # number of epochs [5]
+        minCount          # minimal number of word occurences [1]
+        minCountLabel     # minimal number of label occurences [1]
+        minn              # min length of char ngram [0]
+        maxn              # max length of char ngram [0]
+        neg               # number of negatives sampled [5]
+        wordNgrams        # max length of word ngram [1]
+        loss              # loss function {ns, hs, softmax, ova} [softmax]
+        bucket            # number of buckets [2000000]
+        thread            # number of threads [number of cpus]
+        lrUpdateRate      # change the rate of updates for the learning rate [100]
+        t                 # sampling threshold [0.0001]
+        label             # label prefix ['__label__']
+        verbose           # verbose [2]
+        pretrainedVectors # pretrained word vectors (.vec file) for supervised learning []
+        ```
         """
-        Config params:
-        - pretrained_vectors: Path to pretrained model (available here: https://github.com/facebookresearch/fastText/blob/master/docs/crawl-vectors.md), by default learns from scratch
-        - dim: Dimension of hidden layer (default 100), needs to be adjusted depending on pretrained_vectors
-        - ws: Size of context window, default: 5
-        - learning_rate: Learning rate, default: 0.1
-        - lr_update_rate: Rate of updates for the learning rate, default: 100
-        - num_epochs: Default 5
-        """
-        self.init_model(config, setup_mode='train')
-        train_data_path = self.generate_training_data(config.train_data, config.output_path)
-        output_model_path = os.path.join(config.output_path, 'model.bin')
-        self.label_mapping = self.set_label_mapping(config)
-        model_args = {
-                'input': train_data_path,
-                'lr': config.get('learning_rate', 0.1),
-                'dim': config.get('dim', 100),
-                'ws': config.get('ws', 5),
-                'epoch': config.get('num_epochs', 5),
-                'minCount': 1,
-                'minCountLabel': 0,
-                'minn': 0,
-                'maxn': 0,
-                'neg': 5,
-                'wordNgrams': config.get('ngrams', 3),
-                'loss': 'softmax',
-                'bucket': 10000000,
-                'thread': 47,
-                'lrUpdateRate': config.get('lr_update_rate', 100),
-                't': config.get('t', 1e-4),
-                'label': self.label_prefix,
-                'verbose': 0,
-                'pretrainedVectors': config.get('pretrained_vectors', '')}
+        model_path = os.path.join(
+            config.output_path, 'model.bin')
+        self.label_mapping = self._set_label_mapping(
+            config.train_data, config.test_data, config.output_path)
+        self.setup(config.output_path, train=True)
+
+        # Prepare data
+        train_data_path = prepare_data(
+            config.train_data, config.output_path,
+            dict(config.preprocess), config.model.get('label', '__label__'))
+
+        # Train model
         logger.info('Training classifier...')
-        self.classifier = self.fasttext.train_supervised(**model_args)
+        self.model = fasttext.train_supervised(
+            train_data_path, **dict(config.model.params))
+
+        # Save model
         if config.get('save_model', True):
             logger.info('Saving model...')
-            self.classifier.save_model(output_model_path)
+            self.model.save_model(model_path)
         if config.get('quantize', False):
             logger.info('Quantizing model...')
-            self.classifier.quantize(train_data_path, retrain=True)
-            self.classifier.save_model(output_model_path)
-        # save model state
-        logger.info('Saving params...')
-        rename_keys = {'lr': 'learning_rate',
-                'epoch': 'num_epochs',
-                'wordNgrams': 'ngrams',
-                'lrUpdateRate': 'lr_update_rate',
-                'pretrainedVectors': 'pretrained_vectors'}
-        for old_key, new_key in rename_keys.items():
-            model_args[new_key] = model_args.pop(old_key)
-        self.add_to_config(config.output_path, model_args, self.preprocess_config)
+            self.model.quantize(train_data_path, retrain=True)
+            self.model.save_model(model_path)
 
-    def test(self, config):
-        self.init_model(config)
-        test_x, test_y = self.get_test_data(config.test_data)
-        test_y = [self.label_mapping[y] for y in test_y]
-        predictions = self.predict(config, test_x)
-        y_pred = [self.label_mapping[p['labels'][0]] for p in predictions]
-        result_out = self.performance_metrics(test_y, y_pred, label_mapping=self.label_mapping)
-        if config.write_test_output:
-            test_output = self.get_full_test_output(y_pred,
-                    test_y,
-                    label_mapping=self.label_mapping,
-                    test_data_path=config.test_data,
-                    text=test_x)
-            result_out = {**result_out, **test_output}
-        return result_out
+        print(self.model.predict('politician'))
+
+        # Save model state
+        logger.info('Saving params...')
+        for k, v in get_default_args(fasttext.train_supervised).items():
+            if k not in config.model.params:
+                config.model.params[k] = v
+        self.add_to_config(
+            config.output_path, config.model.params, config.preprocess)
 
     def predict(self, config, data):
-        self.init_model(config)
+        self.setup(config.output_path)
         data = ['' if pd.isna(d) else d for d in data]
-        data = [preprocess(d, self.preprocess_config) for d in data]
-        candidates = self.classifier.predict(data, k=len(self.label_mapping))
+        data = [
+            preprocess(d, **dict(self.train_config.preprocess)) for d in data]
+        candidates = self.model.predict(data, k=len(self.label_mapping))
         predictions = [{
-            'labels': [label[len(self.label_prefix):] for label in candidate[0]],
+            'labels': [
+                label[len(self.train_config.model.get('label', '__label__')):]
+                for label in candidate[0]],
             'probabilities': candidate[1].tolist()
         } for candidate in zip(candidates[0], candidates[1])]
         return predictions
 
-    def read_and_preprocess(self, input_path):
-        logger.info(f'Reading data from {input_path}...')
-        df = pd.read_csv(input_path, usecols=['text', 'label'], dtype={'text': str, 'label': str})
-        num_loaded = len(df)
-        df.dropna(subset=['text', 'label'], inplace=True)
-        logger.info('Preprocessing data...')
-        df['text'] = df.text.progress_apply(preprocess, args=(self.preprocess_config,))
-        df = df[df['text'] != '']
-        num_filtered = num_loaded - len(df)
-        if num_filtered > 0:
-            logger.warning(f'Filtered out {num_filtered:,} from {num_loaded:,} samples!')
-        return df
+    def test(self, config):
+        self.setup(config.output_path)
 
-    def get_test_data(self, input_path):
+        # Preparing data
         logger.info('Reading test data...')
-        df = self.read_and_preprocess(input_path)
-        return df['text'].tolist(), df['label'].tolist()
+        df = preprocess_data(
+            config.test_data, dict(self.train_config.preprocess))
+        test_x, test_y = df['text'].tolist(), df['label'].tolist()
+        test_y = [self.label_mapping[y] for y in test_y]
 
-    def generate_training_data(self, input_path, output_path):
-        # create paths
-        output_file_name = os.path.basename(input_path) + '.fasttext.tmp'
-        output_file_path = os.path.join(output_path, output_file_name)
-        # read data
-        df = self.read_and_preprocess(input_path)
-        with open(output_file_path, 'w') as f:
-            for i, row in df.iterrows():
-                f.write(f'{self.label_prefix}{row.label} {row.text}\n')
-        return output_file_path
+        # Predict and get metrics
+        predictions = self.predict(config, test_x)
+        y_pred = [self.label_mapping[p['labels'][0]] for p in predictions]
+        result_out = self.performance_metrics(
+            test_y, y_pred, label_mapping=self.label_mapping)
+
+        if config.write_test_output:
+            test_output = self.get_full_test_output(
+                y_pred,
+                test_y,
+                label_mapping=self.label_mapping,
+                test_data_path=config.test_data,
+                text=test_x)
+            result_out = {**result_out, **test_output}
+        return result_out
+
+
+def preprocess_data(data_path, preprocess_config):
+    """Reads and preprocesses data.
+
+    Args:
+        data_path (str): Path to `.csv` file with two columns,
+            ``'text'`` and ``'label'``
+        preprocess_config (JSON): Config with args for
+            ``text.utils.preprocess``
+
+    Returns:
+        df (pandas DataFrame): Dataframe with preprocessed ``'text'`` field
+    """
+    # Read data
+    logger.info(f'Reading data from {data_path}...')
+    df = pd.read_csv(
+        data_path,
+        usecols=['text', 'label'], dtype={'text': str, 'label': str})
+    # Drop nans in 'text' or 'label'
+    num_loaded = len(df)
+    df.dropna(subset=['text', 'label'], inplace=True)
+    # Preprocess data
+    logger.info('Preprocessing data...')
+    df['text'] = df.text.progress_apply(preprocess, **preprocess_config)
+    # Drop empty strings in 'text'
+    df = df[df['text'] != '']
+    num_filtered = num_loaded - len(df)
+    if num_filtered > 0:
+        logger.warning(
+            f'Filtered out {num_filtered:,} from {num_loaded:,} samples!')
+    return df
+
+def preprocess(self):
+    # hash dataset in a temp directory?
+
+def prepare_data(data_path, output_dir_path, preprocess_config, label_prefix):
+    """Prepares data for FastText training.
+
+    First, preprocesses data with ``preprocess_data``. Second, formats
+    data for FastText.
+
+    Args:
+        data_path (str): Path to `.csv` file with two columns,
+            ``'text'`` and ``'label'``
+        output_dir_path (str): Path to the output folder
+        label_prefix (str): Label prefix parameter for supervised FastText
+
+    Returns:
+        output_file_path (str): Path to temporary file with
+            preprocessed formatted data
+    """
+    # Create paths
+    output_file_path = os.path.join(
+        output_dir_path, os.path.basename(data_path) + '.fasttext.tmp')
+    # Read data
+    df = preprocess_data(data_path, preprocess_config)
+    # Prepare data and writes to temporary file
+    with open(output_file_path, 'w') as f:
+        for _, row in df.iterrows():
+            f.write(f'{label_prefix}{row.label} '
+                    f'{row.text}\n')
+    return output_file_path

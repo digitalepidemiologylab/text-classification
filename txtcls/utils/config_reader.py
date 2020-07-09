@@ -6,19 +6,28 @@ import shutil
 import json
 import glob
 
+logger = logging.getLogger(__name__)
+
+
 class ConfigReader:
     def __init__(self):
         self.args = None
         self.config = None
         self.experiment_names = []
-        self.logger = logging.getLogger(__name__)
         self.default_output_folder = os.path.join('.', 'output')
 
     def parse_config(self, config_path, predict_mode=False):
-        """
-        collect configuration options from config file
-        :param json_file:
-        :return: config(namespace) or config(dictionary)
+        """Collects configuration options from config file
+
+        Args:
+            config_path (JSON file): Path to config
+            predict_mode (bool): Prediction mode. If ``False``, creates
+                training run folders. If ``True``, initializes runs-only
+                config to properly load from `run_config.json`.
+                Default: ``False``
+
+        Returns:
+            config (dictionary)
         """
         config = self._read_config_file(config_path)
         if predict_mode:
@@ -36,9 +45,10 @@ class ConfigReader:
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
-    def parse_fine_tune_config(self, config_path):
+    def parse_pretrain_config(self, config_path):
         config = self._read_config_file(config_path)
-        config = self._sanitize_config(config, required_keys_runs=['model', 'name', 'train_data'])
+        config = self._sanitize_config(
+            config, required_keys_runs=['model', 'name', 'pretrain_data'])
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
@@ -58,15 +68,15 @@ class ConfigReader:
     def print_configs(self, pattern, model, names_only):
         configs = self.list_configs(pattern=pattern)
         if not names_only:
-            print('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
+            logger.info('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
         c = 1
         for config in configs:
             if not model in config['model']:
                 continue
             if names_only:
-                print(config['name'])
+                logger.info(config['name'])
             else:
-                print('{:3d}) {:<40} {}'.format(c, config['name'], config['model']))
+                logger.info('{:3d}) {:<40} {}'.format(c, config['name'], config['model']))
                 c += 1
 
     def _read_config_file(self, config_path):
@@ -76,27 +86,32 @@ class ConfigReader:
             config = json.load(cf)
         return config
 
-    def _sanitize_config(self, config, required_base_keys=None, required_keys_runs=None):
+    def _sanitize_config(self, config, required_base_keys=None,
+                         required_keys_runs=None):
         if required_base_keys is None:
             required_base_keys = ['runs', 'params']
         if required_keys_runs is None:
             required_keys_runs = ['name', 'model', 'train_data', 'test_data']
         for rq in required_base_keys:
             if rq not in config:
-                raise Exception('Missing key "{}" in config file'.format(rq))
+                raise Exception(f'Missing key "{rq}" in config file')
         run_names = [k['name'] for k in config['runs']]
         if len(run_names) != len(set(run_names)):
-            raise Exception('Name keys in `runs` subfield of config file need to be unique')
+            raise Exception('Name keys in `runs` subfield of config file '
+                            'need to be unique')
         sanitized_training_runs = []
         for run in config['runs']:
-            run_config = {**self._get_default_paths(), **config['params'], **run}
+            run_config = {
+                **self._get_default_paths(),
+                **config['params'], **run}
             for rq in required_keys_runs:
                 if rq not in run_config:
-                    raise Exception('Missing key {} in run subfield of config file'.format(rq))
+                    raise Exception(
+                        f'Missing key {rq} in run subfield of config file')
             run_config = self._set_output_path(run_config)
             run_config = self._set_data_paths(run_config)
             sanitized_training_runs.append(run_config)
-        # merge all params into run key
+        # Merges all params into run key
         config['runs'] = sanitized_training_runs
         return config
 
