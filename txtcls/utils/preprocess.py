@@ -7,11 +7,13 @@ import logging
 import re
 import html
 import unicodedata
+
 import unidecode
-from .tokenizer_contractions import CONTRACTIONS
 import en_core_web_sm
 import emoji
 from munch import DefaultMunch
+
+from .tokenizer_contractions import CONTRACTIONS
 
 
 nlp = en_core_web_sm.load()
@@ -19,36 +21,21 @@ logger = logging.getLogger(__name__)
 control_char_regex = re.compile(r'[\r\n\t]+')
 
 
-def preprocess(text,
-               min_num_tokens=0,
-               min_num_chars=0,
-               lower_case=False,
-               remove_punct=False,
-               standardize_punctuation=False,
-               asciify=False,
-               remove_emojis=False,
-               asciify_emojis=False,
-               expand_contractions=False,
-               lemmatize=False,
-               remove_stop_words=False,
-               replace_user_with=None,
-               replace_url_with=None):
-    # 'min_num_tokens': config.get('min_num_tokens', 0),
-    # 'min_num_chars': config.get('min_num_chars', 0),
-    # 'lower_case': config.get('lower_case', True),
-    # 'remove_punct': config.get('remove_punct', False),
-    # 'asciify': config.get('asciify', False),
-    # 'standardize_punctuation': config.get('standardize_punctuation', True),
-    # 'remove_emojis': config.get('remove_emojis', False),
-    # 'asciify_emojis': config.get('asciify_emojis', False),
-    # 'expand_contractions': config.get('expand_contractions', False),
-    # 'lemmatize': config.get('lemmatize', False),
-    # 'remove_stop_words': config.get('remove_stop_words', False),
-    # 'replace_user_with': config.get('replace_user_with', None),
-    # 'replace_url_with': config.get('replace_url_with', None),
-
-    """
-    Preprocessing pipeline
+def preprocess_fasttext(text,
+                        min_num_tokens=0,
+                        min_num_chars=0,
+                        lower_case=False,
+                        remove_punct=False,
+                        standardize_punctuation=False,
+                        asciify=False,
+                        remove_emoji=False,
+                        asciify_emoji=False,
+                        expand_contractions=False,
+                        lemmatize=False,
+                        remove_stop_words=False,
+                        replace_user_with=None,
+                        replace_url_with=None):
+    """Preprocessing pipeline for FastText.
 
     Args:
         min_num_tokens (int): Minimum number of tokens. Default: 0
@@ -57,9 +44,9 @@ def preprocess(text,
         remove_punct (bool): Remove punctuation. Default: ``False``
         standardize_punctuation (bool): Standardize punctuation. Default: True
         asciify (bool): Asciify accents. Default: ``False``
-        remove_emojis (bool): Remove all characters of symbol unicode
+        remove_emoji (bool): Remove all characters of symbol unicode
             class (S). Default: ``False``
-        asciify_emojis (bool): Asciify emojis. Default: ``False``
+        asciify_emoji (bool): Asciify emoji. Default: ``False``
         expand_contractions (bool): Expand contractions.
             (E.g. `he's` -> `he is`, `wouldn't -> would not`.)
             Note that this may not always be correct.
@@ -74,12 +61,6 @@ def preprocess(text,
     Returns:
         text (str): Preprocessed text
     """
-    # print(min_num_tokens)
-    # print(
-    #     min_num_tokens, min_num_chars, lower_case, remove_punct,
-    #     standardize_punctuation, asciify, remove_emojis, asciify_emojis,
-    #     expand_contractions, lemmatize, remove_stop_words, replace_user_with,
-    #     replace_url_with)
     text = _remove_control_characters(text)
     # remove HTMl symbols
     text = html.unescape(text)
@@ -89,12 +70,12 @@ def preprocess(text,
     # standardize punctuation
     if standardize_punctuation:
         text = _standardize_punctuation(text)
-    # asciify emojis
-    if asciify_emojis:
-        text = _asciify_emojis(text)
-    # remove emojis
-    if remove_emojis:
-        text = _remove_emojis(text)
+    # asciify emoji
+    if asciify_emoji:
+        text = _asciify_emoji(text)
+    # remove emoji
+    if remove_emoji:
+        text = _remove_emoji(text)
     # expand contractions
     if expand_contractions:
         text = _expand_contractions(text)
@@ -149,8 +130,8 @@ def get_preprocessing_config(config={}):
         'remove_punct': config.get('remove_punct', False),
         'asciify': config.get('asciify', False),
         'standardize_punctuation': config.get('standardize_punctuation', True),
-        'remove_emojis': config.get('remove_emojis', False),
-        'asciify_emojis': config.get('asciify_emojis', False),
+        'remove_emoji': config.get('remove_emoji', False),
+        'asciify_emoji': config.get('asciify_emoji', False),
         'expand_contractions': config.get('expand_contractions', False),
         'lemmatize': config.get('lemmatize', False),
         'remove_stop_words': config.get('remove_stop_words', False),
@@ -192,12 +173,12 @@ def _standardize_punctuation(text):
     text = ''.join(unidecode.unidecode(c) if unicodedata.category(c)[0] == 'P' else c for c in text)
     return text
 
-def _remove_emojis(text):
+def _remove_emoji(text):
     """remove all characters of symbol unicode class"""
     text = ''.join('' if unicodedata.category(c)[0] == 'S' else c for c in text)
     return text
 
-def _asciify_emojis(text):
+def _asciify_emoji(text):
     """remove all characters of symbol unicode class"""
     text = emoji.demojize(text)
     # pad with whitespace

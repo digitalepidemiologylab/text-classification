@@ -20,11 +20,11 @@ txtcls.models
    :members:
    :undoc-members:
 
-.. automodule:: txtcls.models.fasttext_unsupervised
+.. automodule:: txtcls.models.fasttext_pretrain
    :members:
    :undoc-members:
 
-.. automodule:: txtcls.models.fasttextmodel
+.. automodule:: txtcls.models.fasttext
    :members:
    :undoc-members:
 

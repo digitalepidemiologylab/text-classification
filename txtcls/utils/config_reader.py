@@ -5,8 +5,62 @@ import logging
 import shutil
 import json
 import glob
+from functools import reduce
+from pprint import pprint
 
 logger = logging.getLogger(__name__)
+
+base = ['globals', 'runs']
+
+categories = [
+    'path',
+    'data',
+    'preprocess',
+    'model'
+]
+
+args = {
+    'root': ['name', 'overwrite'],
+    'path': ['data', 'output', 'tmp', 'other'],
+    'data': ['train', 'test'],
+    'preprocess': ['bool', 'params_inner', 'params_outer'],
+    'model': ['name', 'params']
+}
+
+required_args = {
+    'preprocess': {
+        'root': ['name'],
+        'data': ['train'],
+        'preprocess': ['bool', 'params_inner'],
+        'model': ['name']
+    },
+    'train': {
+        'root': ['name'],
+        'data': ['test'],
+        'model': ['name']
+    },
+    'predict': {},
+    'test': {}
+}
+
+
+def merge_dicts(a, b, path=None):
+    """Merges b into a.
+
+    https://stackoverflow.com/questions/7204805/how-to-merge-dictionaries-of-dictionaries
+    """
+    # pprint(a)
+    # pprint(b)
+    # print()
+    if path is None:
+        path = []
+    for key in b:
+        if key in a:
+            if isinstance(a[key], dict) and isinstance(b[key], dict):
+                merge_dicts(a[key], b[key], path + [str(key)])
+        else:
+            a[key] = b[key]
+    return a
 
 
 class ConfigReader:
@@ -16,7 +70,8 @@ class ConfigReader:
         self.experiment_names = []
         self.default_output_folder = os.path.join('.', 'output')
 
-    def parse_config(self, config_path, predict_mode=False):
+    def parse_config(self, config_path,
+                     mode={'preprocess', 'train', 'predict', 'test'}):
         """Collects configuration options from config file
 
         Args:
@@ -29,132 +84,155 @@ class ConfigReader:
         Returns:
             config (dictionary)
         """
+        assert mode in ['preprocess', 'train', 'predict', 'test']
         config = self._read_config_file(config_path)
-        if predict_mode:
+        if mode == 'predict':
             config = {
                 'runs': [config],
-                'params': {}
+                'globals': {}
             }
-        config = self._sanitize_config(config)
-        if not predict_mode:
+        config = self._check_required(config, mode)
+        if mode != 'predict':
             self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
 
-    def parse_from_dict(self, config):
-        config = self._sanitize_config(config)
+    def parse_from_dict(self, config, mode):
+        config = self._check_required(config, mode)
         self._create_dirs(config)
         return DefaultMunch.fromDict(config, None)
-
-    def parse_pretrain_config(self, config_path):
-        config = self._read_config_file(config_path)
-        config = self._sanitize_config(
-            config, required_keys_runs=['model', 'name', 'pretrain_data'])
-        self._create_dirs(config)
-        return DefaultMunch.fromDict(config, None)
-
-    def get_default_config(self, base_config={}):
-        config = {**self._get_default_paths(), **base_config}
-        return DefaultMunch.fromDict(config, None)
-
-    def list_configs(self, pattern='*'):
-        config_paths = glob.glob(os.path.join(self.default_output_folder, pattern, 'run_config.json'))
-        list_configs = []
-        for config_path in config_paths:
-            with open(config_path, 'r') as f:
-                config = json.load(f)
-            list_configs.append({'name': config['name'], 'model': config['model']})
-        return list_configs
-
-    def print_configs(self, pattern, model, names_only):
-        configs = self.list_configs(pattern=pattern)
-        if not names_only:
-            logger.info('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
-        c = 1
-        for config in configs:
-            if not model in config['model']:
-                continue
-            if names_only:
-                logger.info(config['name'])
-            else:
-                logger.info('{:3d}) {:<40} {}'.format(c, config['name'], config['model']))
-                c += 1
 
     def _read_config_file(self, config_path):
-        if not os.path.isfile(config_path):
-            FileNotFoundError('Could not find config file under: {}'.format(config_path))
-        with open(config_path, 'r') as cf:
-            config = json.load(cf)
+        try:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+        except FileNotFoundError as e:
+            raise Exception('Wrong config path') from e
         return config
 
-    def _sanitize_config(self, config, required_base_keys=None,
-                         required_keys_runs=None):
-        if required_base_keys is None:
-            required_base_keys = ['runs', 'params']
-        if required_keys_runs is None:
-            required_keys_runs = ['name', 'model', 'train_data', 'test_data']
-        for rq in required_base_keys:
+    def _check_required(self, config, mode):
+        # Check base
+        for rq in base:
             if rq not in config:
                 raise Exception(f'Missing key "{rq}" in config file')
-        run_names = [k['name'] for k in config['runs']]
+        # Check that run names are all different
+        run_names = [conf['name'] for conf in config['runs']]
         if len(run_names) != len(set(run_names)):
-            raise Exception('Name keys in `runs` subfield of config file '
+            raise Exception('Name keys in "runs" subfield of config file '
                             'need to be unique')
-        sanitized_training_runs = []
+        runs = []
         for run in config['runs']:
-            run_config = {
-                **self._get_default_paths(),
-                **config['params'], **run}
-            for rq in required_keys_runs:
-                if rq not in run_config:
-                    raise Exception(
-                        f'Missing key {rq} in run subfield of config file')
+            run_config = reduce(
+                merge_dicts,
+                [config['globals'], run, self._get_default_paths()])
+            # pprint(config)
+            # print()
+            # print('MERGE\n')
+            # run_config = merge_dicts(config['globals'], run)
+            # print('END MERGE\n')
+            # pprint(run_config)
+            # print()
+            # pprint(self._get_default_paths())
+            # print()
+            # print('MERGE\n')
+            # run_config = merge_dicts(run_config, self._get_default_paths())
+            # print('END MERGE\n')
+            # pprint(run_config)
+            # print()
+            # Check required arguments
+            for k, vs in required_args[mode].items():
+                if k == 'root':
+                    for v in vs:
+                        if v not in run_config:
+                            raise Exception(
+                                f'Missing key "{v}" in config file')
+                else:
+                    for v in vs:
+                        if v not in run_config[k]:
+                            raise Exception(
+                                f'Missing key "{k}.{v}" in config file')
             run_config = self._set_output_path(run_config)
             run_config = self._set_data_paths(run_config)
-            sanitized_training_runs.append(run_config)
-        # Merges all params into run key
-        config['runs'] = sanitized_training_runs
+            runs.append(run_config)
+        # Merge all params into run key
+        config['runs'] = runs
         return config
 
     def _set_data_paths(self, config):
-        for data_key in ['train_data', 'test_data', 'fine_tune_data']:
-            if data_key in config:
-                data_path = config[data_key]
-                if not (data_path.startswith('/') or data_path.startswith('.') or data_path.startswith('~')):
-                    config[data_key] = os.path.join(config['data_path'], data_path)
+        for data_key in ['train', 'test']:
+            if data_key in config['data']:
+                data_path = config['data'][data_key]
+                if not (data_path.startswith('/') or
+                        data_path.startswith('.') or
+                        data_path.startswith('~')):
+                    config['data'][data_key] = os.path.join(
+                        config['path']['data'], data_path)
         return config
 
     def _set_output_path(self, config):
-        if 'fine_tune_data' in config:
-            config['output_path'] = os.path.join(config['other_path'], 'fine_tune', config['model'], config['name'])
-        else:
-            config['output_path'] = os.path.join('.', 'output', config['name'])
+        config['path']['output'] = os.path.join(
+            config['path']['output'], config['name'])
         return config
 
     def _create_dirs(self, config):
         """Creates folders for runs, deletes old directories if "overwrite"
         """
         for run in config['runs']:
-            if not ('use_existing_folder' in run and run['use_existing_folder']) and not ('test_only' in run and run['test_only']):
-                run_dir = run['output_path']
-                if os.path.isdir(run_dir):
-                    if 'overwrite' in run and run['overwrite']:
-                        shutil.rmtree(run_dir)
-                        os.makedirs(run_dir)
+            if not ('use_existing_folder' in run and
+                    run['use_existing_folder']):
+                if not ('test_only' in run and run['test_only']):
+                    run_dir = run['path']['output']
+                    if os.path.isdir(run_dir):
+                        if 'overwrite' in run and run['overwrite']:
+                            shutil.rmtree(run_dir)
+                            os.makedirs(run_dir)
+                        else:
+                            raise Exception(
+                                f'Found exisiting folder {run_dir}. '
+                                'Add `overwrite: true` to run config or '
+                                'delete the folder.')
                     else:
-                        raise Exception('Found exisiting folder {}. Add `overwrite: true` to run config or delete the folder.'.format(run_dir))
-                else:
-                    os.makedirs(run_dir)
-                self._dump_run_config(run_dir, run)
+                        os.makedirs(run_dir)
+                    self._dump_run_config(run_dir, run)
 
     def _get_default_paths(self):
         paths = {}
         project_root = '.'
-        paths['tmp_path'] = os.path.join(project_root, 'tmp')
-        paths['data_path'] = os.path.join(project_root, 'data')
-        paths['other_path'] = os.path.join(project_root, 'other', 'models')
+        paths['path'] = {
+            'data': os.path.join(project_root, 'data'),
+            'output': os.path.join(project_root, 'output'),
+            'tmp': os.path.join(project_root, 'tmp'),
+            'other': os.path.join(project_root, 'other', 'models')
+        }
         return paths
 
     def _dump_run_config(self, folder_path, run):
         f_path = os.path.join(folder_path, 'run_config.json')
         with open(f_path, 'w') as f:
             json.dump(run, f, indent=4)
+
+    def list_configs(self, output_dir, pattern='*'):
+        # Only referenced in print_configs, which is never used
+        config_paths = glob.glob(os.path.join(output_dir, pattern, 'run_config.json'))
+        list_configs = []
+        for config_path in config_paths:
+            with open(config_path, 'r') as f:
+                config = json.load(f)
+            list_configs.append(
+                {'name': config['name'], 'model': config['model']['name']})
+        return list_configs
+
+    def print_configs(self, output_dir, pattern, model, names_only):
+        # Never used
+        configs = self.list_configs(output_dir, pattern=pattern)
+        if not names_only:
+            logger.info('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
+        c = 1
+        for config in configs:
+            if model not in config['model']['name']:
+                continue
+            if names_only:
+                logger.info(config['name'])
+            else:
+                logger.info('{:3d}) {:<40} {}'.format(
+                    c, config['name'], config['model']['name']))
+                c += 1

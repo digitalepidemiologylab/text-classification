@@ -23,6 +23,29 @@ from . import ConfigReader
 from .misc import JSONEncoder, get_df_hash
 
 
+def preprocess(run_config):
+    logger = logging.getLogger(__name__)
+    prepare_data = __import__(
+        'txtcls.models.' + run_config.model.name,
+        fromlist=['prepare_data']).prepare_data
+    try:
+        set_label_mapping = __import__(
+            'txtcls.models.' + run_config.model.name,
+            fromlist=['set_label_mapping']).set_label_mapping
+        set_label_mapping(run_config.data.train,
+                          run_config.data.test,
+                          run_config.path.output)
+    except AttributeError:
+        logger.info("No 'set_label_mapping'")
+    for v in dict(run_config.data).values():
+        data_path = prepare_data(
+            v, run_config.path.output,
+            run_config.preprocess.bool,
+            dict(run_config.preprocess.params_inner),
+            **dict(run_config.preprocess.params_outer))
+        logger.info(f'Prepared data from {v} to {data_path}')
+
+
 def train(run_config):
     """Trains and evaluates"""
     model = get_model(run_config.model.name)
@@ -41,11 +64,11 @@ def train(run_config):
     if result is None:
         logger.warning('No test results generated.')
         return
-    test_output = os.path.join(run_config.output_path, 'test_output.json')
+    test_output = os.path.join(run_config.path.output, 'test_output.json')
     if run_config.write_test_output:
         keys = ['text', 'label', 'prediction']
         df = pd.DataFrame({i: result[i] for i in keys})
-        df.to_csv(os.path.join(run_config.output_path, 'test_output.csv'))
+        df.to_csv(os.path.join(run_config.path.output, 'test_output.csv'))
         for k in keys:
             result.pop(k, None)
     with open(test_output, 'w') as outfile:
@@ -63,7 +86,7 @@ def train(run_config):
                         new_key, result[new_key])
     logger.info(output)
     logger.info(f'Training for model `{run_config.name}` finished. '
-                f'Model output written to `{run_config.output_path}`')
+                f'Model output written to `{run_config.path.output}`')
 
 
 def predict(run_name, path=None, data=None, output_cols=[],
@@ -91,7 +114,7 @@ def predict(run_name, path=None, data=None, output_cols=[],
     # Parses run config
     config_reader = ConfigReader()
     config_path = os.path.join('output', run_name, 'run_config.json')
-    config = config_reader.parse_config(config_path, predict_mode=True)
+    config = config_reader.parse_config(config_path, mode='predict')
     run_config = config.runs[0]
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model.name)
@@ -168,7 +191,7 @@ def pretrain(run_config):
             from ..models.finetune_transformer import FinetuneTransformer
             model = FinetuneTransformer()
     else:
-        from ..models.fasttext_unsupervised import FastTextPretrain
+        from ..models.fasttext_pretrain import FastTextPretrain
         model = FastTextPretrain()
     model.init(run_config)
     model.train()
@@ -176,7 +199,7 @@ def pretrain(run_config):
     if 'pretrain_test_data' in run_config:
         result = model.test()
         pretrain_test_output = os.path.join(
-            run_config.output_path, 'pretrain_test_output.json')
+            run_config.path.output, 'pretrain_test_output.json')
         with open(pretrain_test_output, 'w') as f:
             json.dump(result, f, cls=JSONEncoder, indent=4)
 
@@ -184,10 +207,10 @@ def pretrain(run_config):
 def get_model(model_name):
     """Dynamically import model class and return model instance"""
     if model_name == 'fasttext':
-        from ..models.fasttextmodel import FastText
+        from ..models.fasttext import FastText
         return FastText()
-    if model_name == 'fasttext_unsupervised':
-        from ..models.fasttext_unsupervised import FastTextPretrain
+    if model_name == 'fasttext_pretrain':
+        from ..models.fasttext_pretrain import FastTextPretrain
         return FastTextPretrain()
     if model_name == 'bag_of_words':
         from ..models.bag_of_words import BagOfWordsModel

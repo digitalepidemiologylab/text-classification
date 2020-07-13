@@ -15,6 +15,21 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def preprocess(parser):
+    """Preprocesses data."""
+    parser.add_argument(
+        '-c', '--config', default='config.json', metavar='C',
+        help='name/path of configuration file')
+
+    def _preprocess(args):
+        config_reader = helpers.ConfigReader()
+        config = config_reader.parse_config(args.config, mode='preprocess')
+        for run_config in config.runs:
+            helpers.preprocess(run_config)
+
+    parser.set_defaults(func=_preprocess)
+
+
 def split(parser):
     """Splits annotated data into training and test data sets."""
     parser.add_argument(
@@ -67,7 +82,7 @@ def train(parser):
 
     def _train(args):
         config_reader = helpers.ConfigReader()
-        config = config_reader.parse_config(args.config)
+        config = config_reader.parse_config(args.config, mode='train')
         if len(config.runs) > 1 and args.parallel:
             num_cpus = max(os.cpu_count() - 1, 1)
             parallel = joblib.Parallel(n_jobs=num_cpus)
