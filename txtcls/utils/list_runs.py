@@ -3,6 +3,9 @@ import pandas as pd
 import os
 import glob
 import json
+from pprint import pprint
+from .helpers import flatten_dict
+
 
 class ListRuns:
     def __init__(self):
@@ -11,7 +14,7 @@ class ListRuns:
     @staticmethod
     def collect_results(run='*'):
         """Compiles run hyperparameters/performance scores into single pandas DataFrame"""
-        run_path = os.path.join(find_project_root(), 'output', run)
+        run_path = os.path.join(find_project_root(), 'output', '*')
         folders = glob.glob(run_path)
         results = []
         for f in folders:
@@ -25,7 +28,11 @@ class ListRuns:
                         test_output = json.load(f_p)
                 except FileNotFoundError:
                     continue
-                results.append({**run_config, **test_output})
+                run_config_flat = flatten_dict(run_config)
+                run_config_flat = {'.'.join(k): v for k, v in run_config_flat.items()}
+                results.append({
+                    **run_config_flat,
+                    **test_output})
         return pd.DataFrame(results)
 
     def list_runs(self, model=None, run_pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
@@ -33,7 +40,7 @@ class ListRuns:
         pd.set_option('display.max_rows', 300)
         # pd.set_option('display.max_columns', 100)
         # pd.set_option('display.width', 400)
-        default_params = ['model', 'learning_rate', 'num_epochs']
+        default_params = ['preprocess.params']
         default_metrics = ['f1', 'accuracy', 'precision', 'recall']
         # metrics
         if metrics is None:
@@ -59,7 +66,11 @@ class ListRuns:
             else:
                 # use default
                 cols = []
-                for _p in default_params + metrics:
+                for _p in default_params:
+                    for _col in df.columns:
+                        if _p in _col:
+                            cols.append(_col)
+                for _p in metrics:
                     if _p in df:
                         cols.append(_p)
                 df = df[cols]

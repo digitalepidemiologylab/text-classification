@@ -42,7 +42,9 @@ def entry_point():
     set_subparsers(print_parser, print_)
 
     args = entry_parser.parse_args()
-    args.func(args)
+    func = args.func
+    del args.func
+    func(args)
 
 
 def set_subparsers(parser, module):

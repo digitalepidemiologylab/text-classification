@@ -15,10 +15,16 @@ import fasttext
 import joblib
 from munch import DefaultMunch
 import swifter
+import multiprocessing
 
 from .base_model import BaseModel, get_default_args
-from ..utils.preprocess import preprocess_fasttext
 from ..utils.misc import JSONEncoder
+from ..utils.preprocess import (_asciify,
+                                _remove_punctuation,
+                                _asciify_emoji,
+                                _remove_emoji,
+                                _expand_contractions,
+                                _tokenize)
 
 tqdm.pandas()
 logger = logging.getLogger(__name__)
@@ -96,13 +102,50 @@ class FastText(BaseModel):
             self.model.quantize(train_data_path, retrain=True)
             self.model.save_model(model_path)
 
+        unsupervised_default = {
+            'model': "skipgram",
+            'lr': 0.05,
+            'dim': 100,
+            'ws': 5,
+            'epoch': 5,
+            'minCount': 5,
+            'minCountLabel': 0,
+            'minn': 3,
+            'maxn': 6,
+            'neg': 5,
+            'wordNgrams': 1,
+            'loss': "ns",
+            'bucket': 2000000,
+            'thread': multiprocessing.cpu_count() - 1,
+            'lrUpdateRate': 100,
+            't': 1e-4,
+            'label': "__label__",
+            'verbose': 2,
+            'pretrainedVectors': "",
+            'seed': 0,
+            'autotuneValidationFile': "",
+            'autotuneMetric': "f1",
+            'autotunePredictions': 1,
+            'autotuneDuration': 60 * 5,  # 5 minutes
+            'autotuneModelSize': "",
+        }
+
+        supervised_default = unsupervised_default.copy()
+        supervised_default.update({
+            'lr': 0.1,
+            'minCount': 1,
+            'minn': 0,
+            'maxn': 0,
+            'loss': "softmax",
+            'model': "supervised"
+        })
+
         # Save model state
         logger.info('Saving params...')
-        for k, v in get_default_args(fasttext.train_supervised).items():
+        for k, v in supervised_default.items():
             if k not in config.model.params:
                 config.model.params[k] = v
-        self.add_to_config(
-            config.path.output, config.model.params)
+        self.add_to_config(config.path.output, config)
 
     def predict(self, config, data):
         self.setup(config.path.data, config.path.output)
@@ -158,15 +201,14 @@ def set_label_mapping(train_data_path, test_data_path, output_path):
         json.dump(label_mapping, f)
 
 
-def preprocess_data(data_path, preprocess, preprocessing_config):
+def preprocess_data(data_path, preprocessing_config):
     """Reads and preprocesses data.
 
     Args:
         data_path (str): Path to `.csv` file with two columns,
             ``'text'`` and ``'label'``
-        preprocess (bool): Whether to preprocess each text
-        preprocessing_config (JSON): Config with args for
-            ``text.utils.preprocess``
+        preprocessing_config (dict): Config with args for
+            ``preprocess_fasttext()``
 
     Returns:
         df (pandas DataFrame): Dataframe with preprocessed ``'text'`` field
@@ -180,7 +222,20 @@ def preprocess_data(data_path, preprocess, preprocessing_config):
     num_loaded = len(df)
     df.dropna(subset=['text', 'label'], inplace=True)
     # Preprocess data
-    if preprocess is True:
+    try:
+        standardize_func_name = preprocessing_config['standardize_func_name']
+        del preprocessing_config['standardize_func_name']
+    except KeyError:
+        standardize_func_name = None
+    if standardize_func_name is not None:
+        logger.info('Standardizing data...')
+        standardize_func = getattr(
+            __import__(
+                'txtcls.utils.standardize',
+                fromlist=[standardize_func_name]),
+            standardize_func_name)
+        df['text'] = df.text.swifter.apply(standardize_func)
+    if preprocessing_config != {}:
         logger.info('Preprocessing data...')
         df['text'] = df.text.swifter.apply(
             preprocess_fasttext, **preprocessing_config)
@@ -194,8 +249,7 @@ def preprocess_data(data_path, preprocess, preprocessing_config):
 
 
 def prepare_data(data_path, output_dir_path,
-                 preprocess, preprocessing_config,
-                 label_prefix):
+                 preprocessing_config):
     """Prepares data for FastText training.
 
     First, preprocesses data with ``preprocess_data``. Second, formats
@@ -203,33 +257,136 @@ def prepare_data(data_path, output_dir_path,
 
     Args:
         data_path (str): Path to `.csv` file with two columns,
-            ``'text'`` and ``'label'``
+            ``text`` and ``label``
         output_dir_path (str): Path to the output folder
-        label_prefix (str): Label prefix parameter for supervised FastText
+        preprocessing_config (dict): Preprocessing config
 
     Returns:
         output_file_path (str): Path to temporary file with
             preprocessed formatted data
     """
+    paths = []
+    try:
+        label_prefix = preprocessing_config['label_prefix']
+        del preprocessing_config['label_prefix']
+    except KeyError:
+        label_prefix = '__label__'
     # Preprocess data
-    df = preprocess_data(data_path, preprocess, preprocessing_config)
+    df = preprocess_data(data_path, preprocessing_config)
     # Write data
-    if 'test' in os.path.basename(data_path) or 'dev' in os.path.basename(data_path):
-        # Create paths
-        output_file_path = os.path.join(
-            output_dir_path, os.path.basename(data_path))
-        # Write
-        df.to_csv(
-            output_file_path,
-            index=False, header=True)
-        return output_file_path
     # Create paths
     output_file_path = os.path.join(
         output_dir_path, os.path.basename(data_path))
     output_file_path = '.'.join(output_file_path.split('.')[:-1] + ['txt'])
+    paths.append(output_file_path)
     # Write
     with open(output_file_path, 'w') as f:
         for _, row in df.iterrows():
             f.write(f'{label_prefix}{row.label} '
                     f'{row.text}\n')
-    return output_file_path
+    if 'test' in os.path.basename(data_path) or 'dev' in os.path.basename(data_path):
+        # Create paths
+        output_file_path = os.path.join(
+            output_dir_path, os.path.basename(data_path))
+        paths.append(output_file_path)
+        # Write
+        df.to_csv(
+            output_file_path,
+            index=False, header=True)
+    return paths
+
+
+def preprocess_fasttext(text,
+                        min_num_tokens=0,
+                        min_num_chars=0,
+                        lower_case=False,
+                        asciify=False,
+                        remove_punctuation=False,
+                        asciify_emoji=False,
+                        remove_emoji=False,
+                        replace_url_with=None,
+                        replace_user_with=None,
+                        replace_email_with=None,
+                        expand_contractions=False,
+                        lemmatize=False,
+                        remove_stop_words=False):
+    """Preprocessing pipeline for FastText.
+
+    Args:
+        min_num_tokens (int): Minimum number of tokens. Default: 0
+        min_num_chars (int): Minimum number of character cutoff. Default: 0
+        lower_case (bool): Lower case. Default: ``True``
+        asciify (bool): Asciify accents. Default: ``False``        
+        remove_punctuation (bool): Replace all symbols of punctuation
+            unicode category except dashes (Pd). Default: ``False``
+        asciify_emoji (bool): Asciify emoji. Default: ``False``
+        remove_emoji (bool): Remove all characters of symbols-other (So)
+            unicode category. Default: ``False``
+        replace_url_with (str or None): Replace `<url>` with something else.
+            Default: ``None``
+        replace_user_with (str or None): Replace `@user` with something else.
+            Default: ``None``
+        replace_email_with (str or None): Replace `@email` with something else.
+            Default: ``None``
+        expand_contractions (bool): Expand contractions.
+            (E.g. `he's` -> `he is`, `wouldn't -> would not`.)
+            Note that this may not always be correct.
+            Default: ``False``
+        lemmatize (bool): Lemmatize strings. Default: ``False``
+        remove_stop_words (bool): Remove stop words. Default: ``False``
+
+    Returns:
+        text (str): Preprocessed text
+    """
+    # Asciify
+    if asciify:
+        text = _asciify(text)
+    # Remove punctuation
+    if remove_punctuation:
+        text = _remove_punctuation(text)
+    # Asciify emoji
+    if asciify_emoji:
+        text = _asciify_emoji(text)
+    # Remove emoji
+    if remove_emoji:
+        text = _remove_emoji(text)
+    # Expand contractions
+    if expand_contractions:
+        text = _expand_contractions(text)
+    # Replace urls/users/emails with something else
+    if replace_url_with is not None:
+        text = text.replace('<url>', replace_url_with)
+    if replace_user_with is not None:
+        text = text.replace('@user', replace_user_with)
+    if replace_email_with is not None:
+        text = text.replace('@email', replace_email_with)
+    if min_num_tokens > 0 or lemmatize or remove_stop_words:
+        tokens = _tokenize(text)
+        # Ignore everything below min_num_tokens
+        if min_num_tokens > 0:
+            num_tokens = sum((
+                1 for t in tokens
+                if t.is_alpha and
+                not t.is_punct and
+                t.text.strip()
+                not in [replace_user_with, replace_url_with]))
+            if num_tokens < min_num_tokens:
+                return ''
+        # Remove stop words
+        if remove_stop_words:
+            tokens = [t for t in tokens if not t.is_stop]
+        # Merge
+        if (remove_stop_words or remove_punctuation) and not lemmatize:
+            text = ' '.join([t.text for t in tokens])
+        if lemmatize:
+            text = ' '.join([t.lemma_ for t in tokens])
+    # Lower case
+    if lower_case:
+        text = text.lower()
+    # Min number of character cutoff
+    if min_num_chars > 0:
+        if len(text) < min_num_chars:
+            return ''
+    # Remove potentially induced duplicate whitespaces
+    text = ' '.join(text.split())
+    return text

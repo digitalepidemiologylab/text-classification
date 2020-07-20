@@ -11,10 +11,10 @@ from tqdm import tqdm
 import pandas as pd
 import fasttext
 import swifter
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed, wrap_non_picklable_objects
 
 from .base_model import BaseModel, get_default_args
-from ..utils.preprocess import preprocess_fasttext
+from .fasttext import preprocess_fasttext
 
 tqdm.pandas()
 logger = logging.getLogger(__name__)
@@ -64,13 +64,40 @@ class FastTextPretrain(BaseModel):
             logger.info('Quantizing model...')
             self.model.quantize(config.data.train, retrain=True)
 
+        unsupervised_default = {
+            'model': "skipgram",
+            'lr': 0.05,
+            'dim': 100,
+            'ws': 5,
+            'epoch': 5,
+            'minCount': 5,
+            'minCountLabel': 0,
+            'minn': 3,
+            'maxn': 6,
+            'neg': 5,
+            'wordNgrams': 1,
+            'loss': "ns",
+            'bucket': 2000000,
+            'thread': multiprocessing.cpu_count() - 1,
+            'lrUpdateRate': 100,
+            't': 1e-4,
+            'label': "__label__",
+            'verbose': 2,
+            'pretrainedVectors': "",
+            'seed': 0,
+            'autotuneValidationFile': "",
+            'autotuneMetric': "f1",
+            'autotunePredictions': 1,
+            'autotuneDuration': 60 * 5,  # 5 minutes
+            'autotuneModelSize': "",
+        }
+
         # Save model state
         logger.info('Saving params...')
-        for k, v in get_default_args(fasttext.train_unsupervised).items():
+        for k, v in unsupervised_default.items():
             if k not in config.model.params:
                 config.model.params[k] = v
-        self.add_to_config(
-            config.path.output, config.model.params)
+        self.add_to_config(config.path.output, config)
 
         # Save model
         if config.get('save_model', True):
@@ -78,10 +105,9 @@ class FastTextPretrain(BaseModel):
             self.model.save_model(model_path)
         if config.get('save_vec', True):
             logger.info('Saving vectors...')
-            self.save_vec(
-                vectors_path,
-                config.model.params.get('thread', 1),
-                config.model.params.get('verbose', 2))
+            self.save_vec(vectors_path)
+            # config.model.params.get('thread', max(os.cpu_count() - 1, 1)),
+            # config.model.params.get('verbose', 2))
 
     def test(self, config):
         pass
@@ -89,7 +115,9 @@ class FastTextPretrain(BaseModel):
     def predict(self, config, data):
         pass
 
-    def save_vec(self, output_vectors_path, n_jobs=1, verbose=0):
+    def save_vec(self, output_vectors_path):
+        # https://stackoverflow.com/questions/58337469/how-to-save-fasttext-model-in-vec-format
+        # Cannot be parallelized because you can't pickle fasttext model
         # Get all words from model
         words = self.model.get_words()
 
@@ -99,35 +127,16 @@ class FastTextPretrain(BaseModel):
             f.write(
                 str(len(words)) + ' ' + str(self.model.get_dimension()) + '\n')
 
-        def write_words(words, output_path):
-            with open(output_path, 'w+') as f:
-                # Line by line, you append vectors to VEC file
-                for w in words:
-                    v = self.model.get_word_vector(w)
-                    vstr = ''
-                    for vi in v:
-                        vstr += ' ' + str(vi)
-                    f.write(w + vstr + '\n')
+            # Line by line, you append vectors to VEC file
+            for w in words:
+                v = self.model.get_word_vector(w)
+                vstr = ''
+                for vi in v:
+                    vstr += ' ' + str(vi)
+                f.write(w + vstr + '\n')
 
-        @delayed
-        def func_async_wrapped(i, *args):
-            words, output_path, step = args
-            write_words(words[i:i + step], output_path)
 
-        def execute(
-            n_cores, end, step,
-            words, output_path, verbose=0
-        ):
-            Parallel(n_jobs=n_cores, verbose=verbose)(
-                func_async_wrapped(i, words, output_path, step)
-                for i in range(0, end, step))
-
-        execute(
-            n_jobs, len(words),
-            len(words) // n_jobs,
-            words, output_vectors_path, verbose=verbose)
-
-def preprocess_data(data_path, preprocess, preprocessing_config):
+def preprocess_data(data_path, preprocessing_config):
     """Reads and preprocesses data.
 
     Args:
@@ -137,13 +146,13 @@ def preprocess_data(data_path, preprocess, preprocessing_config):
             ``text.utils.preprocess``
 
     Returns:
-        df (pandas DataFrame): Dataframe with preprocessed ``'text'`` field
+        df (pandas DataFrame): Dataframe with preprocessed ``text`` field
     """
     # Read data
     logger.info(f'Reading data from {data_path}...')
     df = pd.read_parquet(data_path)
-    print(df.columns)
-    print(df.lang.value_counts())
+    # print(df.columns)
+    # print(df.lang.value_counts())
     df = df[['user.description']]
     df = df.rename(columns={'user.description': 'text'})
     df = df.reset_index(drop=True)
@@ -151,7 +160,20 @@ def preprocess_data(data_path, preprocess, preprocessing_config):
     num_loaded = len(df)
     df.dropna(subset=['text'], inplace=True)
     # Preprocess data
-    if preprocess is True:
+    try:
+        standardize_func_name = preprocessing_config['standardize_func_name']
+        del preprocessing_config['standardize_func_name']
+    except KeyError:
+        standardize_func_name = None
+    if standardize_func_name is not None:
+        logger.info('Standardizing data...')
+        standardize_func = getattr(
+            __import__(
+                'txtcls.utils.standardize',
+                fromlist=[standardize_func_name]),
+            standardize_func_name)
+        df['text'] = df.text.swifter.apply(standardize_func)
+    if preprocessing_config != {}:
         logger.info('Preprocessing data...')
         df['text'] = df.text.swifter.apply(
             preprocess_fasttext, **preprocessing_config)
@@ -165,7 +187,7 @@ def preprocess_data(data_path, preprocess, preprocessing_config):
 
 
 def prepare_data(data_path, output_dir_path,
-                 preprocess, preprocessing_config):
+                 preprocessing_config):
     """Prepares data for FastText training.
 
     First, preprocesses data with ``preprocess_data``. Second, formats
@@ -182,7 +204,7 @@ def prepare_data(data_path, output_dir_path,
             preprocessed formatted data
     """
     # Preprocess data
-    df = preprocess_data(data_path, preprocess, preprocessing_config)
+    df = preprocess_data(data_path, preprocessing_config)
     # Create paths
     output_file_path = os.path.join(
         output_dir_path, os.path.basename(data_path))

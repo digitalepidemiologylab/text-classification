@@ -4,6 +4,7 @@ Main pipeline helpers
 """
 
 import os
+import sys
 import json
 import uuid
 import logging
@@ -21,13 +22,11 @@ import joblib
 
 from . import ConfigReader
 from .misc import JSONEncoder, get_df_hash
+from .nested_dict import flatten_dict, set_nested_value
 
 
 def preprocess(run_config):
     logger = logging.getLogger(__name__)
-    prepare_data = __import__(
-        'txtcls.models.' + run_config.model.name,
-        fromlist=['prepare_data']).prepare_data
     try:
         set_label_mapping = __import__(
             'txtcls.models.' + run_config.model.name,
@@ -37,12 +36,15 @@ def preprocess(run_config):
                           run_config.path.output)
     except AttributeError:
         logger.info("No 'set_label_mapping'")
+    prepare_data = __import__(
+        'txtcls.models.' + run_config.model.name,
+        fromlist=['prepare_data']).prepare_data
     for v in dict(run_config.data).values():
         data_path = prepare_data(
             v, run_config.path.output,
-            run_config.preprocess.bool,
-            dict(run_config.preprocess.params_inner),
-            **dict(run_config.preprocess.params_outer))
+            dict(run_config.preprocess))
+        if isinstance(data_path, list):
+            data_path = ', '.join(data_path)
         logger.info(f'Prepared data from {v} to {data_path}')
 
 
@@ -228,13 +230,14 @@ def get_model(model_name):
         from ..models.dummy_models import RandomModel
         return RandomModel()
     if model_name == 'weighted_random':
-        from ..models.weighted_random import WeightedRandomModel
+        from ..models.dummy_models import WeightedRandomModel
         return WeightedRandomModel()
     else:
         raise NotImplementedError('Model `{}` is unknown'.format(model_name))
 
 
-def generate_config(name, train_data, test_data, models, params, global_params):
+def generate_config(name, model, params, global_params,
+                    train_data=None, test_data=None):
     """Generates a grid search config"""
     def _parse_value(s, allow_str=True):
         try:
@@ -249,21 +252,36 @@ def generate_config(name, train_data, test_data, models, params, global_params):
             return True
         elif s in ['false', 'False']:
             return False
+        elif s in ['none', 'None']:
+            return None
         else:
             if allow_str:
                 return s
             else:
                 raise ValueError(
-                    f'The given parameter value of `{s}` could not '
-                    'be converted into int, float or bool')
+                    f"The given parameter value of '{s}' could not "
+                    "be converted into int, float or bool")
+
     logger = logging.getLogger(__name__)
-    config = {"params": {"train_data": train_data, "test_data": test_data}}
-    for g in global_params:
-        g = g.split(':')
-        if len(g) != 2:
+
+    config = {'globals': {'data': {}}}
+
+    if train_data is None and test_data is None:
+        raise ValueError("Both 'train_data' and 'test_data' are None. "
+                         "Please provide at least one data path")
+    if train_data is not None:
+        config['globals']['data']['train'] = train_data
+    if test_data is not None:
+        config['globals']['data']['test'] = test_data
+
+    for param in global_params:
+        split = param.split(':')
+        if len(split) != 2:
             raise ValueError(f'Param {param} has to be of format `key:value`')
-        key, value = g
-        config['params'][key] = _parse_value(value, allow_str=True)
+        key, value = split
+        keys = key.split('.')
+        set_nested_value(config['globals'], keys, _parse_value(value, allow_str=True))
+
     gs_params = []
     for param in params:
         param_split = param.split(':')
@@ -280,17 +298,25 @@ def generate_config(name, train_data, test_data, models, params, global_params):
             gs_params.append({key: np.logspace(*values).tolist()})
         else:
             raise ValueError('Modifier {} is not recognized.'.format(modifier))
+
     runs = []
-    params = [list(i.values())[0] for i in gs_params] + [models]
-    param_names = [list(i.keys())[0] for i in gs_params] + ['model']
-    for i, param in enumerate(itertools.product(*params)):
-        param_dict = dict(zip(param_names, param))
-        param_dict['name'] = '{}_{}'.format(name, i)
-        runs.append(param_dict)
+    params_lists = [list(i.values())[0] for i in gs_params]
+    params_keys = [list(i.keys())[0] for i in gs_params]
+    for i, params_combination in enumerate(itertools.product(*params_lists)):
+        params = dict(zip(params_keys, params_combination))
+        run_config = {}
+
+        for k, v in params.items():
+            keys = k.split('.')
+            set_nested_value(run_config, keys, v)
+        set_nested_value(run_config, ['model', 'name'], model)
+        run_config['name'] = '{}_{}'.format(name, i)
+        runs.append(run_config)
     if len(runs) == 1:
-        # get rid of integer for single run
+        # Get rid of integer for a single run
         runs[0]['name'] = runs[0]['name'][:-2]
     config['runs'] = runs
+
     f_name = 'config.{}.json'.format(name)
     with open(f_name, 'w') as f:
         json.dump(config, f, cls=JSONEncoder, indent=4)
@@ -378,7 +404,7 @@ def learning_curve(config_path):
 
 
 def find_project_root(num_par_dirs=8):
-    return os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..'))
+    return os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..', '..'))
 
 
 def find_git_root(num_par_dirs=8):

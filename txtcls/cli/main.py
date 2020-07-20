@@ -7,6 +7,7 @@ import joblib
 
 from ..utils import helpers
 from ..utils import deploy_helpers
+from ..utils.list_runs import ListRuns
 
 
 logging.basicConfig(
@@ -141,22 +142,21 @@ def predict(parser):
 def generate_config(parser):
     """Generates config for grid search hyperparameter search."""
     parser.add_argument(
-        '--name',  type=str, required=True,
+        '--name', type=str, required=True,
         help='global name prefix and name of output file')
     parser.add_argument(
-        '--train-data', type=str, required=True,
+        '--train-data', type=str,
         help='train data path')
     parser.add_argument(
-        '--test-data',  type=str, required=True,
+        '--test-data', type=str,
         help='test data path')
     parser.add_argument(
-        '-m', '--models', required=True, nargs='+',
-        help='list of models; '
-             'each model will be combined with each param pair')
+        '-m', '--model', type=str, required=True,
+        help='model')
     parser.add_argument(
         '-p', '--params', nargs='*', default=[],
         help="""
-        arbitrary list of grid search params.
+        arbitrary list of model params for grid search.
         Format: 'key:modifier:values', where
         - 'key'       hyperparameter name,
         - 'modifier'  can be either
@@ -350,7 +350,7 @@ def ls(parser):
         '--all-params', action='store_true',
         help='show all params')
     parser.set_defaults(
-        func=lambda args: helpers.helpers.ListRuns().list_runs(**vars(args)))
+        func=lambda args: ListRuns().list_runs(**vars(args)))
 
 
 def deploy(parser):

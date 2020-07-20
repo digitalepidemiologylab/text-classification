@@ -5,6 +5,7 @@ Preprocessing helpers
 
 import logging
 import re
+import ast
 import html
 import unicodedata
 
@@ -12,6 +13,7 @@ import unidecode
 import en_core_web_sm
 import emoji
 from munch import DefaultMunch
+from bs4 import BeautifulSoup
 
 from .tokenizer_contractions import CONTRACTIONS
 
@@ -21,175 +23,156 @@ logger = logging.getLogger(__name__)
 control_char_regex = re.compile(r'[\r\n\t]+')
 
 
-def preprocess_fasttext(text,
-                        min_num_tokens=0,
-                        min_num_chars=0,
-                        lower_case=False,
-                        remove_punct=False,
-                        standardize_punctuation=False,
-                        asciify=False,
-                        remove_emoji=False,
-                        asciify_emoji=False,
-                        expand_contractions=False,
-                        lemmatize=False,
-                        remove_stop_words=False,
-                        replace_user_with=None,
-                        replace_url_with=None):
-    """Preprocessing pipeline for FastText.
+def de_emojize(text):
+    soup = BeautifulSoup(text, 'html.parser')
+    spans = soup.find_all('span')
+    if len(spans) == 0:
+        return text
+    while soup.span is not None:
+        emoji_bytes = ast.literal_eval(soup.span.attrs['data-emoji-bytes'])
+        emoji_unicode = bytes(emoji_bytes).decode()
+        soup.span.replace_with(emoji_unicode)
+    return soup.text
 
-    Args:
-        min_num_tokens (int): Minimum number of tokens. Default: 0
-        min_num_chars (int): Minimum number of character cutoff. Default: 0
-        lower_case (bool): Lower case. Default: ``True``
-        remove_punct (bool): Remove punctuation. Default: ``False``
-        standardize_punctuation (bool): Standardize punctuation. Default: True
-        asciify (bool): Asciify accents. Default: ``False``
-        remove_emoji (bool): Remove all characters of symbol unicode
-            class (S). Default: ``False``
-        asciify_emoji (bool): Asciify emoji. Default: ``False``
-        expand_contractions (bool): Expand contractions.
-            (E.g. `he's` -> `he is`, `wouldn't -> would not`.)
-            Note that this may not always be correct.
-            Default: ``False``
-        lemmatize (bool): Lemmatize strings. Default: ``False``
-        remove_stop_words (bool): Remove stop words. Default: ``False``
-        replace_user_with (bool): Replace `@user` with something else.
-            Default: ``False``
-        replace_url_with (bool): Replace `<url>` with something else.
-            Default: ``False``
 
-    Returns:
-        text (str): Preprocessed text
-    """
-    text = _remove_control_characters(text)
-    # remove HTMl symbols
-    text = html.unescape(text)
-    # remove accents
-    if asciify:
-        text = _asciify(text)
-    # standardize punctuation
-    if standardize_punctuation:
-        text = _standardize_punctuation(text)
-    # asciify emoji
-    if asciify_emoji:
-        text = _asciify_emoji(text)
-    # remove emoji
-    if remove_emoji:
-        text = _remove_emoji(text)
-    # expand contractions
-    if expand_contractions:
-        text = _expand_contractions(text)
-    # remove user mentions/urls and replace
-    if replace_user_with is not None:
-        text = text.replace('@user', replace_user_with)
-    # replace user/urls with something else
-    if replace_url_with is not None:
-        text = text.replace('<url>', replace_url_with)
-    if min_num_tokens > 0 or remove_punct or lemmatize or remove_stop_words:
-        tokens = _tokenize(text)
-        # ignore everything below min_num_tokens
-        if min_num_tokens > 0:
-            num_tokens = sum((
-                1 for t in tokens
-                if t.is_alpha and
-                not t.is_punct and
-                t.text.strip()
-                not in [replace_user_with, replace_url_with]))
-            if num_tokens < min_num_tokens:
-                return ''
-        # remove punctuation
-        if remove_punct:
-            tokens = [t for t in tokens if not t.is_punct]
-        # remove stop words
-        if remove_stop_words:
-            tokens = [t for t in tokens if not t.is_stop]
-        # merge
-        if (remove_stop_words or remove_punct) and not lemmatize:
-            text = ' '.join([t.text for t in tokens])
-        if lemmatize:
-            text = ' '.join([t.lemma_ for t in tokens])
-    # lower casing
-    if lower_case:
-        text = text.lower()
-    # min number of character cutoff
-    if min_num_chars > 0:
-        if len(text) < min_num_chars:
-            return ''
-    # remove potentially induced duplicate whitespaces
-    text = ' '.join(text.split())
-    # remove trailing/leading whitespaces
-    text = text.strip()
+def separate_hashtags(text):
+    text = re.sub(r"#(\w+)#(\w+)", r" #\1 #\2 ", text)
     return text
 
-def get_preprocessing_config(config={}):
-    """Generates config file to be used with preprocess() functions and gives default for keys not present in provided config."""
-    preprocess_config = DefaultMunch.fromDict({
-        'min_num_tokens': config.get('min_num_tokens', 0),
-        'min_num_chars': config.get('min_num_chars', 0),
-        'lower_case': config.get('lower_case', True),
-        'remove_punct': config.get('remove_punct', False),
-        'asciify': config.get('asciify', False),
-        'standardize_punctuation': config.get('standardize_punctuation', True),
-        'remove_emoji': config.get('remove_emoji', False),
-        'asciify_emoji': config.get('asciify_emoji', False),
-        'expand_contractions': config.get('expand_contractions', False),
-        'lemmatize': config.get('lemmatize', False),
-        'remove_stop_words': config.get('remove_stop_words', False),
-        'replace_user_with': config.get('replace_user_with', None),
-        'replace_url_with': config.get('replace_url_with', None),
-        }, None)
-    return preprocess_config
 
-def _remove_control_characters(s):
-    if not isinstance(s, str):
-        return s
-    # replace \t, \n and \r characters by a whitespace
-    s = re.sub(control_char_regex, ' ', s)
-    # replace HTML codes for new line characters
-    s = s.replace('&#13;', '').replace('&#10;', '')
-    # removes all other control characters and the NULL byte (which causes issues when parsing with pandas)
-    return "".join(ch for ch in s if unicodedata.category(ch)[0]!="C")
+def standardize_text(text):
+    # Escape HTML symbols
+    text = html.unescape(text)
+    # Replace \t, \n and \r characters by a whitespace
+    text = _remove_control_characters(text)
+    # Normalize by compatibility
+    text = _normalize(text)
+    return text
+
+
+def _replace_usernames(text, filler='@user'):
+    # Note: potentially induces duplicate whitespaces
+    username_regex = re.compile(r'(^|[^@\w])@(\w{1,15})\b')
+    # Replace other user handles by filler
+    text = re.sub(username_regex, filler, text)
+    # Add spaces between, and remove double spaces again
+    text = text.replace(filler, f' {filler}')
+    return text
+
+
+def _replace_urls(text, filler='<url>'):
+    # Note: includes punctuation in websites
+    # Note: potentially induces duplicate whitespaces
+    url_regex = re.compile(
+        r'((www\.[^\s]+)|(https?://[^\s]+)|(http?://[^\s]+))')
+    # Replace other urls by filler
+    text = re.sub(url_regex, filler, text)
+    # Add spaces between, and remove double spaces again
+    text = text.replace(filler, f'{filler}')
+    return text
+
+
+def _replace_email(text, filler='@email'):
+    # Note: potentially induces duplicate whitespaces
+    email_regex = re.compile(r'[\w\.-]+@[\w\.-]+(\.[\w]+)+')
+    # Replace other user handles by filler
+    text = re.sub(email_regex, filler, text)
+    # Add spaces between, and remove double spaces again
+    text = text.replace(filler, f'{filler}')
+    return text
+
+
+def anonymize_text(text, url_filler='<url>',
+                   user_filler='@user', email_filler='@email'):
+    # Note: potentially induces duplicate whitespaces
+    text = _replace_urls(text, filler=url_filler)
+    text = _replace_usernames(text, filler=user_filler)
+    text = _replace_email(text, filler=email_filler)
+    return text
+
+
+###############################################################################
+
+
+def _remove_control_characters(text):
+    if not isinstance(text, str):
+        return text
+    # Replace \t, \n and \r characters by a whitespace
+    text = re.sub(control_char_regex, ' ', text)
+    # Removes all other control characters and the NULL byte
+    # (which causes issues when parsing with pandas)
+    return ''.join(ch for ch in text if unicodedata.category(ch)[0] != 'C')
+
 
 def _expand_contractions(text):
-    contractions_pattern = re.compile('({})'.format('|'.join(CONTRACTIONS.keys())), flags=re.IGNORECASE|re.DOTALL)
+    contractions_pattern = re.compile(
+        '({})'.format('|'.join(CONTRACTIONS.keys())),
+        flags=re.IGNORECASE | re.DOTALL)
+
     def expand_match(contraction):
         match = contraction.group(0)
         first_char = match[0]
-        expanded_contraction = CONTRACTIONS.get(match)\
-                if CONTRACTIONS.get(match)\
-                else CONTRACTIONS.get(match.lower())
+        expanded_contraction = \
+            CONTRACTIONS.get(match) \
+            if CONTRACTIONS.get(match) \
+            else CONTRACTIONS.get(match.lower())
         expanded_contraction = first_char+expanded_contraction[1:]
         return expanded_contraction
+
     expanded_text = contractions_pattern.sub(expand_match, text)
     expanded_text = re.sub("'", "", expanded_text)
     return expanded_text
+
 
 def _asciify(text):
     """Asciify all unicode characters"""
     text = unidecode.unidecode(text)
     return text
 
+
 def _standardize_punctuation(text):
-    text = ''.join(unidecode.unidecode(c) if unicodedata.category(c)[0] == 'P' else c for c in text)
+    text = ''.join(
+        unidecode.unidecode(c)
+        if unicodedata.category(c)[0] == 'P' else c for c in text)
     return text
+
+
+def _remove_punctuation(text):
+    """Replaces all symbols of punctuation unicode category except dashes (Pd)"""
+    # Note: potentially induces duplicate whitespaces
+    text = ''.join(
+        ' '
+        if unicodedata.category(c)[0] == 'P'
+        and unicodedata.category(c)[1] != 'd'
+        else c for c in text)
+    return text
+
+
+def _normalize(text):
+    """Normalizes unicode strings by compatibilty (in composed form)"""
+    return unicodedata.normalize('NFKC', text)
+
 
 def _remove_emoji(text):
-    """remove all characters of symbol unicode class"""
-    text = ''.join('' if unicodedata.category(c)[0] == 'S' else c for c in text)
+    """Remove all characters of symbols-other (So) unicode category"""
+    # Note: potentially induces duplicate whitespaces
+    text = ''.join(' ' if unicodedata.category(c) == 'So' else c for c in text)
     return text
+
 
 def _asciify_emoji(text):
-    """remove all characters of symbol unicode class"""
+    """Replaces emoji with their descriptions"""
+    # Note: potentially induces duplicate whitespaces
     text = emoji.demojize(text)
-    # pad with whitespace
+    # Pad with whitespace
     text = re.sub(r":(\w+):", r" :\1: ", text)
-    text = ' '.join(text.split())
     return text
 
+
 def _tokenize(text):
-    # create doc
+    # Create doc
     doc = nlp(text, disable=['parser', 'tagger', 'ner'])
-    # find hashtag indices and merge again (so the # are not lost)
+    # Find hashtag indices and merge again (so the # are not lost)
     hashtag_pos = []
     for i, t in enumerate(doc[:-1]):
         if t.text == '#':

@@ -1,12 +1,14 @@
-import json
-from munch import DefaultMunch
 import os
+import glob
+import json
 import logging
 import shutil
-import json
-import glob
 from functools import reduce
-from pprint import pprint
+
+from munch import DefaultMunch
+
+from .nested_dict import merge_dicts
+
 
 logger = logging.getLogger(__name__)
 
@@ -20,47 +22,24 @@ categories = [
 ]
 
 args = {
-    'root': ['name', 'overwrite'],
+    'root': ['name', 'overwrite', 'preprocess'],
     'path': ['data', 'output', 'tmp', 'other'],
     'data': ['train', 'test'],
-    'preprocess': ['bool', 'params_inner', 'params_outer'],
     'model': ['name', 'params']
 }
 
 required_args = {
     'preprocess': {
-        'root': ['name'],
-        'data': ['train'],
-        'preprocess': ['bool', 'params_inner'],
+        'root': ['name', 'preprocess'],
         'model': ['name']
     },
     'train': {
         'root': ['name'],
-        'data': ['test'],
         'model': ['name']
     },
     'predict': {},
     'test': {}
 }
-
-
-def merge_dicts(a, b, path=None):
-    """Merges b into a.
-
-    https://stackoverflow.com/questions/7204805/how-to-merge-dictionaries-of-dictionaries
-    """
-    # pprint(a)
-    # pprint(b)
-    # print()
-    if path is None:
-        path = []
-    for key in b:
-        if key in a:
-            if isinstance(a[key], dict) and isinstance(b[key], dict):
-                merge_dicts(a[key], b[key], path + [str(key)])
-        else:
-            a[key] = b[key]
-    return a
 
 
 class ConfigReader:
@@ -121,23 +100,18 @@ class ConfigReader:
                             'need to be unique')
         runs = []
         for run in config['runs']:
+            if mode != 'preprocess':
+                try:
+                    data_file_path = os.path.join(
+                        run['path']['data'], 'run_config.json')
+                    with open(data_file_path, 'r') as f:
+                        data_config = json.load(f)
+                    run['preprocess'] = data_config['preprocess']
+                except FileNotFoundError:
+                    logger.info('Preprocessing config not found')
             run_config = reduce(
                 merge_dicts,
-                [config['globals'], run, self._get_default_paths()])
-            # pprint(config)
-            # print()
-            # print('MERGE\n')
-            # run_config = merge_dicts(config['globals'], run)
-            # print('END MERGE\n')
-            # pprint(run_config)
-            # print()
-            # pprint(self._get_default_paths())
-            # print()
-            # print('MERGE\n')
-            # run_config = merge_dicts(run_config, self._get_default_paths())
-            # print('END MERGE\n')
-            # pprint(run_config)
-            # print()
+                [run, config['globals'], self._get_default_paths()])
             # Check required arguments
             for k, vs in required_args[mode].items():
                 if k == 'root':
