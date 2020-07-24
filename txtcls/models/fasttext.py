@@ -40,6 +40,7 @@ class FastText(BaseModel):
         self.train_config = None
 
     def setup(self, data_path, output_path, train=False):
+        print(output_path)
         if not train:
             if self.model is None:
                 self.model = fasttext.load_model(

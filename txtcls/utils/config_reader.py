@@ -1,9 +1,12 @@
 import os
+import sys
+import copy
 import glob
 import json
 import logging
 import shutil
 from functools import reduce
+from pprint import pprint
 
 from munch import DefaultMunch
 
@@ -100,18 +103,11 @@ class ConfigReader:
                             'need to be unique')
         runs = []
         for run in config['runs']:
-            if mode != 'preprocess':
-                try:
-                    data_file_path = os.path.join(
-                        run['path']['data'], 'run_config.json')
-                    with open(data_file_path, 'r') as f:
-                        data_config = json.load(f)
-                    run['preprocess'] = data_config['preprocess']
-                except FileNotFoundError:
-                    logger.info('Preprocessing config not found')
             run_config = reduce(
                 merge_dicts,
                 [run, config['globals'], self._get_default_paths()])
+            print("MERGE")
+            pprint(run_config)
             # Check required arguments
             for k, vs in required_args[mode].items():
                 if k == 'root':
@@ -124,8 +120,18 @@ class ConfigReader:
                         if v not in run_config[k]:
                             raise Exception(
                                 f'Missing key "{k}.{v}" in config file')
-            run_config = self._set_output_path(run_config)
-            run_config = self._set_data_paths(run_config)
+            if mode != 'preprocess':
+                try:
+                    data_file_path = os.path.join(
+                        run_config['path']['data'], 'run_config.json')
+                    with open(data_file_path, 'r') as f:
+                        data_config = json.load(f)
+                    run_config['preprocess'] = data_config['preprocess']
+                except FileNotFoundError:
+                    logger.info('Preprocessing config not found')
+            if mode != 'predict':
+                run_config = self._set_output_path(run_config)
+                run_config = self._set_data_paths(run_config)
             runs.append(run_config)
         # Merge all params into run key
         config['runs'] = runs

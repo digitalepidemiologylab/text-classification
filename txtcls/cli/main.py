@@ -349,6 +349,9 @@ def ls(parser):
     parser.add_argument(
         '--all-params', action='store_true',
         help='show all params')
+    parser.add_argument(
+        '--sort-list', type=str, default=None, nargs='+',
+        help='list of parameters for multi-column sorting')
     parser.set_defaults(
         func=lambda args: ListRuns().list_runs(**vars(args)))
 

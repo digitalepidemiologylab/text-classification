@@ -22,6 +22,24 @@ def confusion_matrix(parser):
     parser.add_argument(
         '--normalize', default=False, action='store_true',
         help='normalize counts')
+    parser.add_argument(
+        '--figsize_y', type=float, default=6,
+        help='figsize y')
+    parser.add_argument(
+        '--figsize_x', type=int, default=9,
+        help='figsize x')
+    parser.add_argument(
+        '--stylesheet', type=str, default=None,
+        help='stylesheet')
+    parser.add_argument(
+        '--vmin', type=int, default=None,
+        help='colorbar vmin')
+    parser.add_argument(
+        '--vmax', type=int, default=None,
+        help='colorbar vmax')
+    parser.add_argument(
+        '--plot-formats', type=str, default=['png'], nargs='+',
+        help='plot formats')
     parser.set_defaults(
         func=lambda args: helpers.plot_confusion_matrix(**vars(args)))
 

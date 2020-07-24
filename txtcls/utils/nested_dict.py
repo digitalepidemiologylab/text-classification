@@ -1,3 +1,4 @@
+import copy
 from itertools import chain, starmap
 
 
@@ -48,5 +49,5 @@ def merge_dicts(a, b, path=None):
             if isinstance(a[key], dict) and isinstance(b[key], dict):
                 merge_dicts(a[key], b[key], path + [str(key)])
         else:
-            a[key] = b[key]
+            a[key] = copy.deepcopy(b[key])
     return a

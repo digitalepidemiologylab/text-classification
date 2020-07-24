@@ -6,6 +6,7 @@ FastText: word embeddings
 import os
 import sys
 import logging
+import multiprocessing
 
 from tqdm import tqdm
 import pandas as pd

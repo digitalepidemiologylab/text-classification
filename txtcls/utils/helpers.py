@@ -12,6 +12,7 @@ import itertools
 from datetime import datetime
 import multiprocessing
 from collections import Counter
+from pprint import pprint
 
 import pandas as pd
 import numpy as np
@@ -118,6 +119,7 @@ def predict(run_name, path=None, data=None, output_cols=[],
     config_path = os.path.join('output', run_name, 'run_config.json')
     config = config_reader.parse_config(config_path, mode='predict')
     run_config = config.runs[0]
+    pprint(run_config)
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model.name)
     if data is None:
@@ -267,8 +269,10 @@ def generate_config(name, model, params, global_params,
     config = {'globals': {'data': {}}}
 
     if train_data is None and test_data is None:
-        raise ValueError("Both 'train_data' and 'test_data' are None. "
-                         "Please provide at least one data path")
+        # raise ValueError("Both 'train_data' and 'test_data' are None. "
+        #                  "Please provide at least one data path")
+        logger.info("No 'train_data' or 'test_data' given. "
+                    "Ensure there's data path in the config")
     if train_data is not None:
         config['globals']['data']['train'] = train_data
     if test_data is not None:

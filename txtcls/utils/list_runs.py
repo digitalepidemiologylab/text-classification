@@ -35,12 +35,16 @@ class ListRuns:
                     **test_output})
         return pd.DataFrame(results)
 
-    def list_runs(self, model=None, run_pattern=None, filename_pattern=None, params=None, metrics=None, averaging='macro', names_only=False, top=40, all_params=False):
+    def list_runs(
+            self, model=None, run_pattern=None, filename_pattern=None,
+            params=None, metrics=None, averaging='macro', names_only=False,
+            top=40, all_params=False, sort_list=None
+    ):
         # set some display options
         pd.set_option('display.max_rows', 300)
         # pd.set_option('display.max_columns', 100)
         # pd.set_option('display.width', 400)
-        default_params = ['preprocess.params']
+        default_params = ['preprocess']
         default_metrics = ['f1', 'accuracy', 'precision', 'recall']
         # metrics
         if metrics is None:
@@ -52,9 +56,19 @@ class ListRuns:
         df = self.load_data(model=model, run_pattern=run_pattern, filename_pattern=filename_pattern)
         # format sci numbers
         df = self.format_cols(df)
+        print(df.columns)
         # params
         if params is not None:
-            df = df[params + metrics]
+            cols = []
+            for _p in params:
+                for _col in df.columns:
+                    if _p in _col:
+                        cols.append(_col)
+            for _p in metrics:
+                if _p in df:
+                    cols.append(_p)
+            df = df[cols]
+            # df = df[params + metrics]
         else:
             if all_params:
                 # show everything apart from meaningless params
@@ -78,7 +92,16 @@ class ListRuns:
             return
         if top < 0:
             top = None # show all entries
-        df = df.sort_values(metrics, ascending=False)[:top]
+        if 'name' in sort_list:
+            name_sort = True
+            sort_list.remove('name')
+        else:
+            name_sort = False
+        df = df.sort_values(sort_list + metrics, ascending=False)[:top]
+        if name_sort is True:
+            df = df.reindex(sorted(
+                df.index, key=lambda x: '_'.join(x.split('_')[:-1])
+            )).reset_index()
         print(self.header)
         if names_only:
             print('\n'.join(df.index))

@@ -13,37 +13,58 @@ from . import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 
 logger = logging.getLogger(__name__)
 
-def plot_confusion_matrix(run, log_scale, normalize):
+def plot_confusion_matrix(
+        run, log_scale, normalize, stylesheet, figsize_x, figsize_y,
+        vmin, vmax, plot_formats
+):
     f_path = os.path.join(find_project_root(), 'output', run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
     test_output_file = os.path.join(find_project_root(), 'output', run, 'test_output.csv')
     if not os.path.isfile(test_output_file):
         raise FileNotFoundError(f'No file {test_output_file} found for run {run}. Pass the option `write_test_output: true` when training the model.')
+    if stylesheet:
+        plt.style.use(stylesheet)
     df = pd.read_csv(test_output_file)
-    label_mapping = get_label_mapping(f_path)
-    labels = list(label_mapping.keys())
+    labels = sorted(set(df.label).union(set(df.prediction)))
     cnf_matrix = sklearn.metrics.confusion_matrix(df.label, df.prediction)
     df = pd.DataFrame(cnf_matrix, columns=labels, index=labels)
     # plotting
-    fig, ax = plt.subplots(1, 1, figsize=(6,4))
+    fig, ax = plt.subplots(1, 1, figsize=(figsize_x, figsize_y))
     fmt = 'd'
     f_name = run
+    df_annot = df.copy().astype('int32')
     if log_scale:
         df = np.log(df + 1)
-        fmt = '1.1f'
+        if vmin is not None and vmax is not None:
+            vmin_label = vmin
+            vmax_label = vmax
+            vmin = np.log(vmin) if vmin > 0 else 0.0
+            vmax = np.log(vmax)
+        # fmt = '1.1f'
         f_name += '_log_scale'
     if normalize:
         df = df.divide(df.sum(axis=1), axis=0)
         fmt = '1.1f'
         f_name += '_normalized'
-    sns.heatmap(df, ax=ax, annot=True, fmt=fmt, annot_kws={"fontsize": 8})
+    if vmin is not None and vmax is not None:
+        ax = sns.heatmap(
+            df, ax=ax, annot=df_annot, fmt=fmt, annot_kws={"fontsize": 8},
+            vmin=vmin, vmax=vmax)
+        cbar = ax.collections[0].colorbar
+        ticks = list(range(math.floor(vmin), math.ceil(vmax)))
+        tick_labels = np.linspace(vmin_label, vmax_label, len(ticks)).astype(int)
+        cbar.set_ticks(ticks)
+        cbar.set_ticklabels(tick_labels)
+    else:
+        sns.heatmap(df, ax=ax, annot=df_annot, fmt=fmt, annot_kws={"fontsize": 8})
     ax.set(xlabel='predicted label', ylabel='true label')
-    save_fig(fig, 'confusion_matrix', f_name)
+    save_fig(fig, 'confusion_matrix', f_name, plot_formats=plot_formats)
 
 def plot_compare_runs(runs, performance_scores, order_by):
     df = []
