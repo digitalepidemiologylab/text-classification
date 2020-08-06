@@ -46,6 +46,11 @@ class BaseModel:
     def generate_text(self, seed, config):
         raise NotImplementedError
 
+    def set_logging(self, output_dir_path):
+        logging_path = os.path.join(output_dir_path, 'log.txt')
+        logging.basicConfig(
+            filename=logging_path, filemode='a+')
+
     def load_label_mapping(self, output_path):
         label_mapping_path = os.path.join(output_path, 'label_mapping.pkl')
         try:

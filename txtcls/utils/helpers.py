@@ -119,7 +119,6 @@ def predict(run_name, path=None, data=None, output_cols=[],
     config_path = os.path.join('output', run_name, 'run_config.json')
     config = config_reader.parse_config(config_path, mode='predict')
     run_config = config.runs[0]
-    pprint(run_config)
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model.name)
     if data is None:

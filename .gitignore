@@ -145,6 +145,7 @@ cython_debug/
 # other
 .ignore
 other/models
+twitter_fasttext
 
 # scripts
 *.sh

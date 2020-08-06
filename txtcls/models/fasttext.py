@@ -80,6 +80,7 @@ class FastText(BaseModel):
         pretrainedVectors # pretrained word vectors (.vec file) for supervised learning []
         ```
         """
+        self.set_logging(config.path.output)
         model_path = os.path.join(config.path.output, 'model.bin')
         self.setup(config.path.data, config.path.output, train=True)
 
@@ -149,6 +150,7 @@ class FastText(BaseModel):
         self.add_to_config(config.path.output, config)
 
     def predict(self, config, data):
+        self.set_logging(config.path.output)
         self.setup(config.path.data, config.path.output)
         candidates = self.model.predict(data, k=len(self.label_mapping))
         predictions = [{
@@ -160,6 +162,7 @@ class FastText(BaseModel):
         return predictions
 
     def test(self, config):
+        self.set_logging(config.path.output)
         self.setup(config.path.data, config.path.output)
 
         # Preparing data
@@ -285,7 +288,7 @@ def prepare_data(data_path, output_dir_path,
         for _, row in df.iterrows():
             f.write(f'{label_prefix}{row.label} '
                     f'{row.text}\n')
-    if 'test' in os.path.basename(data_path) or 'dev' in os.path.basename(data_path):
+    if 'test' in os.path.basename(data_path) or 'dev' in os.path.basename(data_path) or 'all' in os.path.basename(data_path):
         # Create paths
         output_file_path = os.path.join(
             output_dir_path, os.path.basename(data_path))

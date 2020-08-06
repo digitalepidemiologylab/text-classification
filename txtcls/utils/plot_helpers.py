@@ -19,8 +19,8 @@ import math
 logger = logging.getLogger(__name__)
 
 def plot_confusion_matrix(
-        run, log_scale, normalize, stylesheet, figsize_x, figsize_y,
-        vmin, vmax, plot_formats
+        run, log_scale, normalize_sum, normalize_test, stylesheet,
+        figsize_x, figsize_y, vmin, vmax, vmin_norm, vmax_norm, plot_formats
 ):
     f_path = os.path.join(find_project_root(), 'output', run)
     if not os.path.isdir(f_path):
@@ -34,36 +34,51 @@ def plot_confusion_matrix(
     labels = sorted(set(df.label).union(set(df.prediction)))
     cnf_matrix = sklearn.metrics.confusion_matrix(df.label, df.prediction)
     df = pd.DataFrame(cnf_matrix, columns=labels, index=labels)
-    # plotting
+
+    # Plotting
     fig, ax = plt.subplots(1, 1, figsize=(figsize_x, figsize_y))
     fmt = 'd'
     f_name = run
-    df_annot = df.copy().astype('int32')
+
+    df_sum = df.sum().sum()
+    vmin = df.min().min() if vmin is None else vmin
+    vmax = df.max().max() if vmax is None else vmax
+
+    if normalize_sum:
+        df = df.div(df.sum().sum().astype(float)) * 1000
+        vmin = df.min().min() if vmin_norm is None else vmin_norm
+        vmax = df.max().max() if vmax_norm is None else vmax_norm
+        fmt = '3.0f'
+        f_name += '_normalized_sum'
+    elif normalize_test:
+        df = df.divide(df.sum(axis=1), axis=0) * 1000
+        vmin = df.min().min() if vmax_norm is None else vmax_norm
+        vmax = df.max().max() if vmin_norm is None else vmin_norm
+        fmt = '3.0f'
+        f_name += '_normalized_test'
+
+    df_annot = df.copy()
+
     if log_scale:
+        vmin = np.log(vmin) if vmin >= 1 else 0.0
+        vmax = np.log(vmax)
         df = np.log(df + 1)
-        if vmin is not None and vmax is not None:
-            vmin_label = vmin
-            vmax_label = vmax
-            vmin = np.log(vmin) if vmin > 0 else 0.0
-            vmax = np.log(vmax)
-        # fmt = '1.1f'
         f_name += '_log_scale'
-    if normalize:
-        df = df.divide(df.sum(axis=1), axis=0)
-        fmt = '1.1f'
-        f_name += '_normalized'
-    if vmin is not None and vmax is not None:
-        ax = sns.heatmap(
-            df, ax=ax, annot=df_annot, fmt=fmt, annot_kws={"fontsize": 8},
-            vmin=vmin, vmax=vmax)
+
+    ax = sns.heatmap(
+        df, ax=ax, annot=df_annot, fmt=fmt, annot_kws={"fontsize": 8},
+        vmin=vmin, vmax=vmax)
+    if log_scale:
+        # Set colorbar ticks
         cbar = ax.collections[0].colorbar
         ticks = list(range(math.floor(vmin), math.ceil(vmax)))
-        tick_labels = np.linspace(vmin_label, vmax_label, len(ticks)).astype(int)
         cbar.set_ticks(ticks)
-        cbar.set_ticklabels(tick_labels)
-    else:
-        sns.heatmap(df, ax=ax, annot=df_annot, fmt=fmt, annot_kws={"fontsize": 8})
+        exp_0 = lambda x: np.exp(x) if x > 0 else 0.0
+        cbar.set_ticklabels(np.vectorize(exp_0)(ticks).astype(int))
+
     ax.set(xlabel='predicted label', ylabel='true label')
+    if normalize_sum or normalize_test:
+        ax.set_title(f'Total samples: {df_sum}')
     save_fig(fig, 'confusion_matrix', f_name, plot_formats=plot_formats)
 
 def plot_compare_runs(runs, performance_scores, order_by):

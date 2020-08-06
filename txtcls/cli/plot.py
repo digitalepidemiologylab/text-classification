@@ -20,7 +20,10 @@ def confusion_matrix(parser):
         '--log-scale', default=False, action='store_true',
         help='show values in log scale')
     parser.add_argument(
-        '--normalize', default=False, action='store_true',
+        '--normalize-sum', default=False, action='store_true',
+        help='normalize counts')
+    parser.add_argument(
+        '--normalize-test', default=False, action='store_true',
         help='normalize counts')
     parser.add_argument(
         '--figsize_y', type=float, default=6,
@@ -36,6 +39,12 @@ def confusion_matrix(parser):
         help='colorbar vmin')
     parser.add_argument(
         '--vmax', type=int, default=None,
+        help='colorbar vmax')
+    parser.add_argument(
+        '--vmin-norm', type=int, default=None,
+        help='colorbar vmin')
+    parser.add_argument(
+        '--vmax-norm', type=int, default=None,
         help='colorbar vmax')
     parser.add_argument(
         '--plot-formats', type=str, default=['png'], nargs='+',

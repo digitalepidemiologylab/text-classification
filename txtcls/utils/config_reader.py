@@ -106,8 +106,6 @@ class ConfigReader:
             run_config = reduce(
                 merge_dicts,
                 [run, config['globals'], self._get_default_paths()])
-            print("MERGE")
-            pprint(run_config)
             # Check required arguments
             for k, vs in required_args[mode].items():
                 if k == 'root':

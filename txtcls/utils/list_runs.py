@@ -1,10 +1,12 @@
 from .helpers import find_project_root
 import pandas as pd
 import os
+import re
 import glob
 import json
 from pprint import pprint
 from .helpers import flatten_dict
+from pprint import pprint
 
 
 class ListRuns:
@@ -12,10 +14,14 @@ class ListRuns:
         self.header = 'List runs\n----------\n\n'
 
     @staticmethod
-    def collect_results(run='*'):
+    def collect_results(runs=('*',)):
         """Compiles run hyperparameters/performance scores into single pandas DataFrame"""
-        run_path = os.path.join(find_project_root(), 'output', '*')
-        folders = glob.glob(run_path)
+        # run_path = os.path.join(find_project_root(), 'output', '*')
+        run_path = os.path.join('.')
+        folders = []
+        for run in runs:
+            # folders = glob.glob(run_path)
+            folders += [f for f in os.listdir(run_path) if re.search(run, f)]
         results = []
         for f in folders:
             if os.path.isdir(f):
@@ -36,12 +42,13 @@ class ListRuns:
         return pd.DataFrame(results)
 
     def list_runs(
-            self, model=None, run_pattern=None, filename_pattern=None,
+            self, model=None, run_patterns=('*',), filename_pattern=None,
             params=None, metrics=None, averaging='macro', names_only=False,
             top=40, all_params=False, sort_list=None
     ):
         # set some display options
         pd.set_option('display.max_rows', 300)
+        pd.set_option('display.max_colwidth', 300)
         # pd.set_option('display.max_columns', 100)
         # pd.set_option('display.width', 400)
         default_params = ['preprocess']
@@ -53,10 +60,9 @@ class ListRuns:
             if m in ['f1', 'precision', 'recall']:
                 metrics[i] = '{}_{}'.format(m, averaging)
         # read data
-        df = self.load_data(model=model, run_pattern=run_pattern, filename_pattern=filename_pattern)
+        df = self.load_data(model=model, run_patterns=run_patterns, filename_pattern=filename_pattern)
         # format sci numbers
         df = self.format_cols(df)
-        print(df.columns)
         # params
         if params is not None:
             cols = []
@@ -102,27 +108,28 @@ class ListRuns:
             df = df.reindex(sorted(
                 df.index, key=lambda x: '_'.join(x.split('_')[:-1])
             )).reset_index()
-        print(self.header)
         if names_only:
             print('\n'.join(df.index))
         else:
             print(df)
 
-    def load_data(self, model=None, run_pattern=None, filename_pattern=None):
-        df = ListRuns.collect_results()
+    def load_data(self, model=None, run_patterns=('*',), filename_pattern=None):
+        df = ListRuns.collect_results(run_patterns)
         if len(df) == 0:
             raise FileNotFoundError('No output data run models could be found.')
         df.set_index('name', inplace=True)
-        if run_pattern is not None:
+        for run_pattern in run_patterns:
             self.header += self.add_key_value('Pattern', run_pattern)
-            df = df[df.index.str.contains(r'{}'.format(run_pattern))]
-            if len(df) == 0:
-                raise ValueError('No runs nams matched for run pattern {}'.format(run_pattern))
-        if filename_pattern is not None:
-            self.header += self.add_key_value('Filename pattern', filename_pattern)
-            df = df[df.train_data.str.contains(filename_pattern)]
-            if len(df) == 0:
-                raise ValueError('No runs to list under given filename pattern {}'.format(filename_pattern))
+        # if run_pattern is not None:
+        #     self.header += self.add_key_value('Pattern', run_pattern)
+        #     df = df[df.index.str.contains(r'{}'.format(run_pattern))]
+        #     if len(df) == 0:
+        #         raise ValueError('No runs nams matched for run pattern {}'.format(run_pattern))
+        # if filename_pattern is not None:
+        #     self.header += self.add_key_value('Filename pattern', filename_pattern)
+        #     df = df[df.train_data.str.contains(filename_pattern)]
+        #     if len(df) == 0:
+        #         raise ValueError('No runs to list under given filename pattern {}'.format(filename_pattern))
         if model is not None:
             self.header += self.add_key_value('Model', model)
             df = df[df.model == model]
