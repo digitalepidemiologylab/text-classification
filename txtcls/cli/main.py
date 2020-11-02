@@ -324,11 +324,8 @@ def ls(parser):
         '-m', '--model', type=str, default=None,
         help='only show certain models')
     parser.add_argument(
-        '-r', '--run-patterns', type=str, default=None, nargs='+',
+        '-r', '--run-patterns', type=str, default=('*', ), nargs='+',
         help='filter by run name patterns')
-    parser.add_argument(
-        '-f', '--filename-pattern', type=str, default=None,
-        help='filter by name of training data input file')
     parser.add_argument(
         '-p', '--params', type=str, default=None, nargs='+',
         help='display certain hyperparameters instead of default ones')
