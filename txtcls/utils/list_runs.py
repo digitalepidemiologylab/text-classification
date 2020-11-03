@@ -1,12 +1,14 @@
-from .helpers import find_project_root
-import pandas as pd
+import logging
 import os
-import re
+import sys
 import glob
 import json
-from pprint import pprint
+
+import pandas as pd
+
 from .helpers import flatten_dict
-from pprint import pprint
+
+logger = logging.getLogger(__name__)
 
 
 class ListRuns:
@@ -15,18 +17,19 @@ class ListRuns:
 
     @staticmethod
     def collect_results(runs=('*',)):
-        """Compiles run hyperparameters/performance scores into single pandas DataFrame"""
-        # run_path = os.path.join(find_project_root(), 'output', '*')
-        run_path = os.path.join('.')
-        folders = []
+        """Compiles run hyperparameters/performance scores into
+        a single ``pandas.DataFrame``.
+        """
+        work_dir = os.getcwd()
+        paths = []
         for run in runs:
-            # folders = glob.glob(run_path)
-            folders += [f for f in os.listdir(run_path) if re.search(run, f)]
+            paths += glob.glob(os.path.join(work_dir, run))
+
         results = []
-        for f in folders:
-            if os.path.isdir(f):
-                config_path = os.path.join(f, 'run_config.json')
-                test_output_path = os.path.join(f, 'test_output.json')
+        for path in paths:
+            if os.path.isdir(path):
+                config_path = os.path.join(path, 'run_config.json')
+                test_output_path = os.path.join(path, 'test_output.json')
                 try:
                     with open(config_path, 'r') as f_p:
                         run_config = json.load(f_p)
@@ -35,7 +38,8 @@ class ListRuns:
                 except FileNotFoundError:
                     continue
                 run_config_flat = flatten_dict(run_config)
-                run_config_flat = {'.'.join(k): v for k, v in run_config_flat.items()}
+                run_config_flat = {
+                    '.'.join(k): v for k, v in run_config_flat.items()}
                 results.append({
                     **run_config_flat,
                     **test_output})
@@ -97,7 +101,9 @@ class ListRuns:
         if len(df) == 0:
             return
         if top < 0:
-            top = None # show all entries
+            top = None  # show all entries
+        if sort_list is None:
+            sort_list = []
         if 'name' in sort_list:
             name_sort = True
             sort_list.remove('name')
@@ -116,7 +122,8 @@ class ListRuns:
     def load_data(self, model=None, run_patterns=('*',), filename_pattern=None):
         df = ListRuns.collect_results(run_patterns)
         if len(df) == 0:
-            raise FileNotFoundError('No output data run models could be found.')
+            logger.error('No output data run models could be found.')
+            sys.exit()
         df.set_index('name', inplace=True)
         for run_pattern in run_patterns:
             self.header += self.add_key_value('Pattern', run_pattern)
