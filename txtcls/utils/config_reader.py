@@ -49,8 +49,6 @@ class ConfigReader:
     def __init__(self):
         self.args = None
         self.config = None
-        self.experiment_names = []
-        self.default_output_folder = os.path.join('.', 'output')
 
     def parse_config(self, config_path,
                      mode={'preprocess', 'train', 'predict', 'test'}):
@@ -87,8 +85,8 @@ class ConfigReader:
         try:
             with open(config_path, 'r') as f:
                 config = json.load(f)
-        except FileNotFoundError as e:
-            raise Exception('Wrong config path') from e
+        except FileNotFoundError as exc:
+            raise Exception('Wrong config path') from exc
         return config
 
     def _check_required(self, config, mode):
@@ -99,7 +97,7 @@ class ConfigReader:
         # Check that run names are all different
         run_names = [conf['name'] for conf in config['runs']]
         if len(run_names) != len(set(run_names)):
-            raise Exception('Name keys in "runs" subfield of config file '
+            raise Exception("Name keys in 'runs' subfield of config file "
                             'need to be unique')
         runs = []
         for run in config['runs']:
@@ -198,19 +196,3 @@ class ConfigReader:
             list_configs.append(
                 {'name': config['name'], 'model': config['model']['name']})
         return list_configs
-
-    def print_configs(self, output_dir, pattern, model, names_only):
-        # Never used
-        configs = self.list_configs(output_dir, pattern=pattern)
-        if not names_only:
-            logger.info('{:<5}{:<41}{}'.format('', 'Name', 'Model'))
-        c = 1
-        for config in configs:
-            if model not in config['model']['name']:
-                continue
-            if names_only:
-                logger.info(config['name'])
-            else:
-                logger.info('{:3d}) {:<40} {}'.format(
-                    c, config['name'], config['model']['name']))
-                c += 1

@@ -1,4 +1,5 @@
 from .config_reader import ConfigReader
+from .config_manager import ConfigManager, Mode
 from .ecr import ECR
 from .docker import Docker
 from .learning_curve import LearningCurve
@@ -15,8 +16,3 @@ from .viz import Viz
 # from . import print_helpers
 # from . import tokenizer_contractions
 # from . import transformers_helpers
-
-__all__ = [
-    'ConfigReader', 'Docker', 'ECR', 'LearningCurve', 'ListRuns', 'Optimize',
-    'S3', 'Sagemaker', 'Viz'
-]
