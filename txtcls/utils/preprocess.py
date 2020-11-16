@@ -12,14 +12,19 @@ import unicodedata
 import unidecode
 import en_core_web_sm
 import emoji
-from munch import DefaultMunch
-from bs4 import BeautifulSoup
 
 from .tokenizer_contractions import CONTRACTIONS
 
+logger = logging.getLogger(__name__)
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    logger.warning(
+        "Could not import 'bs4', "
+        "'txtcls.utils.preprocess.de_emojize' will not work.")
 
 nlp = en_core_web_sm.load()
-logger = logging.getLogger(__name__)
 control_char_regex = re.compile(r'[\r\n\t]+')
 
 

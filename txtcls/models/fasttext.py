@@ -87,7 +87,7 @@ class FastText(BaseModel):
         # Prepare data
         # train_data_path = prepare_data(
         #     config.data.train, config.path.output,
-        #     dict(config.preprocess), config.model.get('label', '__label__'))
+        #     asdict(config.preprocess), getattr(config.model, 'label', '__label__'))
         train_data_path = config.data.train
 
         # Train model
@@ -96,10 +96,10 @@ class FastText(BaseModel):
             train_data_path, **dict(config.model.params))
 
         # Save model
-        if config.get('save_model', True):
+        if getattr(config.model, 'save_model', True):
             logger.info('Saving model...')
             self.model.save_model(model_path)
-        if config.get('quantize', False):
+        if getattr(config.model, 'quantize', False):
             logger.info('Quantizing model...')
             self.model.quantize(train_data_path, retrain=True)
             self.model.save_model(model_path)
@@ -155,7 +155,9 @@ class FastText(BaseModel):
         candidates = self.model.predict(data, k=len(self.label_mapping))
         predictions = [{
             'labels': [
-                label[len(self.train_config.model.get('label', '__label__')):]
+                label[len(getattr(
+                    self.train_config.model, 'label', '__label__'
+                )):]
                 for label in candidate[0]],
             'probabilities': candidate[1].tolist()
         } for candidate in zip(candidates[0], candidates[1])]

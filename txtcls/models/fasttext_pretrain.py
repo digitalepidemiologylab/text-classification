@@ -61,7 +61,7 @@ class FastTextPretrain(BaseModel):
         logger.info('Training model...')
         self.model = fasttext.train_unsupervised(
             config.data.train, **dict(config.model.params))
-        if config.get('quantize', False):
+        if getattr(config.model, 'quantize', False):
             logger.info('Quantizing model...')
             self.model.quantize(config.data.train, retrain=True)
 
@@ -101,10 +101,10 @@ class FastTextPretrain(BaseModel):
         self.add_to_config(config.path.output, config)
 
         # Save model
-        if config.get('save_model', True):
+        if getattr(config.model, 'save_model', True):
             logger.info('Saving model...')
             self.model.save_model(model_path)
-        if config.get('save_vec', True):
+        if getattr(config, 'save_vec', True):
             logger.info('Saving vectors...')
             self.save_vec(vectors_path)
             # config.model.params.get('thread', max(os.cpu_count() - 1, 1)),

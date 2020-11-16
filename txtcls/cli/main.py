@@ -5,6 +5,8 @@ import logging
 
 import joblib
 
+from ..utils.config_manager import ConfigManager, Mode
+
 from ..utils import helpers
 from ..utils import deploy_helpers
 from ..utils.list_runs import ListRuns
@@ -23,9 +25,8 @@ def preprocess(parser):
         help='name/path of configuration file')
 
     def _preprocess(args):
-        config_reader = helpers.ConfigReader()
-        config = config_reader.parse_config(args.config, mode='preprocess')
-        for run_config in config.runs:
+        config_manager = ConfigManager(args.config_path, Mode.PREPROCESS)
+        for run_config in config_manager.config:
             helpers.preprocess(run_config)
 
     parser.set_defaults(func=_preprocess)
@@ -82,15 +83,16 @@ def train(parser):
         help='run in parallel (only recommended for CPU-training)')
 
     def _train(args):
-        config_reader = helpers.ConfigReader()
-        config = config_reader.parse_config(args.config, mode='train')
-        if len(config.runs) > 1 and args.parallel:
+        config_manager = ConfigManager(args.config_path, Mode.TRAIN)
+        if len(config_manager.config) > 1 and args.parallel:
             num_cpus = max(os.cpu_count() - 1, 1)
             parallel = joblib.Parallel(n_jobs=num_cpus)
             train_delayed = joblib.delayed(helpers.train)
-            parallel((train_delayed(run_config) for run_config in config.runs))
+            parallel((
+                train_delayed(run_config)
+                for run_config in config_manager.config))
         else:
-            for run_config in config.runs:
+            for run_config in config_manager.config:
                 helpers.train(run_config)
 
     parser.set_defaults(func=_train)
@@ -101,10 +103,10 @@ def predict(parser):
     output predictions.
     """
     parser.add_argument(
-        '-r', '--run', type=str, required=True, dest='run_name',
-        help='name of run')
+        '-r', '--run-path', type=str, required=True,
+        help='path to the model run')
     parser.add_argument(
-        '-p', '--path', type=str, default=None,
+        '-p', '--data-path', type=str, default=None,
         help='input path of data file for predictions')
     parser.add_argument(
         '-d', '--data', type=str, default=None,
@@ -136,7 +138,17 @@ def predict(parser):
     parser.add_argument(
         '--verbose', default=False, action='store_true',
         help='print predictions')
-    parser.set_defaults(func=lambda args: helpers.predict(**vars(args)))
+
+    def _predict(args):
+        config_manager = ConfigManager(os.path.join(
+            args.run_path, 'run_config.json'), Mode.PREDICT)
+        if len(config_manager.config) != 1:
+            raise ValueError(
+                "For prediction, use config files with a single run")
+        run_config = config_manager.config[0]
+        helpers.predict(run_config, **vars(args))
+
+    parser.set_defaults(func=_predict)
 
 
 def generate_config(parser):
@@ -246,9 +258,8 @@ def pretrain(parser):
         help='name/path of configuration file')
 
     def _pretrain(args):
-        config_reader = helpers.ConfigReader()
-        config = config_reader.parse_pretrain_config(args.config)
-        for run_config in config.runs:
+        config_manager = ConfigManager(args.config_path, Mode.PREPROCESS)
+        for run_config in config_manager.config:
             helpers.pretrain(run_config)
 
     parser.set_defaults(func=_pretrain)

@@ -25,6 +25,8 @@ from . import ConfigReader
 from .misc import JSONEncoder, get_df_hash
 from .nested_dict import flatten_dict, set_nested_value
 
+from .config_manager import Mode
+
 
 def preprocess(run_config):
     logger = logging.getLogger(__name__)
@@ -53,7 +55,7 @@ def train(run_config):
     """Trains and evaluates"""
     model = get_model(run_config.model.name)
     logger = logging.getLogger(__name__)
-    if run_config.augment_data:
+    if getattr(run_config.data, 'augment', None):
         logger.info('Augmenting training data')
         run_config = augment(run_config)
     # train
@@ -92,7 +94,7 @@ def train(run_config):
                 f'Model output written to `{run_config.path.output}`')
 
 
-def predict(run_name, path=None, data=None, output_cols=[],
+def predict(run_config, path=None, data=None, output_cols=[],
             output_folder='predictions', col='text', no_file_output=False,
             in_parallel=False, verbose=False, output_formats=None):
 
@@ -113,12 +115,7 @@ def predict(run_name, path=None, data=None, output_cols=[],
                         yield text_chunk
         else:
             raise ValueError('Please provide the input file with a file '
-                             'extension of either `csv` or `txt`.')
-    # Parses run config
-    config_reader = ConfigReader()
-    config_path = os.path.join('output', run_name, 'run_config.json')
-    config = config_reader.parse_config(config_path, mode='predict')
-    run_config = config.runs[0]
+                             'extension of either `csv` or `txt`')
     logger = logging.getLogger(__name__)
     model = get_model(run_config.model.name)
     if data is None:
@@ -391,6 +388,8 @@ def augment(run_config):
 
 
 def generate_text(**config):
+    # TODO: No function ConfigReader().get_default_config()
+    # TODO: Do we still need this as a helper? Where to better put it?
     model = get_model(config.get('model', 'openai_gpt2'))
     config_reader = ConfigReader()
     config = config_reader.get_default_config(base_config=config)
@@ -404,10 +403,6 @@ def learning_curve(config_path):
     configs = lc.generate_configs()
     for config in configs:
         train(config)
-
-
-def find_project_root(num_par_dirs=8):
-    return os.path.abspath(os.path.join(os.path.abspath(__file__), '..', '..', '..'))
 
 
 def find_git_root(num_par_dirs=8):
