@@ -5,17 +5,16 @@ Printing helpers
 
 import os
 import pandas as pd
-from .helpers import find_project_root
 import logging
 
 
 logger = logging.getLogger(__name__)
 
 def print_misclassifications(run, num_samples):
-    f_path = os.path.join(find_project_root(), 'output', run)
+    f_path = os.path.join(os.getcwd(), 'output', run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
-    test_output_file = os.path.join(find_project_root(), 'output', run, 'test_output.csv')
+    test_output_file = os.path.join(os.getcwd(), 'output', run, 'test_output.csv')
     if not os.path.isfile(test_output_file):
         raise FileNotFoundError(f'No file {test_output_file} found for run {run}. Pass the option `write_test_output: true` when training the model.')
     df = pd.read_csv(test_output_file)

@@ -1,4 +1,3 @@
-from .helpers import find_project_root
 import pandas as pd
 import os
 import re
@@ -16,8 +15,7 @@ class ListRuns:
     @staticmethod
     def collect_results(runs=('*',)):
         """Compiles run hyperparameters/performance scores into single pandas DataFrame"""
-        # run_path = os.path.join(find_project_root(), 'output', '*')
-        run_path = os.path.join('.')
+        run_path = os.path.join(os.getcwd(), 'output')
         folders = []
         for run in runs:
             # folders = glob.glob(run_path)

@@ -5,7 +5,7 @@ Deployment helpers
 
 import os
 import logging
-from .helpers import find_project_root
+from ..definitions import ROOT_DIR
 from . import Docker
 from . import ECR
 from . import S3
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def build(run, project, model_type):
     docker = Docker()
-    docker_path = os.path.join(find_project_root(), 'sagemaker', model_type)
+    docker_path = os.path.join(ROOT_DIR, 'sagemaker', model_type)
     image_name = get_image_name(run, project)
     docker.build(docker_path, image_name)
 

@@ -2,10 +2,11 @@ import os
 import docker
 import logging
 from docker.errors import APIError, BuildError, ImageNotFound
-from .helpers import find_project_root
+from ..definitions import ROOT_DIR
 from . import ECR
 
 logger = logging.getLogger(__name__)
+
 
 class Docker():
     def __init__(self):
@@ -47,8 +48,8 @@ class Docker():
 
     def run(self, image_name, run, model_type):
         """Serves model locally"""
-        model_path = os.path.join(find_project_root(), 'output', run)
-        docker_path = os.path.join(find_project_root(), 'sagemaker', model_type, 'src')
+        model_path = os.path.join(os.getcwd(), 'output', run)
+        docker_path = os.path.join(ROOT_DIR, 'sagemaker', model_type, 'src')
         # bind model artefacts to /opt/ml and bind a volume for the code
         volumes = {model_path: {'bind': '/opt/ml/model', 'mode': 'ro'}, docker_path: {'bind': '/opt/program'}}
         ports = {'5000':'5000'}

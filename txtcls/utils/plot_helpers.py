@@ -8,7 +8,6 @@ import joblib
 import logging
 import sklearn.metrics
 import pandas as pd
-from .helpers import find_project_root, get_label_mapping
 from . import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -22,10 +21,10 @@ def plot_confusion_matrix(
         run, log_scale, normalize_sum, normalize_test, stylesheet,
         figsize_x, figsize_y, vmin, vmax, vmin_norm, vmax_norm, plot_formats
 ):
-    f_path = os.path.join(find_project_root(), 'output', run)
+    f_path = os.path.join(os.getcwd(), 'output', run)
     if not os.path.isdir(f_path):
         raise FileNotFoundError(f'Could not find run directory {f_path}')
-    test_output_file = os.path.join(find_project_root(), 'output', run, 'test_output.csv')
+    test_output_file = os.path.join(os.getcwd(), 'output', run, 'test_output.csv')
     if not os.path.isfile(test_output_file):
         raise FileNotFoundError(f'No file {test_output_file} found for run {run}. Pass the option `write_test_output: true` when training the model.')
     if stylesheet:
@@ -170,7 +169,7 @@ def plot_label_distribution(data_path, mode='test', label='category', merged=Tru
     save_fig(fig, pics_dir, file_name)
 
 def save_fig(fig, fig_type, name, plot_formats=['png'], dpi=300):
-    folder = os.path.join(find_project_root(), 'plots', fig_type)
+    folder = os.path.join(os.getcwd(), 'plots', fig_type)
     if not os.path.isdir(folder):
         os.makedirs(folder)
     def f_name(fmt):

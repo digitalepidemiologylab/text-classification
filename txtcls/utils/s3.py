@@ -2,7 +2,6 @@ import os
 import boto3
 import logging
 import tarfile
-from .helpers import find_project_root
 
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,7 @@ class S3():
         return self.s3_client
 
     def upload_model(self, run, image_name,  model_type='fasttext'):
-        run_dir = os.path.join(find_project_root(), 'output', run)
+        run_dir = os.path.join(os.getcwd(), 'output', run)
         if not os.path.isdir(run_dir):
             raise FileNotFoundError(f'Could not find run directory {run_dir}')
         # compile model artefacts
