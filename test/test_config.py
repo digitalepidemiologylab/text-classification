@@ -6,7 +6,7 @@ from txtcls.utils.config_manager import *
 
 def test_preprocess_config_folders():
     config_manager = ConfigManager(
-        'configs/config.preprocess.folders.json', Mode.PREPROCESS)
+        'test/configs/config.preprocess.folders.json', Mode.PREPROCESS)
 
     config = [
         PreprocessConf(
@@ -64,13 +64,13 @@ def test_preprocess_config_folders():
 def test_preprocess_config_additional_key():
     with pytest.raises(UnexpectedDataError):
         ConfigManager(
-            'configs/config.preprocess.additional_key.json', Mode.PREPROCESS)
+            'test/configs/config.preprocess.additional_key.json', Mode.PREPROCESS)
 
 
 def test_preprocess_config_missing_model_name():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.preprocess.missing_model_name.json',
+            'test/configs/config.preprocess.missing_model_name.json',
             Mode.PREPROCESS)
         assert exc == "Please fill the 'model' key"
 
@@ -78,14 +78,14 @@ def test_preprocess_config_missing_model_name():
 def test_preprocess_missing_data():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.preprocess.missing_data.json',
+            'test/configs/config.preprocess.missing_data.json',
             Mode.PREPROCESS)
         assert exc == "Please fill the 'data' key"
 
 
 def test_train_correct():
     config_manager = ConfigManager(
-        'configs/config.train.correct.json', Mode.TRAIN)
+        'test/configs/config.train.correct.json', Mode.TRAIN)
 
     config = [TrainConf(
         name='train_fasttext_category_merged_1_7',
@@ -117,14 +117,14 @@ def test_train_correct():
 def test_train_missing_train_data():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.train.missing_train_data.json',
+            'test/configs/config.train.missing_train_data.json',
             Mode.TRAIN)
         assert exc == "Please fill the 'data.train' (and 'path.data') keys"
 
 
 def test_train_missing_train_data_test_only():
     config_manager = ConfigManager(
-        'configs/config.train.missing_train_data_test_only.json', Mode.TRAIN)
+        'test/configs/config.train.missing_train_data_test_only.json', Mode.TRAIN)
 
     config = [TrainConf(
         name='train_fasttext_category_merged_1_7',
@@ -156,7 +156,7 @@ def test_train_missing_train_data_test_only():
 def test_train_missing_test_data():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.train.missing_test_data.json',
+            'test/configs/config.train.missing_test_data.json',
             Mode.TRAIN)
         assert exc == "Please fill the 'data.test' (and 'path.data') keys"
 
@@ -164,14 +164,14 @@ def test_train_missing_test_data():
 def train_missing_model_params():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.train.missing_model_params.json',
+            'test/configs/config.train.missing_model_params.json',
             Mode.PREPROCESS)
         assert exc == "Please fill the 'model.params' key"
 
 
 def test_predict():
     config_manager = ConfigManager(
-        'configs/config.predict.correct.json', Mode.PREDICT)
+        'test/configs/config.predict.correct.json', Mode.PREDICT)
 
     config = [PredictConf(
         name='train_fasttext_category_merged_1_7',
@@ -183,6 +183,10 @@ def test_predict():
 def test_predict_missing_model_name():
     with pytest.raises(ValueError) as exc:
         ConfigManager(
-            'configs/config.predict.missing_model_name.json',
+            'test/configs/config.predict.missing_model_name.json',
             Mode.PREDICT)
         assert exc == "Please fill the 'model' key"
+
+
+if __name__ == "__main__":
+    pytest.main()

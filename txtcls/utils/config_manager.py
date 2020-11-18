@@ -28,15 +28,6 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-pop_params = (('model', 'params'), ('data'), ('path'))
-
-
-def get_key(d, keys):
-    for key in keys[:-1]:
-        d = d.get(key, {})
-    return d.get(keys[-1], None)
-
-
 class Mode(Enum):
     PREPROCESS = 1
     TRAIN = 2
@@ -102,7 +93,7 @@ class Preprocess:
 
 
 # Conf
-# Python datacless inheritance: https://stackoverflow.com/a/53085935/4949133
+# Python dataclass inheritance: https://stackoverflow.com/a/53085935/4949133
 @dataclass(frozen=True)
 class _ConfBase:
     name: str
