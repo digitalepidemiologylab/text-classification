@@ -15,7 +15,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     # Updated for fasttext model
     install_requires=[
-        'tqdm', 'pandas', 'numpy', 'scikit-learn', 'hyperopt',
+        'tqdm', 'pandas', 'swifter', 'numpy', 'scikit-learn', 'hyperopt',
         'matplotlib', 'seaborn', 'visdom',
         'spacy', 'unidecode', 'emoji', 'fasttext',
         'boto3', 'munch', 'docker', 'joblib',

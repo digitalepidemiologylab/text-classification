@@ -25,7 +25,8 @@ def preprocess(parser):
         help='name/path of configuration file')
 
     def _preprocess(args):
-        config_manager = ConfigManager(args.config_path, Mode.PREPROCESS)
+        config_manager = ConfigManager(
+            args.config, Mode.PREPROCESS, create_dirs=True)
         for run_config in config_manager.config:
             helpers.preprocess(run_config)
 
@@ -83,7 +84,8 @@ def train(parser):
         help='run in parallel (only recommended for CPU-training)')
 
     def _train(args):
-        config_manager = ConfigManager(args.config_path, Mode.TRAIN)
+        config_manager = ConfigManager(
+            args.config, Mode.TRAIN, create_dirs=True)
         if len(config_manager.config) > 1 and args.parallel:
             num_cpus = max(os.cpu_count() - 1, 1)
             parallel = joblib.Parallel(n_jobs=num_cpus)
@@ -141,7 +143,7 @@ def predict(parser):
 
     def _predict(args):
         config_manager = ConfigManager(os.path.join(
-            args.run_path, 'run_config.json'), Mode.PREDICT)
+            args.run_path, 'run_config.json'), Mode.PREDICT, create_dirs=True)
         if len(config_manager.config) != 1:
             raise ValueError(
                 "For prediction, use config files with a single run")
@@ -258,7 +260,8 @@ def pretrain(parser):
         help='name/path of configuration file')
 
     def _pretrain(args):
-        config_manager = ConfigManager(args.config_path, Mode.PREPROCESS)
+        config_manager = ConfigManager(
+            args.config_path, Mode.PREPROCESS, create_dirs=True)
         for run_config in config_manager.config:
             helpers.pretrain(run_config)
 

@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import sklearn.metrics
 
+from ..utils.nested_dict import merge_dicts
+
 logger = logging.getLogger(__name__)
 
 
@@ -139,13 +141,13 @@ class BaseModel:
                 _compute_performance_metric(sklearn.metrics.f1_score, m, y_true, y_pred)
         return scores
 
-    def add_to_config(self, output_path, *configs):
+    def add_to_config(self, output_path, *confs):
         f_path = os.path.join(output_path, 'run_config.json')
         with open(f_path, 'r') as f:
             run_config = json.load(f)
         # extend run_config
-        for c in configs:
-            run_config = {**run_config, **c}
+        for conf in confs:
+            run_config = merge_dicts(run_config, conf)
         # dump into run config
         with open(f_path, 'w') as f:
             json.dump(run_config, f, indent=4, default=lambda o: '<not serializable>')

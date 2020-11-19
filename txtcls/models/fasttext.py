@@ -16,8 +16,10 @@ import joblib
 from munch import DefaultMunch
 import swifter
 import multiprocessing
+import twiprocess as twp
 
 from .base_model import BaseModel, get_default_args
+from ..utils.config_manager import ConfigManager, Mode
 from ..utils.misc import JSONEncoder
 from ..utils.preprocess import (_asciify,
                                 _remove_punctuation,
@@ -40,16 +42,14 @@ class FastText(BaseModel):
         self.train_config = None
 
     def setup(self, data_path, output_path, train=False):
-        print(output_path)
         if not train:
             if self.model is None:
                 self.model = fasttext.load_model(
                     os.path.join(output_path, 'model.bin'))
             if self.train_config is None:
-                with open(
-                    os.path.join(output_path, 'run_config.json'), 'r'
-                ) as f:
-                    self.train_config = DefaultMunch.fromDict(json.load(f))
+                self.train_config = ConfigManager(
+                    os.path.join(output_path, 'run_config.json'),
+                    mode=Mode.TRAIN).config[0]
         if self.label_mapping is None:
             with open(os.path.join(data_path, 'label_mapping.json'), 'r') as f:
                 self.label_mapping = json.load(f)
@@ -144,15 +144,18 @@ class FastText(BaseModel):
 
         # Save model state
         logger.info('Saving params...')
+        conf = {'model': {'params': {}}}
         for k, v in supervised_default.items():
             if k not in config.model.params:
-                config.model.params[k] = v
-        self.add_to_config(config.path.output, config)
+                conf['model']['params'][k] = v
+        self.add_to_config(config.path.output, conf)
 
     def predict(self, config, data):
         self.set_logging(config.path.output)
         self.setup(config.path.data, config.path.output)
         candidates = self.model.predict(data, k=len(self.label_mapping))
+        logger.info(self.train_config)
+        logger.info(getattr(self.train_config.model, 'label', '__label__'))
         predictions = [{
             'labels': [
                 label[len(getattr(
@@ -169,11 +172,9 @@ class FastText(BaseModel):
 
         # Preparing data
         logger.info('Reading test data...')
-        print(config.data.test)
         df = pd.read_csv(
             config.data.test,
             usecols=['text', 'label'], dtype={'text': str, 'label': str})
-        print(df.head())
         test_x, test_y = df['text'].tolist(), df['label'].tolist()
         test_y = [self.label_mapping[y] for y in test_y]
 
@@ -198,10 +199,9 @@ def set_label_mapping(train_data_path, test_data_path, output_path):
     labels = pd.concat([
         pd.read_csv(train_data_path, usecols=['label']),
         pd.read_csv(test_data_path, usecols=['label'])])
-    labels = np.unique(labels['label'])
-    labels.sort()
+    labels = sorted(list(set(labels['label'])))
     label_mapping = {}
-    for i, label in enumerate(np.unique(labels)):
+    for i, label in enumerate(labels):
         label_mapping[label] = i
     with open(os.path.join(output_path, 'label_mapping.json'), 'w') as f:
         json.dump(label_mapping, f)
@@ -237,14 +237,15 @@ def preprocess_data(data_path, preprocessing_config):
         logger.info('Standardizing data...')
         standardize_func = getattr(
             __import__(
-                'txtcls.utils.standardize',
+                'twiprocess.standardize',
                 fromlist=[standardize_func_name]),
             standardize_func_name)
+        logger.info(standardize_func)
         df['text'] = df.text.swifter.apply(standardize_func)
     if preprocessing_config != {}:
         logger.info('Preprocessing data...')
         df['text'] = df.text.swifter.apply(
-            preprocess_fasttext, **preprocessing_config)
+            twp.preprocess, **preprocessing_config)
     # Drop empty strings in 'text'
     df = df[df['text'] != '']
     num_filtered = num_loaded - len(df)
@@ -300,99 +301,3 @@ def prepare_data(data_path, output_dir_path,
             output_file_path,
             index=False, header=True)
     return paths
-
-
-def preprocess_fasttext(text,
-                        min_num_tokens=0,
-                        min_num_chars=0,
-                        lower_case=False,
-                        asciify=False,
-                        remove_punctuation=False,
-                        asciify_emoji=False,
-                        remove_emoji=False,
-                        replace_url_with=None,
-                        replace_user_with=None,
-                        replace_email_with=None,
-                        expand_contractions=False,
-                        lemmatize=False,
-                        remove_stop_words=False):
-    """Preprocessing pipeline for FastText.
-
-    Args:
-        min_num_tokens (int): Minimum number of tokens. Default: 0
-        min_num_chars (int): Minimum number of character cutoff. Default: 0
-        lower_case (bool): Lower case. Default: ``True``
-        asciify (bool): Asciify accents. Default: ``False``        
-        remove_punctuation (bool): Replace all symbols of punctuation
-            unicode category except dashes (Pd). Default: ``False``
-        asciify_emoji (bool): Asciify emoji. Default: ``False``
-        remove_emoji (bool): Remove all characters of symbols-other (So)
-            unicode category. Default: ``False``
-        replace_url_with (str or None): Replace `<url>` with something else.
-            Default: ``None``
-        replace_user_with (str or None): Replace `@user` with something else.
-            Default: ``None``
-        replace_email_with (str or None): Replace `@email` with something else.
-            Default: ``None``
-        expand_contractions (bool): Expand contractions.
-            (E.g. `he's` -> `he is`, `wouldn't -> would not`.)
-            Note that this may not always be correct.
-            Default: ``False``
-        lemmatize (bool): Lemmatize strings. Default: ``False``
-        remove_stop_words (bool): Remove stop words. Default: ``False``
-
-    Returns:
-        text (str): Preprocessed text
-    """
-    # Asciify
-    if asciify:
-        text = _asciify(text)
-    # Remove punctuation
-    if remove_punctuation:
-        text = _remove_punctuation(text)
-    # Asciify emoji
-    if asciify_emoji:
-        text = _asciify_emoji(text)
-    # Remove emoji
-    if remove_emoji:
-        text = _remove_emoji(text)
-    # Expand contractions
-    if expand_contractions:
-        text = _expand_contractions(text)
-    # Replace urls/users/emails with something else
-    if replace_url_with is not None:
-        text = text.replace('<url>', replace_url_with)
-    if replace_user_with is not None:
-        text = text.replace('@user', replace_user_with)
-    if replace_email_with is not None:
-        text = text.replace('@email', replace_email_with)
-    if min_num_tokens > 0 or lemmatize or remove_stop_words:
-        tokens = _tokenize(text)
-        # Ignore everything below min_num_tokens
-        if min_num_tokens > 0:
-            num_tokens = sum((
-                1 for t in tokens
-                if t.is_alpha and
-                not t.is_punct and
-                t.text.strip()
-                not in [replace_user_with, replace_url_with]))
-            if num_tokens < min_num_tokens:
-                return ''
-        # Remove stop words
-        if remove_stop_words:
-            tokens = [t for t in tokens if not t.is_stop]
-        # Merge
-        if (remove_stop_words or remove_punctuation) and not lemmatize:
-            text = ' '.join([t.text for t in tokens])
-        if lemmatize:
-            text = ' '.join([t.lemma_ for t in tokens])
-    # Lower case
-    if lower_case:
-        text = text.lower()
-    # Min number of character cutoff
-    if min_num_chars > 0:
-        if len(text) < min_num_chars:
-            return ''
-    # Remove potentially induced duplicate whitespaces
-    text = ' '.join(text.split())
-    return text

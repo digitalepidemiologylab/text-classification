@@ -9,6 +9,7 @@ import json
 import uuid
 import logging
 import itertools
+from dataclasses import asdict
 from datetime import datetime
 import multiprocessing
 from collections import Counter
@@ -42,10 +43,10 @@ def preprocess(run_config):
     prepare_data = __import__(
         'txtcls.models.' + run_config.model.name,
         fromlist=['prepare_data']).prepare_data
-    for v in dict(run_config.data).values():
+    for v in asdict(run_config.data).values():
         data_path = prepare_data(
             v, run_config.path.output,
-            dict(run_config.preprocess))
+            asdict(run_config.preprocess))
         if isinstance(data_path, list):
             data_path = ', '.join(data_path)
         logger.info(f'Prepared data from {v} to {data_path}')

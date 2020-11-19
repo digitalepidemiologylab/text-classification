@@ -16,7 +16,7 @@ import shutil
 from functools import reduce, lru_cache
 
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 from dataclasses import dataclass, asdict
 
 import dacite
@@ -40,6 +40,18 @@ class Folders(Enum):
     OVERWRITE = 2
     EXISTING = 3
     TEST = 4
+
+
+PUBLIC_ENUMS = {
+    'Folders': Folders
+}
+
+
+class EnumEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if type(obj) in PUBLIC_ENUMS.values():
+            return str(type(obj)(obj.value).name.lower())
+        return json.JSONEncoder.default(self, obj)
 
 
 @dataclass(frozen=True)
@@ -72,6 +84,7 @@ class Paths:
 @dataclass(frozen=True)
 class Data:
     train: str = None
+    val: str = None
     test: str = None
 
 
@@ -83,11 +96,12 @@ class Preprocess:
     lower_case: bool = False
     asciify: bool = False
     remove_punctuation: bool = False
+    standardize_punctuation: bool = False
     asciify_emoji: bool = False
     remove_emoji: bool = False
-    replace_url_with: str = None
-    replace_user_with: str = None
-    replace_email_with: str = None
+    replace_url_with: Union[str, None] = None
+    replace_user_with: Union[str, None] = None
+    replace_email_with: Union[str, None] = None
     lemmatize: bool = False
     remove_stop_words: bool = False
 
@@ -125,6 +139,8 @@ class Conf(_ConfDefaultsBase, _ConfBase):
         return Data(
             train=get_path(
                 self.path_init.data, getattr(self.data_init, 'train', None)),
+            val=get_path(
+                self.path_init.data, getattr(self.data_init, 'val', None)),
             test=get_path(
                 self.path_init.data, getattr(self.data_init, 'test', None)))
 
@@ -199,11 +215,14 @@ converter = {Folders: lambda x: Folders[x.upper()]}
 
 class ConfigManager:
     """Read, write and validate project configs."""
-    def __init__(self, config_path, mode):
+    def __init__(self, config_path, mode, create_dirs=False):
         self.config_path = config_path
         self.mode = mode
+        self.raw = self._load_raw()
         self.config = self._load()
         self._check_config()
+        if create_dirs:
+            self._create_dirs()
 
     def _create_dirs(self):
         for run in self.config:
@@ -220,7 +239,19 @@ class ConfigManager:
                 # Dump run config
                 f_path = os.path.join(run.path.output, 'run_config.json')
                 with open(f_path, 'w') as f:
-                    json.dump(asdict(run), f, indent=4)
+                    run_dump = asdict(run)
+
+                    # Pop property params back
+                    # TODO: This is ugly, create functions for that
+                    if run_dump.get('model', {}).get('params_init') is not None:
+                        run_dump['model']['params'] = json.dumps(
+                            run_dump['model'].pop('params_init'))
+                    if run_dump.get('data_init') is not None:
+                        run_dump['data'] = run_dump.pop('data_init')
+                    if run_dump.get('path_init') is not None:
+                        run_dump['path'] = run_dump.pop('path_init')
+
+                    json.dump(run_dump, f, indent=4, cls=EnumEncoder)
 
     def _check_config(self):
         # Check if run names are all different
@@ -249,17 +280,30 @@ class ConfigManager:
                         "Please fill the 'data.test' "
                         "(and 'path.data') keys")
 
+    def _load_raw(self):
+        try:
+            with open(self.config_path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError as exc:
+            raise Exception(
+                f"Wrong config path '{self.config_path}'"
+            ) from exc
+
     def _load(self):
         def prepare_config(raw, mode):
             prepared_raw = []
-            for raw_run in raw.get('runs', []):
+            if 'runs' in raw:
+                raw_runs = raw['runs']
+            else:
+                raw_runs = [raw]
+            for raw_run in raw_runs:
                 # Merge globals into the run config
                 run = reduce(merge_dicts, [raw_run, raw.get('globals', {})])
                 # Load preprocessing config from data folder
                 if mode != Mode.PREPROCESS:
                     try:
                         data_file_path = os.path.join(
-                            run.get('path_init', {}).get('data'),
+                            run.get('path', {}).get('data'),
                             'run_config.json')
                     except TypeError:
                         pass
@@ -277,26 +321,18 @@ class ConfigManager:
                             pass
 
                 # Pop property params
-                if run.get('model', {}).get('params'):
+                if run.get('model', {}).get('params') is not None:
                     run['model']['params_init'] = json.dumps(
                         run['model'].pop('params'))
-                if run.get('data'):
+                if run.get('data') is not None:
                     run['data_init'] = run.pop('data')
-                if run.get('path'):
+                if run.get('path') is not None:
                     run['path_init'] = run.pop('path')
 
                 prepared_raw.append(run)
             return prepared_raw
 
-        try:
-            with open(self.config_path, 'r') as f:
-                raw = json.load(f)
-        except FileNotFoundError as exc:
-            raise Exception(
-                f"Wrong config path '{self.config_path}'"
-            ) from exc
-
-        prepared_raw = prepare_config(raw, self.mode)
+        prepared_raw = prepare_config(self.raw, self.mode)
 
         if self.mode == Mode.PREPROCESS:
             ConfClass = PreprocessConf

@@ -1,0 +1,21 @@
+{
+    "globals": {},
+    "runs": [
+        {
+            "data": {
+                "train": "train.txt",
+                "val": "dev.txt",
+                "test": "test.csv"
+            },
+            "path": {
+                "data": "./output/preprocess_standardize_anonymize/"
+            },
+            "model": {
+                "name": "fasttext",
+                "params": {}
+            },
+            "folders": "overwrite",
+            "name": "train_fasttext_default"
+        }
+    ]
+}
