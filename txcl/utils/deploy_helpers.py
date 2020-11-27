@@ -6,10 +6,10 @@ Deployment helpers
 import os
 import logging
 from ..definitions import ROOT_DIR
-from . import Docker
-from . import ECR
-from . import S3
-from . import Sagemaker
+from .docker import Docker
+from .ecr import ECR
+from .s3 import S3
+from .sagemaker import Sagemaker
 
 logger = logging.getLogger(__name__)
 

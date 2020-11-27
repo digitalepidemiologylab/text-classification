@@ -25,7 +25,6 @@ from dacite.exceptions import MissingValueError
 from .nested_dict import merge_dicts
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
 class Mode(Enum):
@@ -191,11 +190,22 @@ class TrainConf(Conf, _TrainConfDefaultsBase, _TrainConfBase):
     pass
 
 
-# PredictConf
+# PreprocessConf
 @dataclass(frozen=True)
-class PredictConf:
+class _PredictConfBase(_ConfBase):
     name: str
     model: Model
+
+
+@dataclass(frozen=True)
+class _PredictConfDefaultsBase(_ConfDefaultsBase):
+    data_init: Data = Data()
+    path_init: Paths = Paths()
+
+
+@dataclass(frozen=True)
+class PredictConf(Conf, _PreprocessConfDefaultsBase, _PreprocessConfBase):
+    pass
 
 
 converter = {Folders: lambda x: Folders[x.upper()]}
@@ -221,8 +231,9 @@ class ConfigManager:
         self.raw = self._load_raw()
         self.config = self._load()
         self._check_config()
-        if create_dirs:
+        if create_dirs and mode != Mode.PREDICT:
             self._create_dirs()
+        logger.info('Created config')
 
     def _create_dirs(self):
         for run in self.config:
@@ -270,7 +281,6 @@ class ConfigManager:
             if self.mode == Mode.TRAIN:
                 # Data
                 if not run.test_only:
-                    print(run)
                     if run.data.train is None:
                         raise ValueError(
                             "Please fill the 'data.train' "

@@ -10,11 +10,11 @@ Note: You may need to install additional packages for full functionality.
 ## Usage
 For a list of available commands run 
 ```bash
-$ txtcls --help
+$ txcl --help
 ```
 Output:
 ```
-usage: txtcls [-h] {main,deploy,plot,print} ...
+usage: txcl [-h] {main,deploy,plot,print} ...
 
 positional arguments:
   {main,deploy,plot,print}
@@ -30,11 +30,11 @@ optional arguments:
 
 If you need help to a specific subcommand you can run e.g.
 ```bash
-txtcls main train --help
+txcl main train --help
 ```
 Output:
 ```
-usage: txtcls main train [-h] [-c C] [--parallel]
+usage: txcl main train [-h] [-c C] [--parallel]
 
 Trains model based on config.
 
@@ -91,12 +91,12 @@ In the example above additionally `overwrite` was specified t overwrite if there
 
 This command will train and then automatically evaluate the model on the test set. If no `-c` option is given, train will look for a file called `config.json` in the project root.
 ```bash
-txtcls main train
+txcl main train
 ```
 
 Alternatively, specificy a config file:
 ```bash
-txtcls main train -c my_config_file.json
+txcl main train -c my_config_file.json
 ```
 
 The trained model artefacts, performance scores and run logs can be found in `./output/test_example/`
@@ -105,7 +105,7 @@ The trained model artefacts, performance scores and run logs can be found in `./
 
 After training you can run 
 ```bash
-txtcls main ls
+txcl main ls
 ```
 Output:
 ```

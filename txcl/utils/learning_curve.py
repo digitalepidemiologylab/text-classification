@@ -1,6 +1,6 @@
 import os
 import json
-from . import ConfigReader
+from .config_reader import ConfigReader
 import pandas as pd
 import numpy as np
 from copy import deepcopy

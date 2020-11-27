@@ -6,6 +6,7 @@ Main pipeline helpers
 import os
 import sys
 import json
+import time
 import uuid
 import logging
 import itertools
@@ -22,18 +23,64 @@ from tqdm import tqdm
 import sklearn.model_selection
 import joblib
 
-from . import ConfigReader
+from .config_reader import ConfigReader
 from .misc import JSONEncoder, get_df_hash
 from .nested_dict import flatten_dict, set_nested_value
-
 from .config_manager import Mode
+# from ..models.fasttext import FastText
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def enable_local_loggers():
+    for name, logger in logging.root.manager.loggerDict.items():
+        if 'txcl' in name:
+            logger.disabled = False
+
+
+def get_model(model_name):
+    """Dynamically import model class and return model instance"""
+    if model_name == 'fasttext':
+        from ..models.fasttext import FastText
+        enable_local_loggers()
+        return FastText()
+    if model_name == 'fasttext_pretrain':
+        from ..models.fasttext_pretrain import FastTextPretrain
+        enable_local_loggers()
+        return FastTextPretrain()
+    if model_name == 'bag_of_words':
+        from ..models.bag_of_words import BagOfWordsModel
+        enable_local_loggers()
+        return BagOfWordsModel()
+    if model_name == 'bert':
+        from ..models.bertmodel import BERTModel
+        enable_local_loggers()
+        return BERTModel()
+    if model_name == 'openai_gpt2':
+        from ..models.openai_gpt2 import OpenAIGPT2
+        enable_local_loggers()
+        return OpenAIGPT2()
+    if model_name == 'dummy':
+        from ..models.dummy_models import DummyModel
+        enable_local_loggers()
+        return DummyModel()
+    if model_name == 'random':
+        from ..models.dummy_models import RandomModel
+        enable_local_loggers()
+        return RandomModel()
+    if model_name == 'weighted_random':
+        from ..models.dummy_models import WeightedRandomModel
+        enable_local_loggers()
+        return WeightedRandomModel()
+    else:
+        raise NotImplementedError("Model '{}' is unknown".format(model_name))
 
 
 def preprocess(run_config):
-    logger = logging.getLogger(__name__)
     try:
         set_label_mapping = __import__(
-            'txtcls.models.' + run_config.model.name,
+            'txcl.models.' + run_config.model.name,
             fromlist=['set_label_mapping']).set_label_mapping
         set_label_mapping(run_config.data.train,
                           run_config.data.test,
@@ -41,7 +88,7 @@ def preprocess(run_config):
     except AttributeError:
         logger.info("No 'set_label_mapping'")
     prepare_data = __import__(
-        'txtcls.models.' + run_config.model.name,
+        'txcl.models.' + run_config.model.name,
         fromlist=['prepare_data']).prepare_data
     for v in asdict(run_config.data).values():
         data_path = prepare_data(
@@ -49,26 +96,24 @@ def preprocess(run_config):
             asdict(run_config.preprocess))
         if isinstance(data_path, list):
             data_path = ', '.join(data_path)
-        logger.info(f'Prepared data from {v} to {data_path}')
+        logger.info(f"Prepared data from '{v}' to '{data_path}'")
 
 
 def train(run_config):
-    """Trains and evaluates"""
     model = get_model(run_config.model.name)
-    logger = logging.getLogger(__name__)
     if getattr(run_config.data, 'augment', None):
         logger.info('Augmenting training data')
         run_config = augment(run_config)
-    # train
-    logger.info('\n\nStart training model for `{}`'.format(run_config.name))
+    # Train
+    logger.info("\n\nStart training model for '%s'", run_config.name)
     if not run_config.test_only:
         model.train(run_config)
-    # test
-    logger.info("\n\nTest results for `{}`:\n".format(run_config.name))
+    # Test
+    logger.info("\n\nTest results for '{}':\n".format(run_config.name))
     output = '\n'
     result = model.test(run_config)
     if result is None:
-        logger.warning('No test results generated.')
+        logger.warning('No test results generated')
         return
     test_output = os.path.join(run_config.path.output, 'test_output.json')
     if run_config.write_test_output:
@@ -91,8 +136,9 @@ def train(run_config):
                     output += '{:<20}: {:.4f}\n'.format(
                         new_key, result[new_key])
     logger.info(output)
-    logger.info(f'Training for model `{run_config.name}` finished. '
-                f'Model output written to `{run_config.path.output}`')
+    logger.info("Training for model '%s' finished. "
+                "Model output written to '%s'",
+                run_config.name, run_config.path.output)
 
 
 def predict(run_config, path=None, data=None, output_cols=[],
@@ -116,14 +162,15 @@ def predict(run_config, path=None, data=None, output_cols=[],
                         yield text_chunk
         else:
             raise ValueError('Please provide the input file with a file '
-                             'extension of either `csv` or `txt`')
-    logger = logging.getLogger(__name__)
+                             "extension of either 'csv' or 'txt'")
+
+    logger.info(__name__)
     model = get_model(run_config.model.name)
     if data is None:
         # Reads from file
         if path is None:
             raise ValueError('Provide either a path or data argument')
-        logger.info(f'Reading data from {path}...')
+        logger.info(f"Reading data from '{path}'...")
         chunksize = 2**14
         input_data = read_input_data(path, chunksize=chunksize)
         with open(path, 'r') as f:
@@ -133,7 +180,7 @@ def predict(run_config, path=None, data=None, output_cols=[],
         input_data = [[data]]
         num_it = len(input_data)
         verbose = True
-        run_config.output_attentions = True
+        # run_config.output_attentions = True
     logger.info('Predicting...')
     if in_parallel:
         num_cpus = max(multiprocessing.cpu_count() - 1, 1)
@@ -168,7 +215,7 @@ def predict(run_config, path=None, data=None, output_cols=[],
                 'predicted_{}_{}_{}.{}'.format(
                     run_config.name,
                     datetime.now().strftime('%Y-%m-%d'), unique_id, fmt))
-            logger.info('Writing output file {}...'.format(output_file))
+            logger.info("Writing output to file '{}'...".format(output_file))
             if fmt == 'csv':
                 df = pd.DataFrame(output)
                 df['label'] = [l[0] for l in df.labels.values]
@@ -205,36 +252,6 @@ def pretrain(run_config):
             json.dump(result, f, cls=JSONEncoder, indent=4)
 
 
-def get_model(model_name):
-    """Dynamically import model class and return model instance"""
-    if model_name == 'fasttext':
-        from ..models.fasttext import FastText
-        return FastText()
-    if model_name == 'fasttext_pretrain':
-        from ..models.fasttext_pretrain import FastTextPretrain
-        return FastTextPretrain()
-    if model_name == 'bag_of_words':
-        from ..models.bag_of_words import BagOfWordsModel
-        return BagOfWordsModel()
-    if model_name == 'bert':
-        from ..models.bertmodel import BERTModel
-        return BERTModel()
-    if model_name == 'openai_gpt2':
-        from ..models.openai_gpt2 import OpenAIGPT2
-        return OpenAIGPT2()
-    if model_name == 'dummy':
-        from ..models.dummy_models import DummyModel
-        return DummyModel()
-    if model_name == 'random':
-        from ..models.dummy_models import RandomModel
-        return RandomModel()
-    if model_name == 'weighted_random':
-        from ..models.dummy_models import WeightedRandomModel
-        return WeightedRandomModel()
-    else:
-        raise NotImplementedError('Model `{}` is unknown'.format(model_name))
-
-
 def generate_config(name, model, params, global_params,
                     train_data=None, test_data=None):
     """Generates a grid search config"""
@@ -261,8 +278,6 @@ def generate_config(name, model, params, global_params,
                     f"The given parameter value of '{s}' could not "
                     "be converted into int, float or bool")
 
-    logger = logging.getLogger(__name__)
-
     config = {'globals': {'data': {}}}
 
     if train_data is None and test_data is None:
@@ -278,17 +293,19 @@ def generate_config(name, model, params, global_params,
     for param in global_params:
         split = param.split(':')
         if len(split) != 2:
-            raise ValueError(f'Param {param} has to be of format `key:value`')
+            raise ValueError(
+                f"Param '{param}' has to be of format 'key:value'")
         key, value = split
         keys = key.split('.')
-        set_nested_value(config['globals'], keys, _parse_value(value, allow_str=True))
+        set_nested_value(
+            config['globals'], keys, _parse_value(value, allow_str=True))
 
     gs_params = []
     for param in params:
         param_split = param.split(':')
         if len(param_split) != 3:
             raise ValueError(
-                f'Param {param} has to be of format `key:modifier:values`')
+                f"Param '{param}' has to be of format 'key:modifier:values'")
         key, modifier, values = param_split
         values = list(map(_parse_value, values.split(',')))
         if modifier == 'val':
@@ -298,7 +315,7 @@ def generate_config(name, model, params, global_params,
         elif modifier == 'log':
             gs_params.append({key: np.logspace(*values).tolist()})
         else:
-            raise ValueError('Modifier {} is not recognized.'.format(modifier))
+            raise ValueError("Modifier '{}' is not recognized.".format(modifier))
 
     runs = []
     params_lists = [list(i.values())[0] for i in gs_params]
@@ -321,7 +338,7 @@ def generate_config(name, model, params, global_params,
     f_name = 'config.{}.json'.format(name)
     with open(f_name, 'w') as f:
         json.dump(config, f, cls=JSONEncoder, indent=4)
-    logger.info(f'Successfully generated file `{f_name}` with {i + 1} runs')
+    logger.info(f"Successfully generated file '{f_name}' with {i + 1} runs")
 
 
 def train_test_split(name, test_size=0.2, label_tags=None,
@@ -332,7 +349,7 @@ def train_test_split(name, test_size=0.2, label_tags=None,
         test_size (float): Fraction of data which should be reserved
             for test data. Default: 0.2
         label_tags (bool): Only select examples with certain label tags
-        balanced_labels (bool): Ensure equal label balance. Default: ``False``
+        balanced_labels (bool): Ensure equal label balance. Default: ''False''
         seed (int): Random seed. Default: 42
     """
     def get_data(name):
@@ -351,7 +368,7 @@ def train_test_split(name, test_size=0.2, label_tags=None,
         return _df
 
     df = get_data(name)
-    logger = logging.getLogger(__name__)
+
     if balanced_labels:
         df = filter_for_label_balance(df)
     flags = '{}'.format('_balanced' if balanced_labels else '')
@@ -391,14 +408,15 @@ def augment(run_config):
 def generate_text(**config):
     # TODO: No function ConfigReader().get_default_config()
     # TODO: Do we still need this as a helper? Where to better put it?
-    model = get_model(config.get('model', 'openai_gpt2'))
-    config_reader = ConfigReader()
-    config = config_reader.get_default_config(base_config=config)
-    return model.generate_text(config.seed, config)
+    # model = get_model(config.get('model', 'openai_gpt2'))
+    # config_reader = ConfigReader()
+    # config = config_reader.get_default_config(base_config=config)
+    # return model.generate_text(config.seed, config)
+    pass
 
 
 def learning_curve(config_path):
-    from ..utils import LearningCurve
+    from .learning_curve import LearningCurve
     lc = LearningCurve(config_path)
     lc.init()
     configs = lc.generate_configs()
@@ -421,7 +439,7 @@ def get_label_mapping(run_path):
     label_mapping_path = os.path.join(run_path, 'label_mapping.pkl')
     if not os.path.isfile(label_mapping_path):
         raise FileNotFoundError(
-            f'Could not find label mapping file {label_mapping_path}')
+            f"Could not find label mapping file '{label_mapping_path}'")
     with open(label_mapping_path, 'rb') as f:
         label_mapping = joblib.load(f)
     return label_mapping
@@ -435,7 +453,7 @@ def augment_training_data(
 
 
 def optimize(config_path):
-    from ..utils import Optimize
+    from .utils.optimize import Optimize
     opt = Optimize(config_path)
     opt.init()
     opt.run()

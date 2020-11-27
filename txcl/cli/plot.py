@@ -4,10 +4,6 @@ import logging
 
 from ..utils import plot_helpers as helpers
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
 logger = logging.getLogger(__name__)
 
 

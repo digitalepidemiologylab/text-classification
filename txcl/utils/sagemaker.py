@@ -1,7 +1,7 @@
 import boto3
 import logging
-from . import Docker
-from . import ECR
+from .docker import Docker
+from .ecr import ECR
 import uuid
 
 logger = logging.getLogger(__name__)

@@ -12,7 +12,8 @@
             },
             "model": {
                 "name": "fasttext",
-                "params": {}
+                "params": {},
+                "save_model": true
             },
             "folders": "overwrite",
             "name": "train_fasttext_default"

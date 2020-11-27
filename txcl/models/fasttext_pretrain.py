@@ -170,7 +170,7 @@ def preprocess_data(data_path, preprocessing_config):
         logger.info('Standardizing data...')
         standardize_func = getattr(
             __import__(
-                'txtcls.utils.standardize',
+                'txcl.utils.standardize',
                 fromlist=[standardize_func_name]),
             standardize_func_name)
         df['text'] = df.text.swifter.apply(standardize_func)

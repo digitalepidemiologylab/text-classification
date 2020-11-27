@@ -15,8 +15,6 @@ import sklearn.metrics
 
 from ..utils.nested_dict import merge_dicts
 
-logger = logging.getLogger(__name__)
-
 
 def get_default_args(func):
     """Get default arguments of a function

@@ -21,12 +21,6 @@ import twiprocess as twp
 from .base_model import BaseModel, get_default_args
 from ..utils.config_manager import ConfigManager, Mode
 from ..utils.misc import JSONEncoder
-from ..utils.preprocess import (_asciify,
-                                _remove_punctuation,
-                                _asciify_emoji,
-                                _remove_emoji,
-                                _expand_contractions,
-                                _tokenize)
 
 tqdm.pandas()
 logger = logging.getLogger(__name__)
@@ -85,9 +79,6 @@ class FastText(BaseModel):
         self.setup(config.path.data, config.path.output, train=True)
 
         # Prepare data
-        # train_data_path = prepare_data(
-        #     config.data.train, config.path.output,
-        #     asdict(config.preprocess), getattr(config.model, 'label', '__label__'))
         train_data_path = config.data.train
 
         # Train model
@@ -154,8 +145,6 @@ class FastText(BaseModel):
         self.set_logging(config.path.output)
         self.setup(config.path.data, config.path.output)
         candidates = self.model.predict(data, k=len(self.label_mapping))
-        logger.info(self.train_config)
-        logger.info(getattr(self.train_config.model, 'label', '__label__'))
         predictions = [{
             'labels': [
                 label[len(getattr(
@@ -240,7 +229,6 @@ def preprocess_data(data_path, preprocessing_config):
                 'twiprocess.standardize',
                 fromlist=[standardize_func_name]),
             standardize_func_name)
-        logger.info(standardize_func)
         df['text'] = df.text.swifter.apply(standardize_func)
     if preprocessing_config != {}:
         logger.info('Preprocessing data...')

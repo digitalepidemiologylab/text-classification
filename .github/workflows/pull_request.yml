@@ -16,4 +16,5 @@ jobs:
         pip install . pytest
     - name: Test
       run: |
-        pytest test/test_*
+        cd test
+        pytest

@@ -24,7 +24,7 @@ class MixedFormatter(ArgumentDefaultsHelpFormatter, RawTextHelpFormatter):
 
 
 def entry_point():
-    entry_parser = ArgumentParser(prog='txtcls', formatter_class=MixedFormatter)
+    entry_parser = ArgumentParser(prog='txcl', formatter_class=MixedFormatter)
     subparsers = entry_parser.add_subparsers(help='sub-commands')
 
     main_parser = subparsers.add_parser(

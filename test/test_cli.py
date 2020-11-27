@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -5,7 +6,7 @@ import pytest
 
 def test_preprocess():
     exit_status = subprocess.call([
-        'txtcls', 'main', 'preprocess', '-c',
+        'txcl', 'main', 'preprocess', '-c',
         'configs/config.preprocess.twitter-hate-speech.json'
     ])
     assert exit_status == 0
@@ -13,7 +14,16 @@ def test_preprocess():
 
 def test_train():
     exit_status = subprocess.call([
-        'txtcls', 'main', 'train',
+        'txcl', 'main', 'train',
         '-c', 'configs/config.train.twitter-hate-speech.json'
     ])
     assert exit_status == 0
+
+
+# def test_predict():
+#     exit_status = subprocess.call([
+#         'txcl', 'main', 'predict',
+#         '-r', 'output/train_fasttext_default',
+#         '-d', '"I will not ever vaccinate my children"'
+#     ])
+#     assert exit_status == 0

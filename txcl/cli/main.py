@@ -11,10 +11,6 @@ from ..utils import helpers
 from ..utils import deploy_helpers
 from ..utils.list_runs import ListRuns
 
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)-5.5s] [%(name)-12.12s]: %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -108,7 +104,7 @@ def predict(parser):
         '-r', '--run-path', type=str, required=True,
         help='path to the model run')
     parser.add_argument(
-        '-p', '--data-path', type=str, default=None,
+        '-p', '--path', type=str, default=None,
         help='input path of data file for predictions')
     parser.add_argument(
         '-d', '--data', type=str, default=None,
@@ -143,7 +139,8 @@ def predict(parser):
 
     def _predict(args):
         config_manager = ConfigManager(os.path.join(
-            args.run_path, 'run_config.json'), Mode.PREDICT, create_dirs=True)
+            args.run_path, 'run_config.json'), Mode.PREDICT, create_dirs=False)
+        del args.run_path
         if len(config_manager.config) != 1:
             raise ValueError(
                 "For prediction, use config files with a single run")

@@ -3,7 +3,7 @@ import docker
 import logging
 from docker.errors import APIError, BuildError, ImageNotFound
 from ..definitions import ROOT_DIR
-from . import ECR
+from .ecr import ECR
 
 logger = logging.getLogger(__name__)
 

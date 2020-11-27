@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.utils &mdash; Text Classification  documentation</title>
+  <title>txcl.utils &mdash; Text Classification  documentation</title>
   
 
   
@@ -36,7 +36,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="txtcls.models" href="txtcls.models.html" /> 
+    <link rel="prev" title="txcl.models" href="txcl.models.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,10 +83,10 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">txtcls.utils</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-txtcls.utils">Class helpers</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-txtcls.utils.helpers">Functional helpers</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">txcl.utils</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-txcl.utils">Class helpers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-txcl.utils.helpers">Functional helpers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#main-pipeline-helpers">Main pipeline helpers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#preprocessing-helpers">Preprocessing helpers</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#transformers-helpers">Transformers helpers</a></li>
@@ -144,13 +144,13 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>txtcls.utils</li>
+      <li>txcl.utils</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/source/txtcls.utils.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/source/txcl.utils.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -163,15 +163,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="txtcls-utils">
-<h1><a class="toc-backref" href="#id1">txtcls.utils</a><a class="headerlink" href="#txtcls-utils" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="txcl-utils">
+<h1><a class="toc-backref" href="#id1">txcl.utils</a><a class="headerlink" href="#txcl-utils" title="Permalink to this headline">¶</a></h1>
 <div class="contents topic" id="table-of-contents">
 <p class="topic-title first">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#txtcls-utils" id="id1">txtcls.utils</a></p>
+<li><p><a class="reference internal" href="#txcl-utils" id="id1">txcl.utils</a></p>
 <ul>
-<li><p><a class="reference internal" href="#module-txtcls.utils" id="id2">Class helpers</a></p></li>
-<li><p><a class="reference internal" href="#module-txtcls.utils.helpers" id="id3">Functional helpers</a></p>
+<li><p><a class="reference internal" href="#module-txcl.utils" id="id2">Class helpers</a></p></li>
+<li><p><a class="reference internal" href="#module-txcl.utils.helpers" id="id3">Functional helpers</a></p>
 <ul>
 <li><p><a class="reference internal" href="#main-pipeline-helpers" id="id4">Main pipeline helpers</a></p></li>
 <li><p><a class="reference internal" href="#preprocessing-helpers" id="id5">Preprocessing helpers</a></p></li>
@@ -186,391 +186,391 @@
 </li>
 </ul>
 </div>
-<div class="section" id="module-txtcls.utils">
-<span id="class-helpers"></span><h2><a class="toc-backref" href="#id2">Class helpers</a><a class="headerlink" href="#module-txtcls.utils" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-txcl.utils">
+<span id="class-helpers"></span><h2><a class="toc-backref" href="#id2">Class helpers</a><a class="headerlink" href="#module-txcl.utils" title="Permalink to this headline">¶</a></h2>
 <dl class="py class">
-<dt id="txtcls.utils.ConfigReader">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">ConfigReader</code><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">ConfigReader</code><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.ConfigReader.parse_config">
-<code class="sig-name descname">parse_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em>, <em class="sig-param"><span class="n">predict_mode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.parse_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.parse_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.parse_config">
+<code class="sig-name descname">parse_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em>, <em class="sig-param"><span class="n">predict_mode</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.parse_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.parse_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>collect configuration options from config file
 :param json_file:
 :return: config(namespace) or config(dictionary)</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ConfigReader.parse_from_dict">
-<code class="sig-name descname">parse_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.parse_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.parse_from_dict" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.parse_from_dict">
+<code class="sig-name descname">parse_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.parse_from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.parse_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ConfigReader.parse_fine_tune_config">
-<code class="sig-name descname">parse_fine_tune_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.parse_fine_tune_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.parse_fine_tune_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.parse_fine_tune_config">
+<code class="sig-name descname">parse_fine_tune_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.parse_fine_tune_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.parse_fine_tune_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ConfigReader.get_default_config">
-<code class="sig-name descname">get_default_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_config</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.get_default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.get_default_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.get_default_config">
+<code class="sig-name descname">get_default_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">base_config</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.get_default_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.get_default_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ConfigReader.list_configs">
-<code class="sig-name descname">list_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.list_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.list_configs" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.list_configs">
+<code class="sig-name descname">list_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.list_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.list_configs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ConfigReader.print_configs">
-<code class="sig-name descname">print_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">names_only</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/config_reader.html#ConfigReader.print_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ConfigReader.print_configs" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ConfigReader.print_configs">
+<code class="sig-name descname">print_configs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">pattern</span></em>, <em class="sig-param"><span class="n">model</span></em>, <em class="sig-param"><span class="n">names_only</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/config_reader.html#ConfigReader.print_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ConfigReader.print_configs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.Docker">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">Docker</code><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">Docker</code><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.Docker.client">
-<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txtcls.utils.Docker.client" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txcl.utils.Docker.client" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.api_client">
-<em class="property">property </em><code class="sig-name descname">api_client</code><a class="headerlink" href="#txtcls.utils.Docker.api_client" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.api_client">
+<em class="property">property </em><code class="sig-name descname">api_client</code><a class="headerlink" href="#txcl.utils.Docker.api_client" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.get_image">
-<code class="sig-name descname">get_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.get_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.get_image" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.get_image">
+<code class="sig-name descname">get_image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.get_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.get_image" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.build">
-<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">docker_path</span></em>, <em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.build" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.build">
+<code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">docker_path</span></em>, <em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.build" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.run" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serves model locally</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.list_tags">
-<code class="sig-name descname">list_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.list_tags" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.list_tags">
+<code class="sig-name descname">list_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.list_tags"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.list_tags" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.image_exists">
-<code class="sig-name descname">image_exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.image_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.image_exists" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.image_exists">
+<code class="sig-name descname">image_exists</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.image_exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.image_exists" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.get_ecr_auth_config">
-<code class="sig-name descname">get_ecr_auth_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.get_ecr_auth_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.get_ecr_auth_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.get_ecr_auth_config">
+<code class="sig-name descname">get_ecr_auth_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.get_ecr_auth_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.get_ecr_auth_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Docker.push">
-<code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/docker.html#Docker.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Docker.push" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Docker.push">
+<code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/docker.html#Docker.push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Docker.push" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.ECR">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">ECR</code><a class="reference internal" href="../_modules/txtcls/utils/ecr.html#ECR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ECR" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">ECR</code><a class="reference internal" href="../_modules/txcl/utils/ecr.html#ECR"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ECR" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.ECR.sess">
-<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#txtcls.utils.ECR.sess" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.sess">
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#txcl.utils.ECR.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.region">
-<em class="property">property </em><code class="sig-name descname">region</code><a class="headerlink" href="#txtcls.utils.ECR.region" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.region">
+<em class="property">property </em><code class="sig-name descname">region</code><a class="headerlink" href="#txcl.utils.ECR.region" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.client">
-<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txtcls.utils.ECR.client" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txcl.utils.ECR.client" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.account">
-<em class="property">property </em><code class="sig-name descname">account</code><a class="headerlink" href="#txtcls.utils.ECR.account" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.account">
+<em class="property">property </em><code class="sig-name descname">account</code><a class="headerlink" href="#txcl.utils.ECR.account" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.registry_url">
-<em class="property">property </em><code class="sig-name descname">registry_url</code><a class="headerlink" href="#txtcls.utils.ECR.registry_url" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.registry_url">
+<em class="property">property </em><code class="sig-name descname">registry_url</code><a class="headerlink" href="#txcl.utils.ECR.registry_url" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.get_auth_token">
-<code class="sig-name descname">get_auth_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/ecr.html#ECR.get_auth_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ECR.get_auth_token" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.get_auth_token">
+<code class="sig-name descname">get_auth_token</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/ecr.html#ECR.get_auth_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ECR.get_auth_token" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.list_repositories">
-<code class="sig-name descname">list_repositories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/ecr.html#ECR.list_repositories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ECR.list_repositories" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.list_repositories">
+<code class="sig-name descname">list_repositories</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/ecr.html#ECR.list_repositories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ECR.list_repositories" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.create_repository">
-<code class="sig-name descname">create_repository</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/ecr.html#ECR.create_repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ECR.create_repository" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.create_repository">
+<code class="sig-name descname">create_repository</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/ecr.html#ECR.create_repository"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ECR.create_repository" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ECR.get_ecr_image_name">
-<code class="sig-name descname">get_ecr_image_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/ecr.html#ECR.get_ecr_image_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ECR.get_ecr_image_name" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ECR.get_ecr_image_name">
+<code class="sig-name descname">get_ecr_image_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/ecr.html#ECR.get_ecr_image_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ECR.get_ecr_image_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.LearningCurve">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">LearningCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">LearningCurve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.LearningCurve.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve.init" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve.init" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.LearningCurve.get_unique_labels">
-<code class="sig-name descname">get_unique_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve.get_unique_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve.get_unique_labels" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve.get_unique_labels">
+<code class="sig-name descname">get_unique_labels</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve.get_unique_labels"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve.get_unique_labels" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.LearningCurve.generate_configs">
-<code class="sig-name descname">generate_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve.generate_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve.generate_configs" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve.generate_configs">
+<code class="sig-name descname">generate_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve.generate_configs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve.generate_configs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.LearningCurve.get_augmented_data">
-<code class="sig-name descname">get_augmented_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve.get_augmented_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve.get_augmented_data" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve.get_augmented_data">
+<code class="sig-name descname">get_augmented_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve.get_augmented_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve.get_augmented_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.LearningCurve.verify_config">
-<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/learning_curve.html#LearningCurve.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.LearningCurve.verify_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.LearningCurve.verify_config">
+<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/learning_curve.html#LearningCurve.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.LearningCurve.verify_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.ListRuns">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">ListRuns</code><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">ListRuns</code><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.ListRuns.collect_results">
-<em class="property">static </em><code class="sig-name descname">collect_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns.collect_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns.collect_results" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns.collect_results">
+<em class="property">static </em><code class="sig-name descname">collect_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span><span class="o">=</span><span class="default_value">'*'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns.collect_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns.collect_results" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compiles run hyperparameters/performance scores into single pandas DataFrame</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ListRuns.list_runs">
-<code class="sig-name descname">list_runs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metrics</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">averaging</span><span class="o">=</span><span class="default_value">'macro'</span></em>, <em class="sig-param"><span class="n">names_only</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">top</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">all_params</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns.list_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns.list_runs" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns.list_runs">
+<code class="sig-name descname">list_runs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">params</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">metrics</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">averaging</span><span class="o">=</span><span class="default_value">'macro'</span></em>, <em class="sig-param"><span class="n">names_only</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">top</span><span class="o">=</span><span class="default_value">40</span></em>, <em class="sig-param"><span class="n">all_params</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns.list_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns.list_runs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ListRuns.load_data">
-<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns.load_data" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns.load_data">
+<code class="sig-name descname">load_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">run_pattern</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">filename_pattern</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns.load_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns.load_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ListRuns.format_cols">
-<code class="sig-name descname">format_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns.format_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns.format_cols" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns.format_cols">
+<code class="sig-name descname">format_cols</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns.format_cols"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns.format_cols" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.ListRuns.add_key_value">
-<code class="sig-name descname">add_key_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">filler</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/list_runs.html#ListRuns.add_key_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.ListRuns.add_key_value" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.ListRuns.add_key_value">
+<code class="sig-name descname">add_key_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">value</span></em>, <em class="sig-param"><span class="n">fmt</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">width</span><span class="o">=</span><span class="default_value">12</span></em>, <em class="sig-param"><span class="n">filler</span><span class="o">=</span><span class="default_value">0</span></em>, <em class="sig-param"><span class="n">unit</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/list_runs.html#ListRuns.add_key_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.ListRuns.add_key_value" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.Optimize">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">Optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">Optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.Optimize.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.init" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.init">
+<code class="sig-name descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.init" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.parse_optimize_space">
-<code class="sig-name descname">parse_optimize_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimize_space</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.parse_optimize_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.parse_optimize_space" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.parse_optimize_space">
+<code class="sig-name descname">parse_optimize_space</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimize_space</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.parse_optimize_space"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.parse_optimize_space" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.run">
-<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.run" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.run" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.objective">
-<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'f1_macro'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.objective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.objective" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.objective">
+<code class="sig-name descname">objective</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">metric</span><span class="o">=</span><span class="default_value">'f1_macro'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.objective"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.objective" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.dump_results">
-<code class="sig-name descname">dump_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unique_id</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.dump_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.dump_results" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.dump_results">
+<code class="sig-name descname">dump_results</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">unique_id</span></em>, <em class="sig-param"><span class="o">*</span><span class="n">args</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.dump_results"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.dump_results" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.update_config">
-<code class="sig-name descname">update_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">unique_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.update_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.update_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.update_config">
+<code class="sig-name descname">update_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">unique_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.update_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.update_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.get_model">
-<code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.get_model" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.get_model">
+<code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.get_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dynamically import model module and return model instance</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Optimize.verify_config">
-<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/optimize.html#Optimize.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Optimize.verify_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Optimize.verify_config">
+<code class="sig-name descname">verify_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/optimize.html#Optimize.verify_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Optimize.verify_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.S3">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">S3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/s3.html#S3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.S3" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">S3</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bucket_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/s3.html#S3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.S3" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.S3.client">
-<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txtcls.utils.S3.client" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txcl.utils.S3.client" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.S3.upload_model">
-<code class="sig-name descname">upload_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">model_type</span><span class="o">=</span><span class="default_value">'fasttext'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/s3.html#S3.upload_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.S3.upload_model" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3.upload_model">
+<code class="sig-name descname">upload_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">image_name</span></em>, <em class="sig-param"><span class="n">model_type</span><span class="o">=</span><span class="default_value">'fasttext'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/s3.html#S3.upload_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.S3.upload_model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.S3.get_model_s3_key">
-<code class="sig-name descname">get_model_s3_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/s3.html#S3.get_model_s3_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.S3.get_model_s3_key" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3.get_model_s3_key">
+<code class="sig-name descname">get_model_s3_key</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/s3.html#S3.get_model_s3_key"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.S3.get_model_s3_key" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.S3.get_model_s3_path">
-<code class="sig-name descname">get_model_s3_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/s3.html#S3.get_model_s3_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.S3.get_model_s3_path" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3.get_model_s3_path">
+<code class="sig-name descname">get_model_s3_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/s3.html#S3.get_model_s3_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.S3.get_model_s3_path" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.S3.make_tar">
-<code class="sig-name descname">make_tar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_files</span></em>, <em class="sig-param"><span class="n">output_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/s3.html#S3.make_tar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.S3.make_tar" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.S3.make_tar">
+<code class="sig-name descname">make_tar</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_files</span></em>, <em class="sig-param"><span class="n">output_file</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/s3.html#S3.make_tar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.S3.make_tar" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.Sagemaker">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">Sagemaker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">role_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/sagemaker.html#Sagemaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Sagemaker" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">Sagemaker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">role_name</span><span class="o">=</span><span class="default_value">'crowdbreaks-sagemaker'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/sagemaker.html#Sagemaker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Sagemaker" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.Sagemaker.sess">
-<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#txtcls.utils.Sagemaker.sess" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.sess">
+<em class="property">property </em><code class="sig-name descname">sess</code><a class="headerlink" href="#txcl.utils.Sagemaker.sess" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.account">
-<em class="property">property </em><code class="sig-name descname">account</code><a class="headerlink" href="#txtcls.utils.Sagemaker.account" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.account">
+<em class="property">property </em><code class="sig-name descname">account</code><a class="headerlink" href="#txcl.utils.Sagemaker.account" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.role">
-<em class="property">property </em><code class="sig-name descname">role</code><a class="headerlink" href="#txtcls.utils.Sagemaker.role" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.role">
+<em class="property">property </em><code class="sig-name descname">role</code><a class="headerlink" href="#txcl.utils.Sagemaker.role" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.client">
-<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txtcls.utils.Sagemaker.client" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.client">
+<em class="property">property </em><code class="sig-name descname">client</code><a class="headerlink" href="#txcl.utils.Sagemaker.client" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.create_model">
-<code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/sagemaker.html#Sagemaker.create_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Sagemaker.create_model" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.create_model">
+<code class="sig-name descname">create_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/sagemaker.html#Sagemaker.create_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Sagemaker.create_model" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.create_endpoint_configuration">
-<code class="sig-name descname">create_endpoint_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/sagemaker.html#Sagemaker.create_endpoint_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Sagemaker.create_endpoint_configuration" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.create_endpoint_configuration">
+<code class="sig-name descname">create_endpoint_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/sagemaker.html#Sagemaker.create_endpoint_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Sagemaker.create_endpoint_configuration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Sagemaker.create_model_and_configuration">
-<code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">instance_type</span><span class="o">=</span><span class="default_value">'ml.t2.medium'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/sagemaker.html#Sagemaker.create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Sagemaker.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Sagemaker.create_model_and_configuration">
+<code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ecr_image_name</span></em>, <em class="sig-param"><span class="n">s3_model_key</span></em>, <em class="sig-param"><span class="n">tags</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">instance_type</span><span class="o">=</span><span class="default_value">'ml.t2.medium'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/sagemaker.html#Sagemaker.create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Sagemaker.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.Viz">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.</code><code class="sig-name descname">Viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env_name</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">disabled</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/viz.html#Viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Viz" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Viz">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.</code><code class="sig-name descname">Viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">env_name</span></em>, <em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">disabled</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/viz.html#Viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Viz" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.Viz.disable">
-<code class="sig-name descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/viz.html#Viz.disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Viz.disable" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Viz.disable">
+<code class="sig-name descname">disable</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/viz.html#Viz.disable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Viz.disable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Viz.socket_is_used">
-<code class="sig-name descname">socket_is_used</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">hostname</span><span class="o">=</span><span class="default_value">'localhost'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/viz.html#Viz.socket_is_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Viz.socket_is_used" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Viz.socket_is_used">
+<code class="sig-name descname">socket_is_used</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">port</span><span class="o">=</span><span class="default_value">8097</span></em>, <em class="sig-param"><span class="n">hostname</span><span class="o">=</span><span class="default_value">'localhost'</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/viz.html#Viz.socket_is_used"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Viz.socket_is_used" title="Permalink to this definition">¶</a></dt>
 <dd><p>Small hack to check whether vizdom server is running</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Viz.add_viz">
-<code class="sig-name descname">add_viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">xlabel</span></em>, <em class="sig-param"><span class="n">ylabel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/viz.html#Viz.add_viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Viz.add_viz" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Viz.add_viz">
+<code class="sig-name descname">add_viz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">xlabel</span></em>, <em class="sig-param"><span class="n">ylabel</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/viz.html#Viz.add_viz"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Viz.add_viz" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="txtcls.utils.Viz.update_line">
-<code class="sig-name descname">update_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/viz.html#Viz.update_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.Viz.update_line" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.Viz.update_line">
+<code class="sig-name descname">update_line</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">x</span></em>, <em class="sig-param"><span class="n">y</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/viz.html#Viz.update_line"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.Viz.update_line" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="module-txtcls.utils.helpers">
-<span id="functional-helpers"></span><h2><a class="toc-backref" href="#id3">Functional helpers</a><a class="headerlink" href="#module-txtcls.utils.helpers" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="module-txcl.utils.helpers">
+<span id="functional-helpers"></span><h2><a class="toc-backref" href="#id3">Functional helpers</a><a class="headerlink" href="#module-txcl.utils.helpers" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="main-pipeline-helpers">
 <h3><a class="toc-backref" href="#id4">Main pipeline helpers</a><a class="headerlink" href="#main-pipeline-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.helpers.train">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.train" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.train">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">train</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train and evaluate</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.predict">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_name</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_cols</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">output_folder</span><span class="o">=</span><span class="default_value">'predictions'</span></em>, <em class="sig-param"><span class="n">col</span><span class="o">=</span><span class="default_value">'text'</span></em>, <em class="sig-param"><span class="n">no_file_output</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">in_parallel</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_formats</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.predict" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.predict">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_name</span></em>, <em class="sig-param"><span class="n">path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">output_cols</span><span class="o">=</span><span class="default_value">[]</span></em>, <em class="sig-param"><span class="n">output_folder</span><span class="o">=</span><span class="default_value">'predictions'</span></em>, <em class="sig-param"><span class="n">col</span><span class="o">=</span><span class="default_value">'text'</span></em>, <em class="sig-param"><span class="n">no_file_output</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">in_parallel</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">output_formats</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.predict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.pretrain">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">pretrain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#pretrain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.pretrain" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.pretrain">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">pretrain</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#pretrain"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.pretrain" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.finetune">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">finetune</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#finetune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.finetune" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.finetune">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">finetune</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#finetune"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.finetune" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.get_model">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.get_model" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.get_model">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">get_model</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">model_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#get_model"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.get_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Dynamically import model module and return model instance</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.generate_config">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">generate_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">train_data</span></em>, <em class="sig-param"><span class="n">test_data</span></em>, <em class="sig-param"><span class="n">models</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">global_params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#generate_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.generate_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.generate_config">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">generate_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">train_data</span></em>, <em class="sig-param"><span class="n">test_data</span></em>, <em class="sig-param"><span class="n">models</span></em>, <em class="sig-param"><span class="n">params</span></em>, <em class="sig-param"><span class="n">global_params</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#generate_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.generate_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates a grid search config</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.train_test_split">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">train_test_split</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">test_size</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">label_tags</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">balanced_labels</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">42</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#train_test_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.train_test_split" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.train_test_split">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">train_test_split</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">test_size</span><span class="o">=</span><span class="default_value">0.2</span></em>, <em class="sig-param"><span class="n">label_tags</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">balanced_labels</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">seed</span><span class="o">=</span><span class="default_value">42</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#train_test_split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.train_test_split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Splits cleaned labelled data into training and test set
 :param test_size: Fraction of data which should be reserved for test data, default: 0.2
 :param label_tags: Only select examples with certain label tags
@@ -579,51 +579,51 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.augment">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">augment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#augment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.augment" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.augment">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">augment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#augment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.augment" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.generate_text">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">generate_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#generate_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.generate_text" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.generate_text">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">generate_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#generate_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.generate_text" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.learning_curve">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">learning_curve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.learning_curve" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.learning_curve">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">learning_curve</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#learning_curve"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.learning_curve" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.find_project_root">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">find_project_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_par_dirs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#find_project_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.find_project_root" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.find_project_root">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">find_project_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_par_dirs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#find_project_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.find_project_root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.find_git_root">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">find_git_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_par_dirs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#find_git_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.find_git_root" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.find_git_root">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">find_git_root</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">num_par_dirs</span><span class="o">=</span><span class="default_value">8</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#find_git_root"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.find_git_root" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.get_label_mapping">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">get_label_mapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#get_label_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.get_label_mapping" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.get_label_mapping">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">get_label_mapping</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#get_label_mapping"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.get_label_mapping" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.augment_training_data">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">augment_training_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">min_tokens</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">repeats</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">n_sentences_after_seed</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">'training_data'</span></em>, <em class="sig-param"><span class="n">should_contain_keyword</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#augment_training_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.augment_training_data" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.augment_training_data">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">augment_training_data</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">n</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">min_tokens</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">repeats</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">n_sentences_after_seed</span><span class="o">=</span><span class="default_value">8</span></em>, <em class="sig-param"><span class="n">source</span><span class="o">=</span><span class="default_value">'training_data'</span></em>, <em class="sig-param"><span class="n">should_contain_keyword</span><span class="o">=</span><span class="default_value">''</span></em>, <em class="sig-param"><span class="n">verbose</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#augment_training_data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.augment_training_data" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.helpers.optimize">
-<code class="sig-prename descclassname">txtcls.utils.helpers.</code><code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/helpers.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.helpers.optimize" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.helpers.optimize">
+<code class="sig-prename descclassname">txcl.utils.helpers.</code><code class="sig-name descname">optimize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/helpers.html#optimize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.helpers.optimize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.preprocess"></span><div class="section" id="preprocessing-helpers">
+<span class="target" id="module-txcl.utils.preprocess"></span><div class="section" id="preprocessing-helpers">
 <h3><a class="toc-backref" href="#id5">Preprocessing helpers</a><a class="headerlink" href="#preprocessing-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.preprocess">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.preprocess" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.preprocess">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">preprocess</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em>, <em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#preprocess"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.preprocess" title="Permalink to this definition">¶</a></dt>
 <dd><p>Main function for text preprocessing/standardization.</p>
 <p>Supported config:
 - min_num_tokens: Minimum number of tokens
@@ -641,156 +641,156 @@
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.get_preprocessing_config">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">get_preprocessing_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#get_preprocessing_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.get_preprocessing_config" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.get_preprocessing_config">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">get_preprocessing_config</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span><span class="o">=</span><span class="default_value">{}</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#get_preprocessing_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.get_preprocessing_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates config file to be used with preprocess() functions and gives default for keys not present in provided config.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.remove_control_characters">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">remove_control_characters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#remove_control_characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.remove_control_characters" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.remove_control_characters">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">remove_control_characters</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">s</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#remove_control_characters"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.remove_control_characters" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.expand_contractions">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">expand_contractions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#expand_contractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.expand_contractions" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.expand_contractions">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">expand_contractions</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#expand_contractions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.expand_contractions" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.asciify">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">asciify</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#asciify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.asciify" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.asciify">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">asciify</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#asciify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.asciify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Asciify all unicode characters</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.standardize_punctuation">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">standardize_punctuation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#standardize_punctuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.standardize_punctuation" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.standardize_punctuation">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">standardize_punctuation</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#standardize_punctuation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.standardize_punctuation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.remove_emojis">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">remove_emojis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#remove_emojis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.remove_emojis" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.remove_emojis">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">remove_emojis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#remove_emojis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.remove_emojis" title="Permalink to this definition">¶</a></dt>
 <dd><p>remove all characters of symbol unicode class</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.asciify_emojis">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">asciify_emojis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#asciify_emojis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.asciify_emojis" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.asciify_emojis">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">asciify_emojis</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#asciify_emojis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.asciify_emojis" title="Permalink to this definition">¶</a></dt>
 <dd><p>remove all characters of symbol unicode class</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.preprocess.tokenize">
-<code class="sig-prename descclassname">txtcls.utils.preprocess.</code><code class="sig-name descname">tokenize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/preprocess.html#tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.preprocess.tokenize" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.preprocess.tokenize">
+<code class="sig-prename descclassname">txcl.utils.preprocess.</code><code class="sig-name descname">tokenize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/preprocess.html#tokenize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.preprocess.tokenize" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.transformers_helpers"></span><div class="section" id="transformers-helpers">
+<span class="target" id="module-txcl.utils.transformers_helpers"></span><div class="section" id="transformers-helpers">
 <h3><a class="toc-backref" href="#id6">Transformers helpers</a><a class="headerlink" href="#transformers-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.transformers_helpers.rotate_checkpoints">
-<code class="sig-prename descclassname">txtcls.utils.transformers_helpers.</code><code class="sig-name descname">rotate_checkpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_dir</span></em>, <em class="sig-param"><span class="n">checkpoint_prefix</span><span class="o">=</span><span class="default_value">'checkpoint'</span></em>, <em class="sig-param"><span class="n">use_mtime</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">save_total_limit</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/transformers_helpers.html#rotate_checkpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.transformers_helpers.rotate_checkpoints" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.transformers_helpers.rotate_checkpoints">
+<code class="sig-prename descclassname">txcl.utils.transformers_helpers.</code><code class="sig-name descname">rotate_checkpoints</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">output_dir</span></em>, <em class="sig-param"><span class="n">checkpoint_prefix</span><span class="o">=</span><span class="default_value">'checkpoint'</span></em>, <em class="sig-param"><span class="n">use_mtime</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">save_total_limit</span><span class="o">=</span><span class="default_value">3</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/transformers_helpers.html#rotate_checkpoints"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.transformers_helpers.rotate_checkpoints" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.transformers_helpers.mask_tokens">
-<code class="sig-prename descclassname">txtcls.utils.transformers_helpers.</code><code class="sig-name descname">mask_tokens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">mlm_probability</span><span class="o">=</span><span class="default_value">0.15</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/transformers_helpers.html#mask_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.transformers_helpers.mask_tokens" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.transformers_helpers.mask_tokens">
+<code class="sig-prename descclassname">txcl.utils.transformers_helpers.</code><code class="sig-name descname">mask_tokens</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">inputs</span></em>, <em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">mlm_probability</span><span class="o">=</span><span class="default_value">0.15</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/transformers_helpers.html#mask_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.transformers_helpers.mask_tokens" title="Permalink to this definition">¶</a></dt>
 <dd><p>Prepare masked tokens inputs/labels for masked language modeling: 80% MASK, 10% random, 10% original.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.transformers_helpers.set_seed">
-<code class="sig-prename descclassname">txtcls.utils.transformers_helpers.</code><code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span></em>, <em class="sig-param"><span class="n">no_cuda</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/transformers_helpers.html#set_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.transformers_helpers.set_seed" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.transformers_helpers.set_seed">
+<code class="sig-prename descclassname">txcl.utils.transformers_helpers.</code><code class="sig-name descname">set_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span></em>, <em class="sig-param"><span class="n">no_cuda</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/transformers_helpers.html#set_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.transformers_helpers.set_seed" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.transformers_helpers.download_vocab_files_for_tokenizer">
-<code class="sig-prename descclassname">txtcls.utils.transformers_helpers.</code><code class="sig-name descname">download_vocab_files_for_tokenizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/transformers_helpers.html#download_vocab_files_for_tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.transformers_helpers.download_vocab_files_for_tokenizer" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.transformers_helpers.download_vocab_files_for_tokenizer">
+<code class="sig-prename descclassname">txcl.utils.transformers_helpers.</code><code class="sig-name descname">download_vocab_files_for_tokenizer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">tokenizer</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">output_path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/transformers_helpers.html#download_vocab_files_for_tokenizer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.transformers_helpers.download_vocab_files_for_tokenizer" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.deploy_helpers"></span><div class="section" id="deployment-helpers">
+<span class="target" id="module-txcl.utils.deploy_helpers"></span><div class="section" id="deployment-helpers">
 <h3><a class="toc-backref" href="#id7">Deployment helpers</a><a class="headerlink" href="#deployment-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.build">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.build" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.build">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">build</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#build"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.build" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.push">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.push" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.push">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.push" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.build_and_push">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">build_and_push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#build_and_push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.build_and_push" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.build_and_push">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">build_and_push</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#build_and_push"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.build_and_push" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.run_local">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">run_local</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#run_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.run_local" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.run_local">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">run_local</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">model_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#run_local"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.run_local" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.create_model_and_configuration">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.create_model_and_configuration">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">create_model_and_configuration</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#create_model_and_configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.create_model_and_configuration" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.deploy">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">deploy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.deploy" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.deploy">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">deploy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em>, <em class="sig-param"><span class="n">question_tag</span></em>, <em class="sig-param"><span class="n">model_type</span></em>, <em class="sig-param"><span class="n">instance_type</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#deploy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.deploy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.deploy_helpers.get_image_name">
-<code class="sig-prename descclassname">txtcls.utils.deploy_helpers.</code><code class="sig-name descname">get_image_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/deploy_helpers.html#get_image_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.deploy_helpers.get_image_name" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.deploy_helpers.get_image_name">
+<code class="sig-prename descclassname">txcl.utils.deploy_helpers.</code><code class="sig-name descname">get_image_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">project</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/deploy_helpers.html#get_image_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.deploy_helpers.get_image_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.plot_helpers"></span><div class="section" id="plotting-helpers">
+<span class="target" id="module-txcl.utils.plot_helpers"></span><div class="section" id="plotting-helpers">
 <h3><a class="toc-backref" href="#id8">Plotting helpers</a><a class="headerlink" href="#plotting-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.plot_helpers.plot_confusion_matrix">
-<code class="sig-prename descclassname">txtcls.utils.plot_helpers.</code><code class="sig-name descname">plot_confusion_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">log_scale</span></em>, <em class="sig-param"><span class="n">normalize</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/plot_helpers.html#plot_confusion_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.plot_helpers.plot_confusion_matrix" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.plot_helpers.plot_confusion_matrix">
+<code class="sig-prename descclassname">txcl.utils.plot_helpers.</code><code class="sig-name descname">plot_confusion_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">log_scale</span></em>, <em class="sig-param"><span class="n">normalize</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/plot_helpers.html#plot_confusion_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.plot_helpers.plot_confusion_matrix" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.plot_helpers.plot_compare_runs">
-<code class="sig-prename descclassname">txtcls.utils.plot_helpers.</code><code class="sig-name descname">plot_compare_runs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runs</span></em>, <em class="sig-param"><span class="n">performance_scores</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/plot_helpers.html#plot_compare_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.plot_helpers.plot_compare_runs" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.plot_helpers.plot_compare_runs">
+<code class="sig-prename descclassname">txcl.utils.plot_helpers.</code><code class="sig-name descname">plot_compare_runs</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runs</span></em>, <em class="sig-param"><span class="n">performance_scores</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/plot_helpers.html#plot_compare_runs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.plot_helpers.plot_compare_runs" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.plot_helpers.plot_label_distribution">
-<code class="sig-prename descclassname">txtcls.utils.plot_helpers.</code><code class="sig-name descname">plot_label_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'test'</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">'category'</span></em>, <em class="sig-param"><span class="n">merged</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/plot_helpers.html#plot_label_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.plot_helpers.plot_label_distribution" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.plot_helpers.plot_label_distribution">
+<code class="sig-prename descclassname">txcl.utils.plot_helpers.</code><code class="sig-name descname">plot_label_distribution</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data_path</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">'test'</span></em>, <em class="sig-param"><span class="n">label</span><span class="o">=</span><span class="default_value">'category'</span></em>, <em class="sig-param"><span class="n">merged</span><span class="o">=</span><span class="default_value">True</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/plot_helpers.html#plot_label_distribution"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.plot_helpers.plot_label_distribution" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.plot_helpers.save_fig">
-<code class="sig-prename descclassname">txtcls.utils.plot_helpers.</code><code class="sig-name descname">save_fig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fig</span></em>, <em class="sig-param"><span class="n">fig_type</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">plot_formats</span><span class="o">=</span><span class="default_value">['png']</span></em>, <em class="sig-param"><span class="n">dpi</span><span class="o">=</span><span class="default_value">300</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/plot_helpers.html#save_fig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.plot_helpers.save_fig" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.plot_helpers.save_fig">
+<code class="sig-prename descclassname">txcl.utils.plot_helpers.</code><code class="sig-name descname">save_fig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">fig</span></em>, <em class="sig-param"><span class="n">fig_type</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">plot_formats</span><span class="o">=</span><span class="default_value">['png']</span></em>, <em class="sig-param"><span class="n">dpi</span><span class="o">=</span><span class="default_value">300</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/plot_helpers.html#save_fig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.plot_helpers.save_fig" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.print_helpers"></span><div class="section" id="printing-helpers">
+<span class="target" id="module-txcl.utils.print_helpers"></span><div class="section" id="printing-helpers">
 <h3><a class="toc-backref" href="#id9">Printing helpers</a><a class="headerlink" href="#printing-helpers" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.print_helpers.print_misclassifications">
-<code class="sig-prename descclassname">txtcls.utils.print_helpers.</code><code class="sig-name descname">print_misclassifications</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">num_samples</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/print_helpers.html#print_misclassifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.print_helpers.print_misclassifications" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.print_helpers.print_misclassifications">
+<code class="sig-prename descclassname">txcl.utils.print_helpers.</code><code class="sig-name descname">print_misclassifications</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">run</span></em>, <em class="sig-param"><span class="n">num_samples</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/print_helpers.html#print_misclassifications"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.print_helpers.print_misclassifications" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
-<span class="target" id="module-txtcls.utils.misc"></span><div class="section" id="miscellaneous">
+<span class="target" id="module-txcl.utils.misc"></span><div class="section" id="miscellaneous">
 <h3><a class="toc-backref" href="#id10">Miscellaneous</a><a class="headerlink" href="#miscellaneous" title="Permalink to this headline">¶</a></h3>
 <dl class="py function">
-<dt id="txtcls.utils.misc.suppress_stdout">
-<code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">suppress_stdout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#suppress_stdout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.suppress_stdout" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.suppress_stdout">
+<code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">suppress_stdout</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#suppress_stdout"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.suppress_stdout" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt id="txtcls.utils.misc.JSONEncoder">
-<em class="property">class </em><code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">JSONEncoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">skipkeys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ensure_ascii</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">check_circular</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_nan</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#JSONEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.JSONEncoder" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.JSONEncoder">
+<em class="property">class </em><code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">JSONEncoder</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">skipkeys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">ensure_ascii</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">check_circular</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">allow_nan</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">sort_keys</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">indent</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">separators</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#JSONEncoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.JSONEncoder" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="py method">
-<dt id="txtcls.utils.misc.JSONEncoder.default">
-<code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#JSONEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.JSONEncoder.default" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.JSONEncoder.default">
+<code class="sig-name descname">default</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">obj</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#JSONEncoder.default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.JSONEncoder.default" title="Permalink to this definition">¶</a></dt>
 <dd><p>Implement this method in a subclass such that it returns
 a serializable object for <code class="docutils literal notranslate"><span class="pre">o</span></code>, or calls the base implementation
 (to raise a <code class="docutils literal notranslate"><span class="pre">TypeError</span></code>).</p>
@@ -812,23 +812,23 @@ implement default like this:</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.misc.get_file_md5">
-<code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">get_file_md5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_path</span></em>, <em class="sig-param"><span class="n">block_size</span><span class="o">=</span><span class="default_value">1048576</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#get_file_md5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.get_file_md5" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.get_file_md5">
+<code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">get_file_md5</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">f_path</span></em>, <em class="sig-param"><span class="n">block_size</span><span class="o">=</span><span class="default_value">1048576</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#get_file_md5"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.get_file_md5" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.misc.get_df_hash">
-<code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">get_df_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#get_df_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.get_df_hash" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.get_df_hash">
+<code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">get_df_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#get_df_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.get_df_hash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.misc.get_json_hash">
-<code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">get_json_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#get_json_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.get_json_hash" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.get_json_hash">
+<code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">get_json_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#get_json_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.get_json_hash" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
-<dt id="txtcls.utils.misc.add_bool_arg">
-<code class="sig-prename descclassname">txtcls.utils.misc.</code><code class="sig-name descname">add_bool_arg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">help</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txtcls/utils/misc.html#add_bool_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txtcls.utils.misc.add_bool_arg" title="Permalink to this definition">¶</a></dt>
+<dt id="txcl.utils.misc.add_bool_arg">
+<code class="sig-prename descclassname">txcl.utils.misc.</code><code class="sig-name descname">add_bool_arg</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parser</span></em>, <em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">default</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">help</span><span class="o">=</span><span class="default_value">''</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/txcl/utils/misc.html#add_bool_arg"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#txcl.utils.misc.add_bool_arg" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a bool argument to argparse parser</p>
 </dd></dl>
 
@@ -845,7 +845,7 @@ implement default like this:</p>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="txtcls.models.html" class="btn btn-neutral float-left" title="txtcls.models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="txcl.models.html" class="btn btn-neutral float-left" title="txcl.models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

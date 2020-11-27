@@ -8,7 +8,7 @@ import joblib
 import logging
 import sklearn.metrics
 import pandas as pd
-from . import ListRuns
+from .list_runs import ListRuns
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
