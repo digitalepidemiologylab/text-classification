@@ -21,6 +21,8 @@ setuptools.setup(
         'twiprocess @ git+https://github.com/crowdbreaks/twiprocess.git'],
     entry_points={'console_scripts': [
         'txcl=txcl.cli.cli:entry_point']},
+    # data_files=[('', ['txcl/logging_config.ini'])],
+    package_data={'txcl': ['logging_config.ini']},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
