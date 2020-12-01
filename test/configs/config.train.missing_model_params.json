@@ -1,0 +1,22 @@
+{
+    "globals": {
+        "model": {
+            "name": "fasttext"
+        },
+        "folders": "overwrite",
+        "write_test_output": true
+    },
+    "runs": [
+        {
+            "path": {
+                "data": "./twitter_fasttext/preprocess/category/preprocess_fasttext_category_merged_7/",
+                "output": "./twitter_fasttext/train/category/"
+            },
+            "data": {
+                "train": "train.txt",
+                "test": "dev.csv"
+            },
+            "name": "train_fasttext_category_merged_1_7"
+        }
+    ]
+}

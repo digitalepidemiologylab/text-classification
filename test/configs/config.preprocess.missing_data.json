@@ -1,0 +1,33 @@
+{
+    "globals": {
+        "path_init": {
+            "data": "data/annotation_data/train/category_merged/"
+        },
+        "folders": "overwrite",
+        "preprocess": {
+            "standardize_func_name": "standardize_fasttext_twitter"
+        }
+    },
+    "runs": [
+        {
+            "preprocess": {
+                "lower_case": true,
+                "remove_punctuation": true
+            },
+            "model": {
+                "name": "fasttext"
+            },
+            "name": "preprocess_fasttext_category_merged_0"
+        },
+        {
+            "preprocess": {
+                "lower_case": true,
+                "remove_punctuation": false
+            },
+            "model": {
+                "name": "fasttext"
+            },
+            "name": "preprocess_fasttext_category_merged_1"
+        }
+    ]
+}

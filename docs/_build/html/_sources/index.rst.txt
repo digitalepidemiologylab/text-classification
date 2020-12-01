@@ -27,8 +27,8 @@ Level 5
    :maxdepth: 1
    :caption: Package Reference
 
-   source/txtcls.models
-   source/txtcls.utils
+   source/txcl.models
+   source/txcl.utils
 
 Indices and tables
 ==================

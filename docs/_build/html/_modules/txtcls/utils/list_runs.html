@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.utils.list_runs &mdash; Text Classification  documentation</title>
+  <title>txcl.utils.list_runs &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.utils.list_runs</li>
+      <li>txcl.utils.list_runs</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,18 +147,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.utils.list_runs</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.utils.list_runs</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">.helpers</span> <span class="kn">import</span> <span class="n">find_project_root</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">glob</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
-<div class="viewcode-block" id="ListRuns"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns">[docs]</a><span class="k">class</span> <span class="nc">ListRuns</span><span class="p">:</span>
+<div class="viewcode-block" id="ListRuns"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns">[docs]</a><span class="k">class</span> <span class="nc">ListRuns</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="s1">&#39;List runs</span><span class="se">\n</span><span class="s1">----------</span><span class="se">\n\n</span><span class="s1">&#39;</span>
 
-<div class="viewcode-block" id="ListRuns.collect_results"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns.collect_results">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="ListRuns.collect_results"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns.collect_results">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">collect_results</span><span class="p">(</span><span class="n">run</span><span class="o">=</span><span class="s1">&#39;*&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compiles run hyperparameters/performance scores into single pandas DataFrame&quot;&quot;&quot;</span>
         <span class="n">run_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">find_project_root</span><span class="p">(),</span> <span class="s1">&#39;output&#39;</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
@@ -178,7 +178,7 @@
                 <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="o">**</span><span class="n">run_config</span><span class="p">,</span> <span class="o">**</span><span class="n">test_output</span><span class="p">})</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ListRuns.list_runs"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns.list_runs">[docs]</a>    <span class="k">def</span> <span class="nf">list_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">averaging</span><span class="o">=</span><span class="s1">&#39;macro&#39;</span><span class="p">,</span> <span class="n">names_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">all_params</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="ListRuns.list_runs"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns.list_runs">[docs]</a>    <span class="k">def</span> <span class="nf">list_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">averaging</span><span class="o">=</span><span class="s1">&#39;macro&#39;</span><span class="p">,</span> <span class="n">names_only</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">all_params</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="c1"># set some display options</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s1">&#39;display.max_rows&#39;</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
         <span class="c1"># pd.set_option(&#39;display.max_columns&#39;, 100)</span>
@@ -224,7 +224,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ListRuns.load_data"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns.load_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ListRuns.load_data"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns.load_data">[docs]</a>    <span class="k">def</span> <span class="nf">load_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">run_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">filename_pattern</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">ListRuns</span><span class="o">.</span><span class="n">collect_results</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;No output data run models could be found.&#39;</span><span class="p">)</span>
@@ -245,7 +245,7 @@
         <span class="n">df</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;all&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="ListRuns.format_cols"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns.format_cols">[docs]</a>    <span class="k">def</span> <span class="nf">format_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<div class="viewcode-block" id="ListRuns.format_cols"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns.format_cols">[docs]</a>    <span class="k">def</span> <span class="nf">format_cols</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="n">int_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;num_epochs&#39;</span><span class="p">,</span> <span class="s1">&#39;n_grams&#39;</span><span class="p">,</span> <span class="s1">&#39;train_batch_size&#39;</span><span class="p">,</span> <span class="s1">&#39;test_batch_size&#39;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">int_col</span> <span class="ow">in</span> <span class="n">int_cols</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
@@ -258,7 +258,7 @@
                 <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">{:.0e}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">df</span></div>
 
-<div class="viewcode-block" id="ListRuns.add_key_value"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.ListRuns.add_key_value">[docs]</a>    <span class="k">def</span> <span class="nf">add_key_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="ListRuns.add_key_value"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.ListRuns.add_key_value">[docs]</a>    <span class="k">def</span> <span class="nf">add_key_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span> <span class="n">filler</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="s1">&#39;- </span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">{:&gt;</span><span class="si">{width}{fmt}</span><span class="s1">}</span><span class="si">{unit}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">filler</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">key</span><span class="p">))</span><span class="o">*</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="n">fmt</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39; &#39;</span><span class="o">+</span><span class="n">unit</span><span class="p">)</span></div></div>
 </pre></div>
 

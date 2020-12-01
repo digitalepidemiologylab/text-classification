@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.models.openai_gpt2 &mdash; Text Classification  documentation</title>
+  <title>txcl.models.openai_gpt2 &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.models.openai_gpt2</li>
+      <li>txcl.models.openai_gpt2</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.models.openai_gpt2</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.models.openai_gpt2</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">OpenAI GPT-2</span>
 <span class="sd">============</span>
@@ -165,7 +165,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 
-<div class="viewcode-block" id="OpenAIGPT2"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.OpenAIGPT2">[docs]</a><span class="k">class</span> <span class="nc">OpenAIGPT2</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenAIGPT2"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.OpenAIGPT2">[docs]</a><span class="k">class</span> <span class="nc">OpenAIGPT2</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="kc">None</span>
@@ -215,7 +215,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="OpenAIGPT2.train"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.OpenAIGPT2.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenAIGPT2.train"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.OpenAIGPT2.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="c1"># Init params and models</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_gpt2</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">setup_mode</span><span class="o">=</span><span class="s1">&#39;train&#39;</span><span class="p">)</span>
         <span class="c1"># Load data</span>
@@ -249,7 +249,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_config_file</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">to_json_string</span><span class="p">())</span></div>
 
-<div class="viewcode-block" id="OpenAIGPT2.test"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.OpenAIGPT2.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenAIGPT2.test"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.OpenAIGPT2.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_gpt2</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">setup_mode</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
         <span class="c1"># Load test data</span>
         <span class="n">encode_transform</span> <span class="o">=</span> <span class="n">Encoder</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">n_positions</span><span class="p">)</span>
@@ -268,7 +268,7 @@
             <span class="n">result_out</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">result_out</span><span class="p">,</span> <span class="o">**</span><span class="n">test_output</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">result_out</span></div>
 
-<div class="viewcode-block" id="OpenAIGPT2.predict"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.OpenAIGPT2.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenAIGPT2.predict"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.OpenAIGPT2.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_gpt2</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">setup_mode</span><span class="o">=</span><span class="s1">&#39;predict&#39;</span><span class="p">)</span>
         <span class="c1"># Write to disk</span>
         <span class="n">f_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;tmp&#39;</span><span class="p">,</span> <span class="s1">&#39;predict.csv&#39;</span><span class="p">)</span>
@@ -285,7 +285,7 @@
                 <span class="n">predictions</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">probabilities</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">predictions</span> </div>
 
-<div class="viewcode-block" id="OpenAIGPT2.generate_text"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.OpenAIGPT2.generate_text">[docs]</a>    <span class="k">def</span> <span class="nf">generate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="OpenAIGPT2.generate_text"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.OpenAIGPT2.generate_text">[docs]</a>    <span class="k">def</span> <span class="nf">generate_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seed</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">top_k_logits</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">logits</span>
@@ -331,7 +331,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="GPT2Classifier"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.GPT2Classifier">[docs]</a><span class="k">class</span> <span class="nc">GPT2Classifier</span><span class="p">(</span><span class="n">GPT2PreTrainedModel</span><span class="p">):</span>
+<div class="viewcode-block" id="GPT2Classifier"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.GPT2Classifier">[docs]</a><span class="k">class</span> <span class="nc">GPT2Classifier</span><span class="p">(</span><span class="n">GPT2PreTrainedModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">num_labels</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">GPT2Classifier</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">GPT2Model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -340,13 +340,13 @@
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="o">.</span><span class="n">weight</span><span class="p">,</span> <span class="n">std</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
         <span class="n">torch</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">init</span><span class="o">.</span><span class="n">normal_</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="o">.</span><span class="n">bias</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="GPT2Classifier.forward"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.GPT2Classifier.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">,</span> <span class="n">token_type_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="GPT2Classifier.forward"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.GPT2Classifier.forward">[docs]</a>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_ids</span><span class="p">,</span> <span class="n">token_type_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">position_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">past</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">hidden_states</span><span class="p">,</span> <span class="n">presents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="p">(</span><span class="n">input_ids</span><span class="p">,</span> <span class="n">position_ids</span><span class="p">,</span> <span class="n">token_type_ids</span><span class="p">,</span> <span class="n">past</span><span class="p">)</span>
         <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear</span><span class="p">(</span><span class="n">hidden_states</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">hidden_states</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">logits</span></div></div>
 
 
-<div class="viewcode-block" id="GPT2Dataset"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.GPT2Dataset">[docs]</a><span class="k">class</span> <span class="nc">GPT2Dataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="GPT2Dataset"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.GPT2Dataset">[docs]</a><span class="k">class</span> <span class="nc">GPT2Dataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
@@ -360,7 +360,7 @@
             <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sample</span></div>
 
-<div class="viewcode-block" id="GPT2Predict"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.GPT2Predict">[docs]</a><span class="k">class</span> <span class="nc">GPT2Predict</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="GPT2Predict"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.GPT2Predict">[docs]</a><span class="k">class</span> <span class="nc">GPT2Predict</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_path</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s1">&#39;python&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
@@ -374,7 +374,7 @@
             <span class="n">sample</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">sample</span></div>
 
-<div class="viewcode-block" id="Encoder"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.Encoder">[docs]</a><span class="k">class</span> <span class="nc">Encoder</span><span class="p">:</span>
+<div class="viewcode-block" id="Encoder"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.Encoder">[docs]</a><span class="k">class</span> <span class="nc">Encoder</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">label_mapping</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">768</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span> <span class="o">=</span> <span class="n">label_mapping</span>
@@ -388,11 +388,11 @@
         <span class="n">label</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">[</span><span class="n">sample</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">text_encoded</span><span class="p">,</span> <span class="n">label</span>
 
-<div class="viewcode-block" id="Encoder.make_one_hot"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.Encoder.make_one_hot">[docs]</a>    <span class="k">def</span> <span class="nf">make_one_hot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+<div class="viewcode-block" id="Encoder.make_one_hot"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.Encoder.make_one_hot">[docs]</a>    <span class="k">def</span> <span class="nf">make_one_hot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span></div></div>
 
-<div class="viewcode-block" id="EncoderPredict"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.EncoderPredict">[docs]</a><span class="k">class</span> <span class="nc">EncoderPredict</span><span class="p">:</span>
+<div class="viewcode-block" id="EncoderPredict"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.EncoderPredict">[docs]</a><span class="k">class</span> <span class="nc">EncoderPredict</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">label_mapping</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_size</span><span class="o">=</span><span class="mi">768</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">tokenizer</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span> <span class="o">=</span> <span class="n">label_mapping</span>
@@ -405,7 +405,7 @@
         <span class="n">text_encoded</span><span class="p">[:</span><span class="nb">len</span><span class="p">(</span><span class="n">tokenized</span><span class="p">)]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="n">tokenized</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">text_encoded</span>
 
-<div class="viewcode-block" id="EncoderPredict.make_one_hot"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.openai_gpt2.EncoderPredict.make_one_hot">[docs]</a>    <span class="k">def</span> <span class="nf">make_one_hot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
+<div class="viewcode-block" id="EncoderPredict.make_one_hot"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.openai_gpt2.EncoderPredict.make_one_hot">[docs]</a>    <span class="k">def</span> <span class="nf">make_one_hot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">t</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">[</span><span class="n">label</span><span class="p">]]</span></div></div>
 </pre></div>

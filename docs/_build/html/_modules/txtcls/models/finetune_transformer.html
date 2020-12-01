@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.models.finetune_transformer &mdash; Text Classification  documentation</title>
+  <title>txcl.models.finetune_transformer &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.models.finetune_transformer</li>
+      <li>txcl.models.finetune_transformer</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.models.finetune_transformer</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.models.finetune_transformer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">FinetuneTransformer</span>
 <span class="sd">===================</span>
@@ -180,11 +180,11 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="FinetuneTransformer"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.FinetuneTransformer">[docs]</a><span class="k">class</span> <span class="nc">FinetuneTransformer</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTransformer"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.FinetuneTransformer">[docs]</a><span class="k">class</span> <span class="nc">FinetuneTransformer</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="FinetuneTransformer.init"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.FinetuneTransformer.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTransformer.init"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.FinetuneTransformer.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="c1"># Paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">train_data</span>
@@ -243,7 +243,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Invalid gradient_accumulation_steps parameter: </span><span class="si">{}</span><span class="s2">, should be &gt;= 1&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">gradient_accumulation_steps</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_batch_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">train_batch_size</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">gradient_accumulation_steps</span></div>
 
-<div class="viewcode-block" id="FinetuneTransformer.train"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.FinetuneTransformer.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTransformer.train"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.FinetuneTransformer.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Model initialization</span>
         <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
         <span class="n">vocab_files</span> <span class="o">=</span> <span class="n">download_vocab_files_for_tokenizer</span><span class="p">(</span><span class="n">tokenizer</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
@@ -386,7 +386,7 @@
         <span class="n">tokenizer</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_to_config</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="nb">vars</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="FinetuneTransformer.test"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.FinetuneTransformer.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fast_tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTransformer.test"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.FinetuneTransformer.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fast_tokenizer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">test_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;No test data provided. Aborting.&#39;</span><span class="p">)</span>
             <span class="k">return</span>
@@ -442,7 +442,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Eval perplexity: </span><span class="si">{</span><span class="n">perplexity</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;perplexity&#39;</span><span class="p">:</span> <span class="n">perplexity</span><span class="p">}</span></div>
 
-<div class="viewcode-block" id="FinetuneTransformer.prepare_input_data"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.FinetuneTransformer.prepare_input_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_tokens</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTransformer.prepare_input_data"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.FinetuneTransformer.prepare_input_data">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_input_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_tokens</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;DEPRECATED: method used for NSP/SOP tasks&quot;&quot;&quot;</span>
         <span class="kn">import</span> <span class="nn">en_core_web_sm</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Generating file hash...&#39;</span><span class="p">)</span>
@@ -476,7 +476,7 @@
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">input_data_path</span></div></div>
 
-<div class="viewcode-block" id="TextDataset"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.TextDataset">[docs]</a><span class="k">class</span> <span class="nc">TextDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TextDataset"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.TextDataset">[docs]</a><span class="k">class</span> <span class="nc">TextDataset</span><span class="p">(</span><span class="n">Dataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Load dataset in memory&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
@@ -494,7 +494,7 @@
     <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">examples</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">long</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="TextIterableDataset"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.TextIterableDataset">[docs]</a><span class="k">class</span> <span class="nc">TextIterableDataset</span><span class="p">(</span><span class="n">IterableDataset</span><span class="p">):</span>
+<div class="viewcode-block" id="TextIterableDataset"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.TextIterableDataset">[docs]</a><span class="k">class</span> <span class="nc">TextIterableDataset</span><span class="p">(</span><span class="n">IterableDataset</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Load dataset iteratively and tokenize with tokenizer library on the fly&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">,</span> <span class="n">max_seq_length</span><span class="o">=</span><span class="mi">512</span><span class="p">):</span>
         <span class="k">assert</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
@@ -503,7 +503,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">max_seq_length</span> <span class="o">=</span> <span class="n">max_seq_length</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">num_lines</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">f_name</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="TextIterableDataset.parse_and_tokenize"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_transformer.TextIterableDataset.parse_and_tokenize">[docs]</a>    <span class="k">def</span> <span class="nf">parse_and_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="TextIterableDataset.parse_and_tokenize"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_transformer.TextIterableDataset.parse_and_tokenize">[docs]</a>    <span class="k">def</span> <span class="nf">parse_and_tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">worker_info</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get_worker_info</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">worker_info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># single-process data loading</span>

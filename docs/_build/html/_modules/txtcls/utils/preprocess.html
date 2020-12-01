@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.utils.preprocess &mdash; Text Classification  documentation</title>
+  <title>txcl.utils.preprocess &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.utils.preprocess</li>
+      <li>txcl.utils.preprocess</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.utils.preprocess</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.utils.preprocess</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Preprocessing helpers</span>
 <span class="sd">=====================</span>
@@ -168,7 +168,7 @@
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 <span class="n">control_char_regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\r\n\t]+&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="preprocess"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.preprocess">[docs]</a><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="preprocess"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.preprocess">[docs]</a><span class="k">def</span> <span class="nf">preprocess</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main function for text preprocessing/standardization.</span>
 
@@ -241,7 +241,7 @@
     <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="get_preprocessing_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.get_preprocessing_config">[docs]</a><span class="k">def</span> <span class="nf">get_preprocessing_config</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="p">{}):</span>
+<div class="viewcode-block" id="get_preprocessing_config"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.get_preprocessing_config">[docs]</a><span class="k">def</span> <span class="nf">get_preprocessing_config</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="p">{}):</span>
     <span class="sd">&quot;&quot;&quot;Generates config file to be used with preprocess() functions and gives default for keys not present in provided config.&quot;&quot;&quot;</span>
     <span class="n">preprocess_config</span> <span class="o">=</span> <span class="n">DefaultMunch</span><span class="o">.</span><span class="n">fromDict</span><span class="p">({</span>
             <span class="s1">&#39;min_num_tokens&#39;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;min_num_tokens&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
@@ -260,7 +260,7 @@
             <span class="p">},</span> <span class="kc">None</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">preprocess_config</span></div>
 
-<div class="viewcode-block" id="remove_control_characters"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.remove_control_characters">[docs]</a><span class="k">def</span> <span class="nf">remove_control_characters</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_control_characters"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.remove_control_characters">[docs]</a><span class="k">def</span> <span class="nf">remove_control_characters</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">s</span>
     <span class="c1"># replace \t, \n and \r characters by a whitespace</span>
@@ -270,7 +270,7 @@
     <span class="c1"># removes all other control characters and the NULL byte (which causes issues when parsing with pandas)</span>
     <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">ch</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">!=</span><span class="s2">&quot;C&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="expand_contractions"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.expand_contractions">[docs]</a><span class="k">def</span> <span class="nf">expand_contractions</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="expand_contractions"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.expand_contractions">[docs]</a><span class="k">def</span> <span class="nf">expand_contractions</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">contractions_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s1">&#39;(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;|&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">CONTRACTIONS</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="o">|</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">expand_match</span><span class="p">(</span><span class="n">contraction</span><span class="p">):</span>
         <span class="n">match</span> <span class="o">=</span> <span class="n">contraction</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -284,21 +284,21 @@
     <span class="n">expanded_text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&#39;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">expanded_text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">expanded_text</span></div>
 
-<div class="viewcode-block" id="asciify"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.asciify">[docs]</a><span class="k">def</span> <span class="nf">asciify</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="asciify"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.asciify">[docs]</a><span class="k">def</span> <span class="nf">asciify</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Asciify all unicode characters&quot;&quot;&quot;</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">unidecode</span><span class="o">.</span><span class="n">unidecode</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="standardize_punctuation"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.standardize_punctuation">[docs]</a><span class="k">def</span> <span class="nf">standardize_punctuation</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="standardize_punctuation"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.standardize_punctuation">[docs]</a><span class="k">def</span> <span class="nf">standardize_punctuation</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unidecode</span><span class="o">.</span><span class="n">unidecode</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;P&#39;</span> <span class="k">else</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="remove_emojis"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.remove_emojis">[docs]</a><span class="k">def</span> <span class="nf">remove_emojis</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="remove_emojis"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.remove_emojis">[docs]</a><span class="k">def</span> <span class="nf">remove_emojis</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;remove all characters of symbol unicode class&quot;&quot;&quot;</span>
     <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span> <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">c</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span> <span class="k">else</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="asciify_emojis"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.asciify_emojis">[docs]</a><span class="k">def</span> <span class="nf">asciify_emojis</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="asciify_emojis"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.asciify_emojis">[docs]</a><span class="k">def</span> <span class="nf">asciify_emojis</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;remove all characters of symbol unicode class&quot;&quot;&quot;</span>
     <span class="n">text</span> <span class="o">=</span> <span class="n">emoji</span><span class="o">.</span><span class="n">demojize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
     <span class="c1"># pad with whitespace</span>
@@ -306,7 +306,7 @@
     <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
     <span class="k">return</span> <span class="n">text</span></div>
 
-<div class="viewcode-block" id="tokenize"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.preprocess.tokenize">[docs]</a><span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="tokenize"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.preprocess.tokenize">[docs]</a><span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
     <span class="c1"># create doc</span>
     <span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;parser&#39;</span><span class="p">,</span> <span class="s1">&#39;tagger&#39;</span><span class="p">,</span> <span class="s1">&#39;ner&#39;</span><span class="p">])</span>
     <span class="c1"># find hashtag indices and merge again (so the # are not lost)</span>

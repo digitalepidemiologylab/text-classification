@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.models.bag_of_words &mdash; Text Classification  documentation</title>
+  <title>txcl.models.bag_of_words &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.models.bag_of_words</li>
+      <li>txcl.models.bag_of_words</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.models.bag_of_words</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.models.bag_of_words</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Bag of words</span>
 <span class="sd">************</span>
@@ -168,7 +168,7 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 
-<div class="viewcode-block" id="BagOfWordsModel"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel">[docs]</a><span class="k">class</span> <span class="nc">BagOfWordsModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel">[docs]</a><span class="k">class</span> <span class="nc">BagOfWordsModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Naive model which simply counts the word occurences in a sentence and then trains a SVC on it. </span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -177,7 +177,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
-<div class="viewcode-block" id="BagOfWordsModel.train"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.train"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="c1"># config</span>
         <span class="n">max_features</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_features&#39;</span><span class="p">,</span> <span class="mf">1e4</span><span class="p">))</span>
         <span class="n">max_df</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;max_df&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
@@ -212,7 +212,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;model.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BagOfWordsModel.test"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.test"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="c1"># read data</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">test_data</span><span class="p">)</span>
@@ -228,14 +228,14 @@
         <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="s1">&#39;prediction&#39;</span><span class="p">:</span> <span class="n">predicted</span><span class="p">,</span> <span class="o">**</span><span class="n">metrics</span><span class="p">}</span>
         <span class="k">return</span> <span class="n">output</span></div>
 
-<div class="viewcode-block" id="BagOfWordsModel.predict"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.predict"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.predict">[docs]</a>    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;text&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">})</span>
         <span class="n">vectors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorize_data</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
         <span class="n">probabilities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">vectors</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">format_predictions</span><span class="p">(</span><span class="n">probabilities</span><span class="p">,</span> <span class="n">label_mapping</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">label_mapping</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BagOfWordsModel.load_model"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.load_model"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.load_model">[docs]</a>    <span class="k">def</span> <span class="nf">load_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="c1"># read model</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;model.pkl&#39;</span><span class="p">),</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -245,12 +245,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span> <span class="o">=</span> <span class="n">CountVectorizer</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">vectorizer_params</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BagOfWordsModel.vectorize_data"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.vectorize_data">[docs]</a>    <span class="k">def</span> <span class="nf">vectorize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.vectorize_data"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.vectorize_data">[docs]</a>    <span class="k">def</span> <span class="nf">vectorize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tokenize</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
         <span class="n">vectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vectorizer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;text&#39;</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">vectors</span></div>
 
-<div class="viewcode-block" id="BagOfWordsModel.tokenize"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.bag_of_words.BagOfWordsModel.tokenize">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<div class="viewcode-block" id="BagOfWordsModel.tokenize"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.bag_of_words.BagOfWordsModel.tokenize">[docs]</a>    <span class="k">def</span> <span class="nf">tokenize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
         <span class="c1"># Replace unnecessary spacings/EOL chars</span>
         <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\r\n\t]+&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
         <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">ch</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;C&quot;</span><span class="p">)</span>

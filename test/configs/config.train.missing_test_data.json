@@ -1,0 +1,31 @@
+{
+    "globals": {
+        "model": {
+            "name": "fasttext",
+            "params": {
+                "dim": 100,
+                "autotuneDuration": 200
+            }
+        },
+        "folders": "overwrite",
+        "write_test_output": true
+    },
+    "runs": [
+        {
+            "path": {
+                "data": "./twitter_fasttext/preprocess/category/preprocess_fasttext_category_merged_7/",
+                "output": "./twitter_fasttext/train/category/"
+            },
+            "data": {
+                "train": "train.csv"
+            },
+            "model": {
+                "params": {
+                    "autotuneValidationFile": "./twitter_fasttext/preprocess/category/preprocess_fasttext_category_merged_7/dev.txt",
+                    "pretrainedVectors": "./twitter_fasttext/pretrain/train_fasttext_pretrain_7/vectors.vec"
+                }
+            },
+            "name": "train_fasttext_category_merged_1_7"
+        }
+    ]
+}

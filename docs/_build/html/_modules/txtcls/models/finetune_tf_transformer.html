@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.models.finetune_tf_transformer &mdash; Text Classification  documentation</title>
+  <title>txcl.models.finetune_tf_transformer &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.models.finetune_tf_transformer</li>
+      <li>txcl.models.finetune_tf_transformer</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.models.finetune_tf_transformer</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.models.finetune_tf_transformer</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">FinetuneTfTransformer</span>
 <span class="sd">=====================</span>
@@ -178,11 +178,11 @@
 <span class="n">tf</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">optimizer</span><span class="o">.</span><span class="n">set_experimental_options</span><span class="p">({</span><span class="s2">&quot;auto_mixed_precision&quot;</span><span class="p">:</span> <span class="n">USE_AMP</span><span class="p">})</span>
 
 
-<div class="viewcode-block" id="FinetuneTfTransformer"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer">[docs]</a><span class="k">class</span> <span class="nc">FinetuneTfTransformer</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTfTransformer"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_tf_transformer.FinetuneTfTransformer">[docs]</a><span class="k">class</span> <span class="nc">FinetuneTfTransformer</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-<div class="viewcode-block" id="FinetuneTfTransformer.init"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTfTransformer.init"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_tf_transformer.FinetuneTfTransformer.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
         <span class="c1"># Paths</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">train_data</span>
@@ -225,7 +225,7 @@
         <span class="c1"># set seed</span>
         <span class="n">set_seed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">no_cuda</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">no_cuda</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="FinetuneTfTransformer.train"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTfTransformer.train"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_tf_transformer.FinetuneTfTransformer.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># load default tokenizer</span>
         <span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">)</span>
         <span class="c1"># load fast tokenizer</span>
@@ -282,7 +282,7 @@
         <span class="n">model</span><span class="o">.</span><span class="n">save_pretrained</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_path</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FinetuneTfTransformer.create_tf_record_datasets"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.create_tf_record_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">create_tf_record_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_tokenizer</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTfTransformer.create_tf_record_datasets"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_tf_transformer.FinetuneTfTransformer.create_tf_record_datasets">[docs]</a>    <span class="k">def</span> <span class="nf">create_tf_record_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_tokenizer</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">generate_example</span><span class="p">():</span>
             <span class="k">def</span> <span class="nf">create_int_feature</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
                 <span class="n">f</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Feature</span><span class="p">(</span><span class="n">int64_list</span><span class="o">=</span><span class="n">tf</span><span class="o">.</span><span class="n">train</span><span class="o">.</span><span class="n">Int64List</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">values</span><span class="p">)))</span>
@@ -322,7 +322,7 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;...done&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="FinetuneTfTransformer.test"><a class="viewcode-back" href="../../../source/txtcls.models.html#txtcls.models.finetune_tf_transformer.FinetuneTfTransformer.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="FinetuneTfTransformer.test"><a class="viewcode-back" href="../../../source/txcl.models.html#txcl.models.finetune_tf_transformer.FinetuneTfTransformer.test">[docs]</a>    <span class="k">def</span> <span class="nf">test</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">pass</span></div></div>
 </pre></div>
 

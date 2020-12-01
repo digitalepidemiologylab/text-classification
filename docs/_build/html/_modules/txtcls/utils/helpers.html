@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>txtcls.utils.helpers &mdash; Text Classification  documentation</title>
+  <title>txcl.utils.helpers &mdash; Text Classification  documentation</title>
   
 
   
@@ -82,8 +82,8 @@
             
               <p class="caption"><span class="caption-text">Package Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.models.html">txtcls.models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../source/txtcls.utils.html">txtcls.utils</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.models.html">txcl.models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../source/txcl.utils.html">txcl.utils</a></li>
 </ul>
 
             
@@ -132,7 +132,7 @@
         
           <li><a href="../../index.html">Module code</a> &raquo;</li>
         
-      <li>txtcls.utils.helpers</li>
+      <li>txcl.utils.helpers</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -147,7 +147,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>Source code for txtcls.utils.helpers</h1><div class="highlight"><pre>
+  <h1>Source code for txcl.utils.helpers</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Main pipeline helpers</span>
 <span class="sd">=====================</span>
@@ -176,7 +176,7 @@
 <span class="kn">import</span> <span class="nn">multiprocessing</span>
 
 
-<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+<div class="viewcode-block" id="train"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.train">[docs]</a><span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Train and evaluate&quot;&quot;&quot;</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">model</span><span class="p">)</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -215,7 +215,7 @@
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Training for model `</span><span class="si">{}</span><span class="s2">` finished. Model output written to `</span><span class="si">{}</span><span class="s2">`&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">run_config</span><span class="o">.</span><span class="n">output_path</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">run_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_cols</span><span class="o">=</span><span class="p">[],</span> <span class="n">output_folder</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">no_file_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_formats</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="predict"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.predict">[docs]</a><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="n">run_name</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_cols</span><span class="o">=</span><span class="p">[],</span> <span class="n">output_folder</span><span class="o">=</span><span class="s1">&#39;predictions&#39;</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="n">no_file_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">in_parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">output_formats</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">read_input_data</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="mi">2</span><span class="o">**</span><span class="mi">15</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="n">col</span><span class="p">]):</span>
         <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.csv&#39;</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">text_chunk</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">usecols</span><span class="o">=</span><span class="n">usecols</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">):</span>
@@ -290,10 +290,10 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Prediction output:&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="pretrain"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.pretrain">[docs]</a><span class="k">def</span> <span class="nf">pretrain</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+<div class="viewcode-block" id="pretrain"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.pretrain">[docs]</a><span class="k">def</span> <span class="nf">pretrain</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="finetune"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.finetune">[docs]</a><span class="k">def</span> <span class="nf">finetune</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+<div class="viewcode-block" id="finetune"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.finetune">[docs]</a><span class="k">def</span> <span class="nf">finetune</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
     <span class="k">if</span> <span class="s1">&#39;use_tf&#39;</span> <span class="ow">in</span> <span class="n">run_config</span> <span class="ow">and</span> <span class="n">run_config</span><span class="p">[</span><span class="s1">&#39;use_tf&#39;</span><span class="p">]:</span>
         <span class="kn">from</span> <span class="nn">..models.finetune_tf_transformer</span> <span class="kn">import</span> <span class="n">FinetuneTfTransformer</span>
         <span class="n">ft_transformers</span> <span class="o">=</span> <span class="n">FinetuneTfTransformer</span><span class="p">()</span>
@@ -308,7 +308,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">test_output</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">outfile</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
+<div class="viewcode-block" id="get_model"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.get_model">[docs]</a><span class="k">def</span> <span class="nf">get_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Dynamically import model module and return model instance&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">model_name</span> <span class="o">==</span> <span class="s1">&#39;fasttext&#39;</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">..models.fasttextmodel</span> <span class="kn">import</span> <span class="n">FastTextModel</span>
@@ -337,7 +337,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Model `</span><span class="si">{}</span><span class="s1">` is unknown&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="generate_config"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.generate_config">[docs]</a><span class="k">def</span> <span class="nf">generate_config</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">global_params</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_config"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.generate_config">[docs]</a><span class="k">def</span> <span class="nf">generate_config</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">models</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="n">global_params</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generates a grid search config&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">_parse_value</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">allow_str</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
@@ -396,7 +396,7 @@
         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="bp">cls</span><span class="o">=</span><span class="n">JSONEncoder</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully generated file `</span><span class="si">{}</span><span class="s1">` with </span><span class="si">{}</span><span class="s1"> runs&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_name</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="train_test_split"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.train_test_split">[docs]</a><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">balanced_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+<div class="viewcode-block" id="train_test_split"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.train_test_split">[docs]</a><span class="k">def</span> <span class="nf">train_test_split</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label_tags</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">balanced_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Splits cleaned labelled data into training and test set</span>
 <span class="sd">    :param test_size: Fraction of data which should be reserved for test data, default: 0.2</span>
 <span class="sd">    :param label_tags: Only select examples with certain label tags</span>
@@ -428,7 +428,7 @@
         <span class="n">data</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">f_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf8&#39;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Successfully wrote file </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f_path</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="augment"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.augment">[docs]</a><span class="k">def</span> <span class="nf">augment</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
+<div class="viewcode-block" id="augment"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.augment">[docs]</a><span class="k">def</span> <span class="nf">augment</span><span class="p">(</span><span class="n">run_config</span><span class="p">):</span>
     <span class="n">df_augment</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">run_config</span><span class="o">.</span><span class="n">augment_data</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">df_augment</span> <span class="o">=</span> <span class="n">df_augment</span><span class="p">[[</span><span class="s1">&#39;text&#39;</span><span class="p">,</span> <span class="s1">&#39;label&#39;</span><span class="p">]]</span>
@@ -450,13 +450,13 @@
     <span class="n">run_config</span><span class="o">.</span><span class="n">train_data</span> <span class="o">=</span> <span class="n">f_path</span>
     <span class="k">return</span> <span class="n">run_config</span></div>
 
-<div class="viewcode-block" id="generate_text"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.generate_text">[docs]</a><span class="k">def</span> <span class="nf">generate_text</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">):</span>
+<div class="viewcode-block" id="generate_text"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.generate_text">[docs]</a><span class="k">def</span> <span class="nf">generate_text</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">):</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">get_model</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;openai_gpt2&#39;</span><span class="p">))</span>
     <span class="n">config_reader</span> <span class="o">=</span> <span class="n">ConfigReader</span><span class="p">()</span>
     <span class="n">config</span> <span class="o">=</span> <span class="n">config_reader</span><span class="o">.</span><span class="n">get_default_config</span><span class="p">(</span><span class="n">base_config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">generate_text</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">seed</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="learning_curve"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.learning_curve">[docs]</a><span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+<div class="viewcode-block" id="learning_curve"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.learning_curve">[docs]</a><span class="k">def</span> <span class="nf">learning_curve</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">LearningCurve</span>
     <span class="n">lc</span> <span class="o">=</span> <span class="n">LearningCurve</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
     <span class="n">lc</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
@@ -464,10 +464,10 @@
     <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
         <span class="n">train</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="find_project_root"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.find_project_root">[docs]</a><span class="k">def</span> <span class="nf">find_project_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="find_project_root"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.find_project_root">[docs]</a><span class="k">def</span> <span class="nf">find_project_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;..&#39;</span><span class="p">,</span> <span class="s1">&#39;..&#39;</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="find_git_root"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.find_git_root">[docs]</a><span class="k">def</span> <span class="nf">find_git_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+<div class="viewcode-block" id="find_git_root"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.find_git_root">[docs]</a><span class="k">def</span> <span class="nf">find_git_root</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_par_dirs</span><span class="p">):</span>
         <span class="n">par_dirs</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="p">[</span><span class="s1">&#39;..&#39;</span><span class="p">]</span>
         <span class="n">current_dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">par_dirs</span><span class="p">,</span> <span class="s1">&#39;.git&#39;</span><span class="p">)</span>
@@ -477,7 +477,7 @@
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s1">&#39;Could not find git root folder.&#39;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">current_dir</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="get_label_mapping"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.get_label_mapping">[docs]</a><span class="k">def</span> <span class="nf">get_label_mapping</span><span class="p">(</span><span class="n">run_path</span><span class="p">):</span>
+<div class="viewcode-block" id="get_label_mapping"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.get_label_mapping">[docs]</a><span class="k">def</span> <span class="nf">get_label_mapping</span><span class="p">(</span><span class="n">run_path</span><span class="p">):</span>
     <span class="n">label_mapping_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run_path</span><span class="p">,</span> <span class="s1">&#39;label_mapping.pkl&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">label_mapping_path</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Could not find label mapping file </span><span class="si">{</span><span class="n">label_mapping_path</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
@@ -485,10 +485,10 @@
         <span class="n">label_mapping</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">label_mapping</span></div>
 
-<div class="viewcode-block" id="augment_training_data"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.augment_training_data">[docs]</a><span class="k">def</span> <span class="nf">augment_training_data</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_tokens</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_sentences_after_seed</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;training_data&#39;</span><span class="p">,</span> <span class="n">should_contain_keyword</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="augment_training_data"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.augment_training_data">[docs]</a><span class="k">def</span> <span class="nf">augment_training_data</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_tokens</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">repeats</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_sentences_after_seed</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="s1">&#39;training_data&#39;</span><span class="p">,</span> <span class="n">should_contain_keyword</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../source/txtcls.utils.html#txtcls.utils.helpers.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
+<div class="viewcode-block" id="optimize"><a class="viewcode-back" href="../../../source/txcl.utils.html#txcl.utils.helpers.optimize">[docs]</a><span class="k">def</span> <span class="nf">optimize</span><span class="p">(</span><span class="n">config_path</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">Optimize</span>
     <span class="n">opt</span> <span class="o">=</span> <span class="n">Optimize</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
     <span class="n">opt</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
