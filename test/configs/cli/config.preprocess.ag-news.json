@@ -1,0 +1,24 @@
+{
+    "globals": {},
+    "runs": [
+        {
+            "data": {
+                "train": "train.csv",
+                "val": "val.csv",
+                "test": "test.csv"
+            },
+            "path": {
+                "data": "./data/ag-news/"
+            },
+            "model": {
+                "name": "fasttext"
+            },
+            "folders": "overwrite",
+            "preprocess": {
+                "standardize_func_name": "standardize",
+                "standardize_punctuation": true
+            },
+            "name": "preprocess_standardize"
+        }
+    ]
+}

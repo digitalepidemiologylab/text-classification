@@ -138,11 +138,6 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# config
-*config*.json
-!example.config.json
-!test/configs/*
-
 # other
 .ignore
 other/models
