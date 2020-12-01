@@ -1,11 +1,14 @@
-import pandas as pd
+import logging
 import os
-import re
+import sys
 import glob
 import json
-from pprint import pprint
+
+import pandas as pd
+
 from .helpers import flatten_dict
-from pprint import pprint
+
+logger = logging.getLogger(__name__)
 
 
 class ListRuns:
@@ -14,18 +17,19 @@ class ListRuns:
 
     @staticmethod
     def collect_results(runs=('*',)):
-        """Compiles run hyperparameters/performance scores
-        into a single pandas DataFrame.
+        """Compiles run hyperparameters/performance scores into
+        a single ``pandas.DataFrame``.
         """
-        run_path = os.path.join(os.getcwd(), 'output')
-        folders = []
+        work_dir = os.getcwd()
+        paths = []
         for run in runs:
-            folders = glob.glob(os.path.join(run_path, run))
+            paths += glob.glob(os.path.join(work_dir, run))
+
         results = []
-        for f in folders:
-            if os.path.isdir(f):
-                config_path = os.path.join(f, 'run_config.json')
-                test_output_path = os.path.join(f, 'test_output.json')
+        for path in paths:
+            if os.path.isdir(path):
+                config_path = os.path.join(path, 'run_config.json')
+                test_output_path = os.path.join(path, 'test_output.json')
                 try:
                     with open(config_path, 'r') as f_p:
                         run_config = json.load(f_p)

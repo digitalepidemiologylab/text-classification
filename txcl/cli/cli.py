@@ -42,9 +42,14 @@ def entry_point():
     set_subparsers(print_parser, print_)
 
     args = entry_parser.parse_args()
-    func = args.func
-    del args.func
-    func(args)
+    try:
+        func = args.func
+        del args.func
+        func(args)
+    except AttributeError:
+        print(
+            'Please select a function. '
+            'To get a list of available functions, use --help flag.')
 
 
 def set_subparsers(parser, module):
