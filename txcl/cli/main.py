@@ -153,8 +153,13 @@ def predict(parser):
 def generate_config(parser):
     """Generates config for grid search hyperparameter search."""
     parser.add_argument(
+        '--mode', type=str, required=True,
+        help='config mode '
+             "(which 'txcl main' command it is going to be used for) "
+             r"{'preprocess', 'train', 'predict'}")
+    parser.add_argument(
         '--name', type=str, required=True,
-        help='global name prefix and name of output file')
+        help=r"config name (f'config.{mode}.{name}.json'))")
     parser.add_argument(
         '--train-data', type=str,
         help='train data path')
@@ -335,7 +340,7 @@ def ls(parser):
         '-m', '--model', type=str, default=None,
         help='only show certain models')
     parser.add_argument(
-        '-r', '--run-patterns', type=str, default=None, nargs='+',
+        '-r', '--run-patterns', type=str, default=('*',), nargs='+',
         help='filter by run name patterns')
     parser.add_argument(
         '-f', '--filename-pattern', type=str, default=None,

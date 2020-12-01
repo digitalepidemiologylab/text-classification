@@ -7,7 +7,7 @@ import pytest
 def test_preprocess():
     exit_status = subprocess.call([
         'txcl', 'main', 'preprocess', '-c',
-        'configs/config.preprocess.twitter-hate-speech.json'
+        'configs/cli/config.preprocess.ag-news.json'
     ])
     assert exit_status == 0
 
@@ -15,7 +15,7 @@ def test_preprocess():
 def test_train():
     exit_status = subprocess.call([
         'txcl', 'main', 'train',
-        '-c', 'configs/config.train.twitter-hate-speech.json'
+        '-c', 'configs/cli/config.train.ag-news.json'
     ])
     assert exit_status == 0
 

@@ -10,16 +10,17 @@ from pprint import pprint
 
 class ListRuns:
     def __init__(self):
-        self.header = 'List runs\n----------\n\n'
+        self.header = 'List runs\n---------\n\n'
 
     @staticmethod
     def collect_results(runs=('*',)):
-        """Compiles run hyperparameters/performance scores into single pandas DataFrame"""
+        """Compiles run hyperparameters/performance scores
+        into a single pandas DataFrame.
+        """
         run_path = os.path.join(os.getcwd(), 'output')
         folders = []
         for run in runs:
-            # folders = glob.glob(run_path)
-            folders += [f for f in os.listdir(run_path) if re.search(run, f)]
+            folders = glob.glob(os.path.join(run_path, run))
         results = []
         for f in folders:
             if os.path.isdir(f):
@@ -33,23 +34,51 @@ class ListRuns:
                 except FileNotFoundError:
                     continue
                 run_config_flat = flatten_dict(run_config)
-                run_config_flat = {'.'.join(k): v for k, v in run_config_flat.items()}
+                run_config_flat = {
+                    '.'.join(k): v for k, v in run_config_flat.items()}
                 results.append({
                     **run_config_flat,
                     **test_output})
         return pd.DataFrame(results)
+
+    def load_data(self, model=None, run_patterns=('*',),
+                  filename_pattern=None):
+        df = self.collect_results(run_patterns)
+        if len(df) == 0:
+            raise FileNotFoundError('No output data run models could be found.')
+        df.set_index('name', inplace=True)
+        for run_pattern in run_patterns:
+            self.header += self.add_key_value('Pattern', run_pattern)
+            # if run_pattern is not None:
+            #     self.header += self.add_key_value('Pattern', run_pattern)
+            #     df = df[df.index.str.contains(r'{}'.format(run_pattern))]
+            #     if len(df) == 0:
+            #         raise ValueError(
+            #             'No runs names matched for run pattern {}'.format(
+            #                 run_pattern))
+            # if filename_pattern is not None:
+            #     self.header += self.add_key_value('Filename pattern', filename_pattern)
+            #     df = df[df.train_data.str.contains(filename_pattern)]
+            #     if len(df) == 0:
+            #         raise ValueError('No runs to list under given filename pattern {}'.format(filename_pattern))
+        if model is not None:
+            self.header += self.add_key_value('Model', model)
+            df = df[df.model == model]
+        df.dropna(axis=1, how='all', inplace=True)
+        return df
 
     def list_runs(
             self, model=None, run_patterns=('*',), filename_pattern=None,
             params=None, metrics=None, averaging='macro', names_only=False,
             top=40, all_params=False, sort_list=None
     ):
+        sort_list = sort_list if sort_list else []
         # set some display options
         pd.set_option('display.max_rows', 300)
         pd.set_option('display.max_colwidth', 300)
         # pd.set_option('display.max_columns', 100)
         # pd.set_option('display.width', 400)
-        default_params = ['preprocess']
+        default_params = []
         default_metrics = ['f1', 'accuracy', 'precision', 'recall']
         # metrics
         if metrics is None:
@@ -95,7 +124,7 @@ class ListRuns:
         if len(df) == 0:
             return
         if top < 0:
-            top = None # show all entries
+            top = None  # show all entries
         if 'name' in sort_list:
             name_sort = True
             sort_list.remove('name')
@@ -106,33 +135,11 @@ class ListRuns:
             df = df.reindex(sorted(
                 df.index, key=lambda x: '_'.join(x.split('_')[:-1])
             )).reset_index()
+        print(self.header)
         if names_only:
             print('\n'.join(df.index))
         else:
             print(df)
-
-    def load_data(self, model=None, run_patterns=('*',), filename_pattern=None):
-        df = ListRuns.collect_results(run_patterns)
-        if len(df) == 0:
-            raise FileNotFoundError('No output data run models could be found.')
-        df.set_index('name', inplace=True)
-        for run_pattern in run_patterns:
-            self.header += self.add_key_value('Pattern', run_pattern)
-        # if run_pattern is not None:
-        #     self.header += self.add_key_value('Pattern', run_pattern)
-        #     df = df[df.index.str.contains(r'{}'.format(run_pattern))]
-        #     if len(df) == 0:
-        #         raise ValueError('No runs nams matched for run pattern {}'.format(run_pattern))
-        # if filename_pattern is not None:
-        #     self.header += self.add_key_value('Filename pattern', filename_pattern)
-        #     df = df[df.train_data.str.contains(filename_pattern)]
-        #     if len(df) == 0:
-        #         raise ValueError('No runs to list under given filename pattern {}'.format(filename_pattern))
-        if model is not None:
-            self.header += self.add_key_value('Model', model)
-            df = df[df.model == model]
-        df.dropna(axis=1, how='all', inplace=True)
-        return df
 
     def format_cols(self, df):
         int_cols = ['num_epochs', 'n_grams', 'train_batch_size', 'test_batch_size']

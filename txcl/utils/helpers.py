@@ -252,7 +252,7 @@ def pretrain(run_config):
             json.dump(result, f, cls=JSONEncoder, indent=4)
 
 
-def generate_config(name, model, params, global_params,
+def generate_config(mode, name, model, params, global_params,
                     train_data=None, test_data=None):
     """Generates a grid search config"""
     def _parse_value(s, allow_str=True):
@@ -328,14 +328,14 @@ def generate_config(name, model, params, global_params,
             keys = k.split('.')
             set_nested_value(run_config, keys, v)
         set_nested_value(run_config, ['model', 'name'], model)
-        run_config['name'] = '{}_{}'.format(name, i)
+        run_config['name'] = '{}_{}_{}'.format(mode, name, i)
         runs.append(run_config)
     if len(runs) == 1:
         # Get rid of integer for a single run
         runs[0]['name'] = runs[0]['name'][:-2]
     config['runs'] = runs
 
-    f_name = 'config.{}.json'.format(name)
+    f_name = 'config.{}.{}.json'.format(mode, name)
     with open(f_name, 'w') as f:
         json.dump(config, f, cls=JSONEncoder, indent=4)
     logger.info(f"Successfully generated file '{f_name}' with {i + 1} runs")

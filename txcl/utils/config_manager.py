@@ -190,7 +190,7 @@ class TrainConf(Conf, _TrainConfDefaultsBase, _TrainConfBase):
     pass
 
 
-# PreprocessConf
+# PredictConf
 @dataclass(frozen=True)
 class _PredictConfBase(_ConfBase):
     name: str
@@ -237,7 +237,7 @@ class ConfigManager:
 
     def _create_dirs(self):
         for run in self.config:
-            if run.folders not in [Folders.EXISTING, Folders.TEST]:
+            if run.folders != Folders.EXISTING:
                 if os.path.isdir(run.path.output):
                     if run.folders == Folders.OVERWRITE:
                         shutil.rmtree(run.path.output)
@@ -329,6 +329,11 @@ class ConfigManager:
                             run['preprocess'] = data_config['preprocess']
                         except KeyError:
                             pass
+
+                if mode == Mode.PREDICT:
+                    run['data'] = {}
+                    run['path'] = {}
+                    run['folders'] = 'new'
 
                 # Pop property params
                 if run.get('model', {}).get('params') is not None:
