@@ -243,8 +243,9 @@ txcl main train -c configs/cli/config.train.ag-news.json
 The trained model's artefacts, performance scores and run logs can be found in `./output/train_fasttext_default`.
 
 6. View the results
-After training you can run 
+After training you can enter your output folder and run the list runs command
 ```bash
+cd output
 txcl main ls
 ```
 to get a list of all trained models.
