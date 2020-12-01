@@ -15,9 +15,10 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     # Updated for fasttext model
     install_requires=[
-        'tqdm', 'pandas', 'swifter', 'numpy', 'scikit-learn', 'hyperopt',
-        'matplotlib', 'seaborn', 'visdom', 'fasttext',
-        'boto3', 'munch', 'docker', 'joblib'],
+        'dacite', 'tqdm', 'pandas', 'swifter', 'numpy', 'scikit-learn',
+        'hyperopt', 'matplotlib', 'seaborn', 'visdom', 'fasttext',
+        'boto3', 'munch', 'docker', 'joblib',
+        'twiprocess @ git+https://github.com/crowdbreaks/twiprocess.git'],
     entry_points={'console_scripts': [
         'txcl=txcl.cli.cli:entry_point']},
     classifiers=[
