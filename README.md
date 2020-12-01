@@ -3,9 +3,18 @@ A simple supervised text classification CLI framework.
 
 
 ## Installation
+### Developer
 ```bash
+git clone https://github.com/crowdbreaks/text-classification.git
+cd text-classification
 pip install -e .
 ```
+
+### User
+```bash
+pip install git+https://github.com/crowdbreaks/text-classification.git
+```
+
 Note: You may need to install additional packages for full functionality.
 
 
@@ -81,7 +90,7 @@ In summary,
     - data
         - *default `'./data'`*
     - output
-        - *defualt `'./output'`*
+        - *default `'./output'`*
     - tmp
         - *default `'./tmp'`*
     - other
