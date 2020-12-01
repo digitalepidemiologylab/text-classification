@@ -1,0 +1,22 @@
+{
+    "globals": {},
+    "runs": [
+        {
+            "data": {
+                "train": "train.txt",
+                "val": "val.txt",
+                "test": "test.csv"
+            },
+            "path": {
+                "data": "./output/preprocess_standardize/"
+            },
+            "model": {
+                "name": "fasttext",
+                "params": {},
+                "save_model": true
+            },
+            "folders": "overwrite",
+            "name": "train_fasttext_default"
+        }
+    ]
+}
