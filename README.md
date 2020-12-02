@@ -240,7 +240,7 @@ cat configs/cli/config.train.ag-news.json
 txcl main preprocess -c configs/cli/config.preprocess.ag-news.json
 ```
 
-You can find your preprocessed data along with an exhaustive config file and label mapping in `.output/preprocess_standardize_anonymize`.
+You can find your preprocessed data along with an exhaustive config file and label mapping in `.output/preprocess_standardize`.
 
 5. Train a model
 Running this command trains and then automatically evaluates the model on the test set. If no `-c` option is given, it will look for a file called `config.json` in the current folder.
