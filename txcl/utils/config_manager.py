@@ -119,12 +119,7 @@ class _ConfDefaultsBase:
     path_init: Paths = Paths()
 
 
-@dataclass(frozen=True)
-class Conf(_ConfDefaultsBase, _ConfBase):
-    @property
-    @lru_cache(maxsize=1)
-    def data(self):
-        def get_path(path_1, path_2):
+def get_path(path_1, path_2):
             if path_2:
                 if not (path_2.startswith('/') or
                         path_2.startswith('.') or
@@ -135,6 +130,12 @@ class Conf(_ConfDefaultsBase, _ConfBase):
             else:
                 return None
 
+
+@dataclass(frozen=True)
+class Conf(_ConfDefaultsBase, _ConfBase):
+    @property
+    @lru_cache(maxsize=1)
+    def data(self):
         return Data(
             train=get_path(
                 self.path_init.data, getattr(self.data_init, 'train', None)),
@@ -228,12 +229,34 @@ class ConfigManager:
     def __init__(self, config_path, mode, create_dirs=False):
         self.config_path = config_path
         self.mode = mode
-        self.raw = self._load_raw()
+        self.raw = self._load_raw(config_path)
         self.config = self._load()
         self._check_config()
         if create_dirs and mode != Mode.PREDICT:
             self._create_dirs()
         logger.info('Created config')
+
+    @staticmethod
+    def _pop_property_params(run):
+        if run.get('model', {}).get('params') is not None:
+            run['model']['params_init'] = json.dumps(
+                run['model'].pop('params'))
+        if run.get('data') is not None:
+            run['data_init'] = run.pop('data')
+        if run.get('path') is not None:
+            run['path_init'] = run.pop('path')
+        return run
+
+    @staticmethod
+    def _pop_property_params_back(run_dump):
+        if run_dump.get('model', {}).get('params_init') is not None:
+            run_dump['model']['params'] = json.dumps(
+                run_dump['model'].pop('params_init'))
+        if run_dump.get('data_init') is not None:
+            run_dump['data'] = run_dump.pop('data_init')
+        if run_dump.get('path_init') is not None:
+            run_dump['path'] = run_dump.pop('path_init')
+        return run_dump
 
     def _create_dirs(self):
         for run in self.config:
@@ -253,14 +276,7 @@ class ConfigManager:
                     run_dump = asdict(run)
 
                     # Pop property params back
-                    # TODO: This is ugly, create functions for that
-                    if run_dump.get('model', {}).get('params_init') is not None:
-                        run_dump['model']['params'] = json.dumps(
-                            run_dump['model'].pop('params_init'))
-                    if run_dump.get('data_init') is not None:
-                        run_dump['data'] = run_dump.pop('data_init')
-                    if run_dump.get('path_init') is not None:
-                        run_dump['path'] = run_dump.pop('path_init')
+                    run_dump = self._pop_property_params_back(run_dump)
 
                     json.dump(run_dump, f, indent=4, cls=EnumEncoder)
 
@@ -289,15 +305,6 @@ class ConfigManager:
                     raise ValueError(
                         "Please fill the 'data.test' "
                         "(and 'path.data') keys")
-
-    def _load_raw(self):
-        try:
-            with open(self.config_path, 'r') as f:
-                return json.load(f)
-        except FileNotFoundError as exc:
-            raise Exception(
-                f"Wrong config path '{self.config_path}'"
-            ) from exc
 
     def _load(self):
         def prepare_config(raw, mode):
@@ -336,13 +343,7 @@ class ConfigManager:
                     run['folders'] = 'new'
 
                 # Pop property params
-                if run.get('model', {}).get('params') is not None:
-                    run['model']['params_init'] = json.dumps(
-                        run['model'].pop('params'))
-                if run.get('data') is not None:
-                    run['data_init'] = run.pop('data')
-                if run.get('path') is not None:
-                    run['path_init'] = run.pop('path')
+                run = self._pop_property_params(run)
 
                 prepared_raw.append(run)
             return prepared_raw
@@ -377,3 +378,13 @@ class ConfigManager:
                 raise ValueError(f"Please fill the '{param}' key")
             config.append(dacite_conf)
         return config
+
+    @staticmethod
+    def _load_raw(config_path):
+        try:
+            with open(config_path, 'r') as f:
+                return json.load(f)
+        except FileNotFoundError as exc:
+            raise Exception(
+                f"Wrong config path '{config_path}'"
+            ) from exc

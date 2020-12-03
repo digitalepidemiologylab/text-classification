@@ -375,9 +375,11 @@ def train_test_split(name, test_size=0.2, label_tags=None,
     train_set, test_set = sklearn.model_selection.train_test_split(
         df, test_size=test_size, random_state=seed, shuffle=True)
     for dtype, data in [['train', train_set], ['test', test_set]]:
-        f_name = '{}_split_{}_seed_{}{}.csv'.format(
-            dtype, int(100 * test_size), seed, flags)
-        f_path = os.path.join('data', f_name)
+        prefix = name.split('/')[-1][:-4]
+        f_name = '{}_{}_split_{}_seed_{}{}.csv'.format(
+            prefix, dtype, int(100 * test_size), seed, flags)
+        f_dir = '/'.join(name.split('/')[:-1])
+        f_path = os.path.join(f_dir, f_name)
         data.to_csv(f_path, index=None, encoding='utf8')
         logger.info(f'Successfully wrote file {f_path}')
 

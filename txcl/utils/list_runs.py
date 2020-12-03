@@ -1,12 +1,12 @@
 import logging
 import os
-import sys
 import glob
 import json
 
 import pandas as pd
 
 from .helpers import flatten_dict
+from .config_manager import get_path
 
 logger = logging.getLogger(__name__)
 
@@ -45,57 +45,70 @@ class ListRuns:
                     **test_output})
         return pd.DataFrame(results)
 
-    def load_data(self, model=None, run_patterns=('*',),
-                  filename_pattern=None):
+    def load_data(self, model=None, data_pattern=None, run_patterns=('*',)):
         df = self.collect_results(run_patterns)
         if len(df) == 0:
-            raise FileNotFoundError('No output data run models could be found.')
+            raise FileNotFoundError('No output training runs could be found')
         df.set_index('name', inplace=True)
-        for run_pattern in run_patterns:
-            self.header += self.add_key_value('Pattern', run_pattern)
-            # if run_pattern is not None:
-            #     self.header += self.add_key_value('Pattern', run_pattern)
-            #     df = df[df.index.str.contains(r'{}'.format(run_pattern))]
-            #     if len(df) == 0:
-            #         raise ValueError(
-            #             'No runs names matched for run pattern {}'.format(
-            #                 run_pattern))
-            # if filename_pattern is not None:
-            #     self.header += self.add_key_value('Filename pattern', filename_pattern)
-            #     df = df[df.train_data.str.contains(filename_pattern)]
-            #     if len(df) == 0:
-            #         raise ValueError('No runs to list under given filename pattern {}'.format(filename_pattern))
+        # Model
         if model is not None:
             self.header += self.add_key_value('Model', model)
             df = df[df.model == model]
+        # Data pattern
+        if data_pattern:
+            self.header += self.add_key_value('Data pattern', data_pattern)
+            df['data.train'] = df.apply(
+                lambda x: get_path(x['path.data'], x['data.train']), axis=1)
+            df = df[df['data.train'].str.contains(data_pattern)]
+            if len(df) == 0:
+                raise ValueError(
+                    'No runs found for the given data pattern '
+                    f"'{data_pattern}'")
+        # Run patterns
+        for run_pattern in run_patterns:
+            self.header += self.add_key_value('Pattern', run_pattern)
         df.dropna(axis=1, how='all', inplace=True)
         return df
 
     def list_runs(
-            self, model=None, run_patterns=('*',), filename_pattern=None,
+            self, save_path=None, model=None, data_pattern=None, run_patterns=('*',),
             params=None, metrics=None, averaging='macro', names_only=False,
             top=40, all_params=False, sort_list=None
     ):
-        sort_list = sort_list if sort_list else []
-        # set some display options
+        # Set some display options
         pd.set_option('display.max_rows', 300)
         pd.set_option('display.max_colwidth', 300)
         # pd.set_option('display.max_columns', 100)
         # pd.set_option('display.width', 400)
         default_params = []
         default_metrics = ['f1', 'accuracy', 'precision', 'recall']
-        # metrics
+
+        # Metrics
         if metrics is None:
             metrics = default_metrics
         for i, m in enumerate(metrics):
             if m in ['f1', 'precision', 'recall']:
                 metrics[i] = '{}_{}'.format(m, averaging)
-        # read data
-        df = self.load_data(model=model, run_patterns=run_patterns, filename_pattern=filename_pattern)
-        # format sci numbers
-        df = self.format_cols(df)
-        # params
-        if params is not None:
+
+        # Read data
+        df = self.load_data(
+            model=model, run_patterns=run_patterns,
+            data_pattern=data_pattern)
+
+        # Format sci numbers
+        # df = self.format_cols(df)
+
+        # Filter params + metrics
+        params = params if params else default_params
+        if all_params:
+            # Show everything
+            df = df[df.columns.drop(list(df.filter(regex='path')))]
+            df = df[df.columns.drop(
+                list(set(df.filter(
+                    regex='|'.join(default_metrics)
+                )) - set(metrics)))]
+        else:
+            # Show selected params + metrics
             cols = []
             for _p in params:
                 for _col in df.columns:
@@ -105,40 +118,23 @@ class ListRuns:
                 if _p in df:
                     cols.append(_p)
             df = df[cols]
-            # df = df[params + metrics]
-        else:
-            if all_params:
-                # show everything apart from meaningless params
-                df = df[df.columns.drop(list(df.filter(regex='path')))]
-                for col in ['overwrite', 'write_test_output']:
-                    if col in df:
-                        df = df[df.columns.drop([col])]
-                df = df[df.columns.drop(list(set(df.filter(regex='|'.join(default_metrics))) - set(metrics)))]
-            else:
-                # use default
-                cols = []
-                for _p in default_params:
-                    for _col in df.columns:
-                        if _p in _col:
-                            cols.append(_col)
-                for _p in metrics:
-                    if _p in df:
-                        cols.append(_p)
-                df = df[cols]
         if len(df) == 0:
             return
         if top < 0:
             top = None  # show all entries
-        if 'name' in sort_list:
-            name_sort = True
-            sort_list.remove('name')
-        else:
-            name_sort = False
+
+        # Sort values
+        sort_list = sort_list if sort_list else []
         df = df.sort_values(sort_list + metrics, ascending=False)[:top]
-        if name_sort is True:
-            df = df.reindex(sorted(
-                df.index, key=lambda x: '_'.join(x.split('_')[:-1])
-            )).reset_index()
+        df = df.reindex(sorted(
+            df.index, key=lambda x: '_'.join(x.split('_')[:-1])
+        ))
+
+        # Save to CSV
+        if save_path:
+            df.to_csv(save_path)
+
+        # Print
         print(self.header)
         if names_only:
             print('\n'.join(df.index))
@@ -146,6 +142,7 @@ class ListRuns:
             print(df)
 
     def format_cols(self, df):
+        # TODO: It's a bit useless now, think of what to do with it
         int_cols = ['num_epochs', 'n_grams', 'train_batch_size', 'test_batch_size']
         for int_col in int_cols:
             try:

@@ -337,8 +337,14 @@ def optimize(parser):
 def ls(parser):
     """List trained models."""
     parser.add_argument(
+        '-s', '--save-path', type=str, default=None,
+        help="saves results as CSV to a given path (don't forget '.csv')")
+    parser.add_argument(
         '-m', '--model', type=str, default=None,
         help='only show certain models')
+    parser.add_argument(
+        '-d', '--data-pattern', type=str, default=None,
+        help='filter by data path pattern')
     parser.add_argument(
         '-r', '--run-patterns', type=str, default=('*',), nargs='+',
         help='filter by run name patterns')
