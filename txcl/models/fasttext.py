@@ -155,14 +155,17 @@ class FastText(BaseModel):
         } for candidate in zip(candidates[0], candidates[1])]
         return predictions
 
-    def test(self, config):
+    def test(self, config, validation=False):
         self.set_logging(config.path.output)
         self.setup(config.path.data, config.path.output)
 
+        mode = 'validation' if validation else 'test'
+        data_path = config.data.val if validation else config.data.test
+
         # Preparing data
-        logger.info('Reading test data...')
+        logger.info('Reading %s data...', mode)
         df = pd.read_csv(
-            config.data.test,
+            data_path,
             usecols=['text', 'label'], dtype={'text': str, 'label': str})
         test_x, test_y = df['text'].tolist(), df['label'].tolist()
         test_y = [self.label_mapping[y] for y in test_y]
@@ -279,13 +282,12 @@ def prepare_data(data_path, output_dir_path,
         for _, row in df.iterrows():
             f.write(f'{label_prefix}{row.label} '
                     f'{row.text}\n')
-    if 'test' in os.path.basename(data_path) or 'dev' in os.path.basename(data_path) or 'all' in os.path.basename(data_path):
-        # Create paths
-        output_file_path = os.path.join(
-            output_dir_path, os.path.basename(data_path))
-        paths.append(output_file_path)
-        # Write
-        df.to_csv(
-            output_file_path,
-            index=False, header=True)
+    # Create paths
+    output_file_path = os.path.join(
+        output_dir_path, os.path.basename(data_path))
+    paths.append(output_file_path)
+    # Write
+    df.to_csv(
+        output_file_path,
+        index=False, header=True)
     return paths

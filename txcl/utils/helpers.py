@@ -99,30 +99,25 @@ def preprocess(run_config):
         logger.info(f"Prepared data from '{v}' to '{data_path}'")
 
 
-def train(run_config):
-    model = get_model(run_config.model.name)
-    if getattr(run_config.data, 'augment', None):
-        logger.info('Augmenting training data')
-        run_config = augment(run_config)
-    # Train
-    logger.info("\n\nStart training model for '%s'", run_config.name)
-    if not run_config.test_only:
-        model.train(run_config)
-    # Test
-    logger.info("\n\nTest results for '{}':\n".format(run_config.name))
+def test(run_config, model=None, validation=False):
+    mode = 'validation' if validation else 'test'
+
+    logger.info(f"\n\n{mode.capitalize()} results for '{run_config.name}':\n")
     output = '\n'
-    result = model.test(run_config)
+
+    model = model if model else get_model(run_config.model.name)
+    result = model.test(run_config, validation)
     if result is None:
-        logger.warning('No test results generated')
+        logger.warning(f'No {mode} results were generated')
         return
-    test_output = os.path.join(run_config.path.output, 'test_output.json')
     if run_config.write_test_output:
         keys = ['text', 'label', 'prediction']
         df = pd.DataFrame({i: result[i] for i in keys})
-        df.to_csv(os.path.join(run_config.path.output, 'test_output.csv'))
+        df.to_csv(os.path.join(run_config.path.output, f'{mode}_output.csv'))
         for k in keys:
             result.pop(k, None)
-    with open(test_output, 'w') as outfile:
+    json_path = os.path.join(run_config.path.output, f'{mode}_output.json')
+    with open(json_path, 'w') as outfile:
         json.dump(result, outfile, cls=JSONEncoder, indent=4)
     print_keys = ['accuracy', 'recall', 'precision', 'f1', 'test_loss', 'loss']
     for key in print_keys:
@@ -136,9 +131,21 @@ def train(run_config):
                     output += '{:<20}: {:.4f}\n'.format(
                         new_key, result[new_key])
     logger.info(output)
-    logger.info("Training for model '%s' finished. "
-                "Model output written to '%s'",
-                run_config.name, run_config.path.output)
+    logger.info("The output was written to '%s'", run_config.path.output)
+
+
+def train(run_config):
+    model = get_model(run_config.model.name)
+    if getattr(run_config.data, 'augment', None):
+        logger.info('Augmenting training data')
+        run_config = augment(run_config)
+    # Train
+    logger.info("\n\nStart training model for '%s'", run_config.name)
+    if not run_config.test_only:
+        model.train(run_config)
+    # Validate
+    test(run_config, model, validation=True)
+    logger.info("Training for the model '%s' has finished", run_config.name)
 
 
 def predict(run_config, path=None, data=None, output_cols=[],

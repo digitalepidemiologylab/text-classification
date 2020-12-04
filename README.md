@@ -264,14 +264,23 @@ Output:
 List runs
 ---------
 
+- Mode:  Validation 
 - Pattern:           * 
 
-                        f1_macro  precision_macro  recall_macro  accuracy
-name                                                                     
-train_fasttext_default  0.844657         0.844617      0.844838  0.844906
+                              f1_macro  precision_macro  recall_macro  accuracy
+name                                                                           
+train_fasttext_lr_0.005_ws_5  0.860970         0.861144      0.861245  0.860972
+train_fasttext_lr_0.005_ws_3  0.860365         0.860538      0.860666  0.860384
+train_fasttext_lr_0.05_ws_3   0.861411         0.861472      0.861625  0.861364
+train_fasttext_lr_0.05_ws_5   0.860968         0.861013      0.861198  0.860933
 ```
 
-Note: `generate-config` is a work in progress, [Olesia](https://github.com/utanashati) is going to rewrite this soon.
+7. Test the model of your choice
+After you finish the fine-tuning process, pick your best model and test it with
+```bash
+cd ..
+txcl main test -r output/train_fasttext_lr_0.05_ws_3
+```
 
 
 ## Contribute

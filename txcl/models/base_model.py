@@ -37,7 +37,7 @@ class BaseModel:
         """Train model based on :attr:`config`."""
         raise NotImplementedError
 
-    def test(self, config):
+    def test(self, config, validation=False):
         raise NotImplementedError
 
     def predict(self, config, data):

@@ -96,6 +96,25 @@ def train(parser):
     parser.set_defaults(func=_train)
 
 
+def test(parser):
+    """Tests a given model run."""
+    parser.add_argument(
+        '-r', '--run-path', type=str, required=True,
+        help='path to the model run')
+
+    def _test(args):
+        config_manager = ConfigManager(os.path.join(
+            args.run_path, 'run_config.json'), Mode.TRAIN, create_dirs=False)
+        del args.run_path
+        if len(config_manager.config) != 1:
+            raise ValueError(
+                "For prediction, use config files with a single run")
+        run_config = config_manager.config[0]
+        helpers.test(run_config, **vars(args))
+
+    parser.set_defaults(func=_test)
+
+
 def predict(parser):
     """Predicts classes based on a config file and input data and
     output predictions.
@@ -336,6 +355,9 @@ def optimize(parser):
 
 def ls(parser):
     """List trained models."""
+    parser.add_argument(
+        '--test', default=False, action='store_true',
+        help='show test results')
     parser.add_argument(
         '-s', '--save-path', type=str, default=None,
         help="saves results as CSV to a given path (don't forget '.csv')")

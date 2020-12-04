@@ -16,10 +16,12 @@ class ListRuns:
         self.header = 'List runs\n---------\n\n'
 
     @staticmethod
-    def collect_results(runs=('*',)):
+    def collect_results(runs=('*',), test=False):
         """Compiles run hyperparameters/performance scores into
         a single ``pandas.DataFrame``.
         """
+        mode = 'test' if test else 'validation'
+
         work_dir = os.getcwd()
         paths = []
         for run in runs:
@@ -29,12 +31,12 @@ class ListRuns:
         for path in paths:
             if os.path.isdir(path):
                 config_path = os.path.join(path, 'run_config.json')
-                test_output_path = os.path.join(path, 'test_output.json')
+                output_path = os.path.join(path, f'{mode}_output.json')
                 try:
                     with open(config_path, 'r') as f_p:
                         run_config = json.load(f_p)
-                    with open(test_output_path, 'r') as f_p:
-                        test_output = json.load(f_p)
+                    with open(output_path, 'r') as f_p:
+                        output = json.load(f_p)
                 except FileNotFoundError:
                     continue
                 run_config_flat = flatten_dict(run_config)
@@ -42,13 +44,16 @@ class ListRuns:
                     '.'.join(k): v for k, v in run_config_flat.items()}
                 results.append({
                     **run_config_flat,
-                    **test_output})
+                    **output})
         return pd.DataFrame(results)
 
-    def load_data(self, model=None, data_pattern=None, run_patterns=('*',)):
-        df = self.collect_results(run_patterns)
+    def load_data(self, model=None, data_pattern=None, run_patterns=('*',),
+                  test=False):
+        mode = 'test' if test else 'validation'
+        df = self.collect_results(run_patterns, test)
         if len(df) == 0:
             raise FileNotFoundError('No output training runs could be found')
+        self.header += self.add_key_value('Mode', mode.capitalize())
         df.set_index('name', inplace=True)
         # Model
         if model is not None:
@@ -73,7 +78,7 @@ class ListRuns:
     def list_runs(
             self, save_path=None, model=None, data_pattern=None, run_patterns=('*',),
             params=None, metrics=None, averaging='macro', names_only=False,
-            top=40, all_params=False, sort_list=None
+            top=40, all_params=False, sort_list=None, test=False
     ):
         # Set some display options
         pd.set_option('display.max_rows', 300)
@@ -93,7 +98,7 @@ class ListRuns:
         # Read data
         df = self.load_data(
             model=model, run_patterns=run_patterns,
-            data_pattern=data_pattern)
+            data_pattern=data_pattern, test=test)
 
         # Format sci numbers
         # df = self.format_cols(df)
