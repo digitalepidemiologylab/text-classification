@@ -249,7 +249,7 @@ Running this command trains and then automatically evaluates the model on the te
 txcl main train -c configs/cli/config.train.ag-news.json
 ```
 
-The trained model's artefacts, performance scores and run logs can be found in `./output/train_fasttext_lr_0.05_ws_3`, `train_fasttext_lr_0.005_ws_3`, `train_fasttext_lr_0.05_ws_5` and `train_fasttext_lr_0.005_ws_5`.
+The trained model's artefacts, performance scores and run logs can be found in `./output/train_fasttext_lr_0.05_ws_3`, `train_fasttext_lr_0.005_ws_3`, `train_fasttext_lr_0.05_ws_5` and `train_fasttext_lr_0.005_ws_`.
 
 6. View the results
 After training you can enter your output folder and run the list runs command
