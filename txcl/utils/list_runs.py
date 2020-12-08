@@ -58,7 +58,7 @@ class ListRuns:
         # Model
         if model is not None:
             self.header += self.add_key_value('Model', model)
-            df = df[df.model == model]
+            df = df[df['model.name'] == model]
         # Data pattern
         if data_pattern:
             self.header += self.add_key_value('Data pattern', data_pattern)
