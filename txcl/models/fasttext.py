@@ -130,7 +130,8 @@ class FastText(BaseModel):
             'minn': 0,
             'maxn': 0,
             'loss': "softmax",
-            'model': "supervised"
+            'model': "supervised",
+            'verbose': 0
         })
 
         # Save model state
