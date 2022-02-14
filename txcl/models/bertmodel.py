@@ -4,7 +4,7 @@ BERT
 """
 
 from .base_model import BaseModel
-from ..utils import Viz
+from ..utils import viz
 import csv
 import logging
 import os
