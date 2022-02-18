@@ -18,11 +18,12 @@ from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 import torch.nn.functional
+from torch.optim import AdamW
 from transformers import (
         AutoModelForSequenceClassification,
         AutoConfig,
         AutoTokenizer,
-        AdamW,
+        # AdamW,
         get_linear_schedule_with_warmup)
 
 logger = logging.getLogger(__name__)
@@ -54,13 +55,15 @@ class BERTModel(BaseModel):
             self.optimizer = FusedAdam(optimizer_grouped_parameters,
                                   lr=self.learning_rate,
                                   bias_correction=False,
+                                  eps = self.adam_epsilon,
+                                  weight_decay=self.weight_decay_rate,
                                   max_grad_norm=1.0)
             if self.loss_scale == 0:
                 self.optimizer = FP16_Optimizer(self.optimizer, dynamic_loss_scale=True)
             else:
                 self.optimizer = FP16_Optimizer(self.optimizer, static_loss_scale=self.loss_scale)
         else:
-            self.optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate)
+            self.optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate, eps=self.adam_epsilon, weight_decay=self.weight_decay_rate)
             self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_warmup_steps=self.warmup_steps, num_training_steps=self.num_train_optimization_steps)
 
 
@@ -91,7 +94,9 @@ class BERTModel(BaseModel):
             for step, batch in enumerate(pbar):
                 batch = tuple(t.to(self.device) for t in batch)
                 input_ids, input_mask, segment_ids, label_ids = batch
-                loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+                outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+                loss = outputs[0]
+                logits = outputs[1]
                 if self.n_gpu > 1:
                     loss = loss.mean() # mean() to average on multi-gpu.
                 if self.gradient_accumulation_steps > 1:
@@ -115,7 +120,7 @@ class BERTModel(BaseModel):
                     self.optimizer.zero_grad()
                     global_step += 1
             # evaluate model
-            if config.eval_after_epoch:
+            if self.eval_after_epoch:
                 self.model.eval()
                 nb_train_steps, nb_train_examples = 0, 0
                 train_accuracy, train_loss = 0, 0
@@ -134,6 +139,7 @@ class BERTModel(BaseModel):
                 train_accuracy = 100 * train_accuracy / nb_train_examples
                 print("{bar}\nEpoch {}:\nTraining loss: {:8.4f} | Training accuracy: {:.2f}%\n{bar}".format(epoch+1, train_loss, train_accuracy, bar=80*'='))
 
+        __import__('pdb').set_trace()
         # Save model
         model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model it-self
         logger.info(f'Saving model to {self.output_path}...')
@@ -143,7 +149,7 @@ class BERTModel(BaseModel):
         # Setup
         self._setup_bert(config, setup_mode='test')
         # Run test
-        eval_examples = self.processor.get_dev_examples(self.test_data)
+        eval_examples = self.processor.get_dev_examples(self.test_path)
         eval_features = self.convert_examples_to_features(eval_examples)
         logger.debug("***** Running evaluation *****")
         logger.debug("  Num examples = %d", len(eval_examples))
@@ -175,7 +181,7 @@ class BERTModel(BaseModel):
         result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=self.label_mapping)
         if self.write_test_output:
             test_output = self.get_full_test_output(result['prediction'], result['label'], label_mapping=self.label_mapping,
-                    test_data_path=self.test_data)
+                    test_data_path=self.test_path)
             result_out = {**result_out, **test_output}
         return result_out
 
@@ -209,55 +215,59 @@ class BERTModel(BaseModel):
 
     def _setup_bert(self, config, setup_mode='train', data=None):
         # Paths
-        self.model_path = os.path.join(config.other_path, 'bert')
-        self.output_path = config.output_path
-        self.train_data = config.train_data
-        self.test_data = config.test_data
-        if config.pretrain_name:
-            self.pretrain_path = config.get('pretrain_model_path', os.path.join(config.other_path, 'pretrain', 'bert', config.pretrain_name))
+        self.model_path = os.path.join(config.path.other, 'bert')
+        self.output_path = config.path.output
+        self.train_path = config.data.train
+        self.test_path = config.data.test
+        if config.model.params.get('pretrain_name', None):
+            self.pretrain_path = config.model.params.get('pretrain_model_path', os.path.join(config.path.other, 'pretrain', 'bert', config.model.params.get('pretrain_name', None)))
         else:
             self.pretrain_path = None
 
         # Hyperparams
-        self.max_seq_length = config.get('max_seq_length', 96)
-        self.train_batch_size = config.get('train_batch_size', 32)
-        self.eval_batch_size = config.get('eval_batch_size', 32)
+        self.max_seq_length = config.model.params.get('max_seq_length', 96)
+        self.train_batch_size = config.model.params.get('train_batch_size', 32)
+        self.eval_batch_size = config.model.params.get('eval_batch_size', 32)
         # Initial learning rate for Adam optimizer
-        self.learning_rate = config.get('learning_rate', 5e-5)
-        self.num_epochs = int(config.get('num_epochs', 3))
-        # Proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training.
-        self.warmup_steps = config.get('warmup_steps', 100)
-        self.no_cuda = config.get('no_cuda', False)
-        #local_rank for distributed training on gpus
-        self.local_rank = config.get('local_rank', -1)
+        self.learning_rate = config.model.params.get('learning_rate', 5e-5)
+        self.num_epochs = int(config.model.params.get('num_epochs', 3))
         # Number of updates steps to accumulate before performing a backward/update pass.
-        self.gradient_accumulation_steps = config.get('gradient_accumulation_steps', 1)
-        self.seed = config.get('seed', np.random.randint(1e4))
+        self.gradient_accumulation_steps = config.model.params.get('gradient_accumulation_steps', 1)
+        # Proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training.
+        self.warmup_steps = int(self.num_epochs * len(pd.read_csv(self.train_path)) * config.model.params.get('warmup_proportion', 0.1) / (self.train_batch_size * self.gradient_accumulation_steps))
+        self.no_cuda = config.model.params.get('no_cuda', False)
+        #local_rank for distributed training on gpus
+        self.local_rank = config.model.params.get('local_rank', -1) # disable distributed training by setting local_rank = -1
+        self.seed = config.model.params.get('seed', np.random.randint(1e4))
         # Use 16 bit float precision (instead of 32bit)
-        self.fp16 = config.get('fp16', False)
+        self.fp16 = config.model.params.get('fp16', False)
         # Loss scaling to improve fp16 numeric stability. Only used when fp16 set to True.
         # 0 (default value): dynamic loss scaling. Positive power of 2: static loss scaling value.
-        self.loss_scale = config.get('loss_scale', 0.0)
+        self.loss_scale = config.model.params.get('loss_scale', 0.0)
 
+        self.adam_epsilon = config.model.params.get('adam_epsilon', 1e-8)
+        self.eval_after_epoch = config.model.params.get('eval_after_epoch', True)
+        self.weight_decay_rate = config.model.params.get('weight_decay_rate', 1e-4)
         # Meta params
-        self.write_test_output = config.get('write_test_output', False)
-        self.use_pretrain_model = config.get('use_pretrain_model', False)
-        self.run_index = config.get('run_index', 0)
-        self.learning_curve_fraction = config.get('learning_curve_fraction', 0)
-        self.output_attentions = config.get('output_attentions', False)
+        self.output_attentions = config.model.params.get('output_attentions', False)
+        self.write_test_output = config.write_test_output
+        # self.use_pretrain_model = config.get('use_pretrain_model', False)
+        # self.run_index = config.get('run_index', 0)
+        # self.learning_curve_fraction = config.get('learning_curve_fraction', 0)
 
         # GPU config
-        if self.local_rank == -1 or self.no_cuda:
-            self.device = torch.device("cuda" if torch.cuda.is_available() and not self.no_cuda else "cpu")
-            self.n_gpu = torch.cuda.device_count()
-        else:
-            torch.cuda.set_device(self.local_rank)
-            self.device = torch.device("cuda", self.local_rank)
-            self.n_gpu = 1
-            # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
-            torch.distributed.init_process_group(backend='nccl')
-        if self.no_cuda:
+        if not torch.cuda.is_available() or self.no_cuda:
+            self.device = torch.device("cpu")
             self.n_gpu = 0
+        else: # cuda is available and we want to use it
+            if self.local_rank == -1:
+                self.device = torch.device("cuda")
+                self.n_gpu = torch.cuda.device_count()
+            else: # Distributed Data Parallel (DDP)
+                torch.cuda.set_device(self.local_rank)
+                self.n_gpu = 1
+                torch.distributed.init_process_group(backend='nccl')
+
         if setup_mode == 'train': 
             logger.info("Initialize BERT: device: {}, n_gpu: {}, distributed training: {}, 16-bits training: {}".format(self.device, self.n_gpu, bool(self.local_rank != -1), self.fp16))
         if self.gradient_accumulation_steps < 1:
@@ -273,18 +283,18 @@ class BERTModel(BaseModel):
 
         # label mapping
         if setup_mode == 'train':
-            self.label_mapping = self.set_label_mapping(config)
+            self.label_mapping = self._set_label_mapping(self.train_path, self.test_path, self.output_path)
         elif setup_mode in ['test', 'predict']:
-            self.label_mapping = self.get_label_mapping(config)
+            self.label_mapping = self.load_label_mapping(self.output_path)
 
         # Build model
-        self.processor = SentimentClassificationProcessor(self.train_data, self.label_mapping)
+        self.processor = SentimentClassificationProcessor(self.train_path, self.label_mapping)
         num_labels = len(self.label_mapping)
-        self.model_type = config.get('model_type', 'bert-base-uncased')
+        self.model_type = config.model.params.get('model_type', 'bert-base-uncased')
         self.do_lower_case = 'uncased' in self.model_type
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
         if setup_mode == 'train':
-            self.train_examples = self.processor.get_train_examples(self.train_data)
+            self.train_examples = self.processor.get_train_examples(self.train_path)
             self.num_train_optimization_steps = int(len(self.train_examples) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_epochs
             if self.local_rank != -1:
                 self.num_train_optimization_steps = self.num_train_optimization_steps // torch.distributed.get_world_size()
@@ -296,7 +306,7 @@ class BERTModel(BaseModel):
                 config = AutoConfig.from_pretrained(self.pretrain_path, num_labels=num_labels, label2id=self.label_mapping)
                 self.model = AutoModelForSequenceClassification.from_pretrained(
                         self.pretrain_path,
-                        cache_dir=self.model_path,
+                        cache_dir=self.model_path, # Path to a directory in which a downloaded pretrained model configuration should be cached if the standard cache should not be used.
                         config=config) 
             else:
                 logger.info('Loading pretrained model {}...'.format(self.model_type))
