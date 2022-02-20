@@ -130,8 +130,15 @@ class BERTModel(BaseModel):
                     segment_ids = segment_ids.to(self.device)
                     label_ids = label_ids.to(self.device)
                     with torch.no_grad():
-                        loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
-                    train_accuracy += self.accuracy(logits.to('cpu').numpy(), label_ids.to('cpu').numpy())
+                        outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+                        loss = outputs[0]
+                        logits = outputs[1]
+                    if self.device.type != 'cpu':
+                        logits = logits.to('cpu')
+                        label_ids = label_ids.to('cpu')
+                    logits = logits.numpy()
+                    label_ids = label_ids.numpy()
+                    train_accuracy += self.accuracy(logits, label_ids)
                     train_loss += loss.mean().item()
                     nb_train_examples += input_ids.size(0)
                     nb_train_steps += 1
@@ -139,7 +146,6 @@ class BERTModel(BaseModel):
                 train_accuracy = 100 * train_accuracy / nb_train_examples
                 print("{bar}\nEpoch {}:\nTraining loss: {:8.4f} | Training accuracy: {:.2f}%\n{bar}".format(epoch+1, train_loss, train_accuracy, bar=80*'='))
 
-        __import__('pdb').set_trace()
         # Save model
         model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model it-self
         logger.info(f'Saving model to {self.output_path}...')
@@ -171,6 +177,9 @@ class BERTModel(BaseModel):
             segment_ids = segment_ids.to(self.device)
             label_ids = label_ids.to(self.device)
             tmp_eval_loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+            outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+            tmp_eval_loss = outputs[0]
+            logits = outputs[1]
             logits = logits.detach().cpu().numpy()
             label_ids = label_ids.to('cpu').numpy()
             result['prediction'].extend(np.argmax(logits, axis=1).tolist())
