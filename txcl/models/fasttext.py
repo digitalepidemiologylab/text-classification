@@ -165,9 +165,10 @@ class FastText(BaseModel):
 
         # Preparing data
         logger.info('Reading %s data...', mode)
-        df = pd.read_csv(
-            data_path,
-            usecols=['text', 'label'], dtype={'text': str, 'label': str})
+        df = pd.read_csv(data_path, sep='', header=None)
+        df.columns = ['text', 'label']
+        df = df.astype({'text': str, 'label': str})
+        
         test_x, test_y = df['text'].tolist(), df['label'].tolist()
         test_y = [self.label_mapping[y] for y in test_y]
 
