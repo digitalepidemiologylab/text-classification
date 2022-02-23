@@ -2,8 +2,8 @@
     "globals": {
         "data": {
             "train": "train.txt",
-            "val": "val.csv",
-            "test": "test.csv"
+            "val": "val.txt",
+            "test": "test.txt"
         },
         "path": {
             "data": "./output/preprocess_standardize/"
