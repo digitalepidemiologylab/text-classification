@@ -278,6 +278,5 @@ def prepare_data(data_path, output_dir_path,
     # Write
     with open(output_file_path, 'w') as f:
         for _, row in df.iterrows():
-            f.write(f'{label_prefix}{row.label} '
-                    f'{row.text}\n')
+            f.write(f'{label_prefix}{row.label}' + '\t' + f'{row.text}\n')
     return output_file_path
