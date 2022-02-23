@@ -165,9 +165,9 @@ class FastText(BaseModel):
 
         # Preparing data
         logger.info('Reading %s data...', mode)
-        df = pd.read_csv(
-            data_path,
-            usecols=['text', 'label'], dtype={'text': str, 'label': str})
+        df = pd.read_csv(data_path, sep='\t', header=None, names=['label', 'text'])
+        df = df.astype({'text': str, 'label': str})
+        
         test_x, test_y = df['text'].tolist(), df['label'].tolist()
         test_y = [self.label_mapping[y] for y in test_y]
 
@@ -264,7 +264,6 @@ def prepare_data(data_path, output_dir_path,
         output_file_path (str): Path to temporary file with
             preprocessed formatted data
     """
-    paths = []
     try:
         label_prefix = preprocessing_config['label_prefix']
         del preprocessing_config['label_prefix']
@@ -272,23 +271,12 @@ def prepare_data(data_path, output_dir_path,
         label_prefix = '__label__'
     # Preprocess data
     df = preprocess_data(data_path, preprocessing_config)
-    # Write data
     # Create paths
     output_file_path = os.path.join(
         output_dir_path, os.path.basename(data_path))
     output_file_path = '.'.join(output_file_path.split('.')[:-1] + ['txt'])
-    paths.append(output_file_path)
     # Write
     with open(output_file_path, 'w') as f:
         for _, row in df.iterrows():
-            f.write(f'{label_prefix}{row.label} '
-                    f'{row.text}\n')
-    # Create paths
-    output_file_path = os.path.join(
-        output_dir_path, os.path.basename(data_path))
-    paths.append(output_file_path)
-    # Write
-    df.to_csv(
-        output_file_path,
-        index=False, header=True)
-    return paths
+            f.write(f'{label_prefix}{row.label}' + '\t' + f'{row.text}\n')
+    return output_file_path

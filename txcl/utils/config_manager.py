@@ -103,7 +103,8 @@ class Preprocess:
     replace_email_with: Union[str, None] = None
     lemmatize: bool = False
     remove_stop_words: bool = False
-
+    replace_multiple_usernames: bool = True
+    replace_multiple_urls: bool = True
 
 # Conf
 # Python dataclass inheritance: https://stackoverflow.com/a/53085935/4949133
