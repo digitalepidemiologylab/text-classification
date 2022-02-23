@@ -5,14 +5,21 @@ BERT
 
 from .base_model import BaseModel
 from ..utils import viz
+
+import os
 import csv
 import logging
-import os
+import json
+import re
+
+from tqdm import tqdm, trange
 import random
 import sys
 import numpy as np
 import pandas as pd
-from tqdm import tqdm, trange
+import twiprocess as twp
+import swifter
+
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 from torch.utils.data.sampler import RandomSampler, SequentialSampler
@@ -23,10 +30,10 @@ from transformers import (
         AutoModelForSequenceClassification,
         AutoConfig,
         AutoTokenizer,
-        # AdamW,
         get_linear_schedule_with_warmup)
 
 logger = logging.getLogger(__name__)
+
 
 class BERTModel(BaseModel):
     def __init__(self):
@@ -64,31 +71,47 @@ class BERTModel(BaseModel):
                 self.optimizer = FP16_Optimizer(self.optimizer, static_loss_scale=self.loss_scale)
         else:
             self.optimizer = AdamW(optimizer_grouped_parameters, lr=self.learning_rate, eps=self.adam_epsilon, weight_decay=self.weight_decay_rate)
+            # Method that enables to adjust the learning rate based on the number of epochs
             self.scheduler = get_linear_schedule_with_warmup(self.optimizer, num_warmup_steps=self.warmup_steps, num_training_steps=self.num_train_optimization_steps)
 
-
-        # Run training
-        global_step = 0
-        tr_loss = 0
+        # Preparing training data
         train_features = self.convert_examples_to_features(self.train_examples)
-        logger.debug("***** Running training *****")
-        logger.debug("  Num examples = %d", len(self.train_examples))
-        logger.debug("  Batch size = %d", self.train_batch_size)
-        logger.debug("  Num steps = %d", self.num_train_optimization_steps)
+
         all_input_ids = torch.tensor([f.input_ids for f in train_features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in train_features], dtype=torch.long)
         all_segment_ids = torch.tensor([f.segment_ids for f in train_features], dtype=torch.long)
         all_label_ids = torch.tensor([f.label_id for f in train_features], dtype=torch.long)
+        
         train_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
         if self.local_rank == -1:
             train_sampler = RandomSampler(train_data)
         else:
             train_sampler = DistributedSampler(train_data)
         train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=self.train_batch_size)
-        loss_vs_time = []
+
+        # Preparing evaluation data
+        eval_features = self.convert_examples_to_features(self.eval_examples)
+        
+        eval_input_ids = torch.tensor([f.input_ids for f in eval_features], dtype=torch.long)
+        eval_input_mask = torch.tensor([f.input_mask for f in eval_features], dtype=torch.long)
+        eval_segment_ids = torch.tensor([f.segment_ids for f in eval_features], dtype=torch.long)
+        eval_label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
+        
+        eval_data = TensorDataset(eval_input_ids, eval_input_mask, eval_segment_ids, eval_label_ids)
+        eval_sampler = SequentialSampler(eval_data) 
+        eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=self.eval_batch_size)
+
+        # Run training
+        logger.info("***** Running training *****")
+        logger.info(f"Number of training examples = {len(self.train_examples)}")
+        logger.info(f"Batch size = {self.train_batch_size}")
+        logger.info(f"Total number of steps over all epochs = {self.num_train_optimization_steps}")
+        logger.info(f'Number of epochs = {self.num_epochs}')
+        logger.info(f'Models are saved to {self.output_path}')
+        eval_loss_epochs = []
         for epoch in range(int(self.num_epochs)):
             self.model.train()
-            nb_tr_examples, nb_tr_steps = 0, 0
+            nb_train_examples, nb_train_steps = 0, 0
             epoch_loss = 0
             pbar = tqdm(train_dataloader)
             for step, batch in enumerate(pbar):
@@ -106,87 +129,99 @@ class BERTModel(BaseModel):
                 else:
                     loss.backward()
                 loss = loss.item()
-                tr_loss += loss
                 epoch_loss += loss
                 if step > 0:
-                    pbar.set_description("Loss: {:8.4f} | Average loss/it: {:8.4f}".format(loss, epoch_loss/step))
-                nb_tr_examples += input_ids.size(0)
-                nb_tr_steps += 1
+                    pbar.set_description("Training loss: {:8.4f} | Average loss/it: {:8.4f}".format(loss, epoch_loss/step))
+                nb_train_examples += input_ids.size(0)
+                nb_train_steps += 1
                 if (step + 1) % self.gradient_accumulation_steps == 0:
                     # Gradient clipping
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), 1.0)
                     self.optimizer.step()
                     self.scheduler.step()
                     self.optimizer.zero_grad()
-                    global_step += 1
-            # evaluate model
-            if self.eval_after_epoch:
-                self.model.eval()
-                nb_train_steps, nb_train_examples = 0, 0
-                train_accuracy, train_loss = 0, 0
-                for input_ids, input_mask, segment_ids, label_ids in tqdm(train_dataloader, desc="Evaluating"):
-                    input_ids = input_ids.to(self.device)
-                    input_mask = input_mask.to(self.device)
-                    segment_ids = segment_ids.to(self.device)
-                    label_ids = label_ids.to(self.device)
-                    with torch.no_grad():
-                        outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
-                        loss = outputs[0]
-                        logits = outputs[1]
-                    if self.device.type != 'cpu':
-                        logits = logits.to('cpu')
-                        label_ids = label_ids.to('cpu')
-                    logits = logits.numpy()
-                    label_ids = label_ids.numpy()
-                    train_accuracy += self.accuracy(logits, label_ids)
-                    train_loss += loss.mean().item()
-                    nb_train_examples += input_ids.size(0)
-                    nb_train_steps += 1
-                train_loss = train_loss / nb_train_steps
-                train_accuracy = 100 * train_accuracy / nb_train_examples
-                print("{bar}\nEpoch {}:\nTraining loss: {:8.4f} | Training accuracy: {:.2f}%\n{bar}".format(epoch+1, train_loss, train_accuracy, bar=80*'='))
-
-        # Save model
-        model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model it-self
-        logger.info(f'Saving model to {self.output_path}...')
-        model_to_save.save_pretrained(self.output_path)
+            # Evaluate model
+            self.model.eval()
+            nb_eval_steps, nb_eval_examples = 0, 0
+            eval_accuracy, eval_loss = 0, 0
+            for input_ids, input_mask, segment_ids, label_ids in tqdm(eval_dataloader, desc="Evaluating"):
+                input_ids = input_ids.to(self.device)
+                input_mask = input_mask.to(self.device)
+                segment_ids = segment_ids.to(self.device)
+                label_ids = label_ids.to(self.device)
+                with torch.no_grad():
+                    outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+                    loss = outputs[0]
+                    logits = outputs[1]
+                if self.device.type != 'cpu':
+                    logits = logits.to('cpu')
+                    label_ids = label_ids.to('cpu')
+                logits = logits.numpy()
+                label_ids = label_ids.numpy()
+                eval_accuracy += self.accuracy(logits, label_ids)
+                eval_loss += loss.mean().item()
+                nb_eval_examples += input_ids.size(0)
+                nb_eval_steps += 1
+            eval_loss = eval_loss / nb_eval_steps
+            eval_loss_epochs.append(eval_loss)
+            eval_accuracy = 100 * eval_accuracy / nb_eval_examples
+            logger.info("{bar}\nEpoch {}:\nValidation loss: {:8.4f} | Validation accuracy: {:.2f}%\n{bar}".format(epoch+1, eval_loss, eval_accuracy, bar=80*'='))
+            if epoch == 0:
+                model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model itself
+                logger.info(f'Saving model after first epoch...')
+                model_to_save.save_pretrained(self.output_path)
+                continue
+            elif eval_loss == min(eval_loss_epochs):
+                model_to_save = self.model.module if hasattr(self.model, 'module') else self.model  # Only save the model itself
+                logger.info(f'Validation loss improved. Saving model...')
+                model_to_save.save_pretrained(self.output_path)
+            else:
+                logger.info('No improvement for validation loss')
 
     def test(self, config):
         # Setup
         self._setup_bert(config, setup_mode='test')
+        test_examples = self.processor.get_test_examples(self.test_path)
+
+        # Preparing test data
+        test_features = self.convert_examples_to_features(test_examples)
+        
+        all_input_ids = torch.tensor([f.input_ids for f in test_features], dtype=torch.long)
+        all_input_mask = torch.tensor([f.input_mask for f in test_features], dtype=torch.long)
+        all_segment_ids = torch.tensor([f.segment_ids for f in test_features], dtype=torch.long)
+        all_label_ids = torch.tensor([f.label_id for f in test_features], dtype=torch.long)
+
+        test_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
+        test_sampler = SequentialSampler(test_data)
+        test_dataloader = DataLoader(test_data, sampler=test_sampler, batch_size=self.test_batch_size)
+
         # Run test
-        eval_examples = self.processor.get_dev_examples(self.test_path)
-        eval_features = self.convert_examples_to_features(eval_examples)
-        logger.debug("***** Running evaluation *****")
-        logger.debug("  Num examples = %d", len(eval_examples))
-        logger.debug("  Batch size = %d", self.eval_batch_size)
-        all_input_ids = torch.tensor([f.input_ids for f in eval_features], dtype=torch.long)
-        all_input_mask = torch.tensor([f.input_mask for f in eval_features], dtype=torch.long)
-        all_segment_ids = torch.tensor([f.segment_ids for f in eval_features], dtype=torch.long)
-        all_label_ids = torch.tensor([f.label_id for f in eval_features], dtype=torch.long)
-        eval_data = TensorDataset(all_input_ids, all_input_mask, all_segment_ids, all_label_ids)
-        eval_sampler = SequentialSampler(eval_data)
-        eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=self.eval_batch_size)
+        logger.info("***** Applying model to test data *****")
+        logger.info("Number of test examples = %d", len(test_examples))
+        logger.info("Batch size = %d", self.test_batch_size)
         self.model.eval()
-        eval_loss = 0
-        nb_eval_steps = 0
+        test_loss = 0
+        nb_test_steps = 0
         result = {'prediction': [], 'label': [], 'text': []}
-        for input_ids, input_mask, segment_ids, label_ids in tqdm(eval_dataloader, desc="Evaluating"):
+        for input_ids, input_mask, segment_ids, label_ids in tqdm(test_dataloader, desc="Testing"):
             input_ids = input_ids.to(self.device)
             input_mask = input_mask.to(self.device)
             segment_ids = segment_ids.to(self.device)
             label_ids = label_ids.to(self.device)
-            tmp_eval_loss, logits = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
-            outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
-            tmp_eval_loss = outputs[0]
-            logits = outputs[1]
-            logits = logits.detach().cpu().numpy()
-            label_ids = label_ids.to('cpu').numpy()
+            with torch.no_grad():
+                outputs = self.model(input_ids, attention_mask=input_mask, token_type_ids=segment_ids, labels=label_ids)
+                tmp_test_loss = outputs[0]
+                logits = outputs[1]
+            if self.device.type != 'cpu':
+                logits = logits.to('cpu')
+                label_ids = label_ids.to('cpu')
+            logits = logits.numpy()
+            label_ids = label_ids.numpy()
             result['prediction'].extend(np.argmax(logits, axis=1).tolist())
             result['label'].extend(label_ids.tolist())
-            eval_loss += tmp_eval_loss.mean().item()
-            nb_eval_steps += 1
-        eval_loss = eval_loss / nb_eval_steps
+            test_loss += tmp_test_loss.mean().item()
+            nb_test_steps += 1
+        test_loss = test_loss / nb_test_steps
         result_out = self.performance_metrics(result['label'], result['prediction'], label_mapping=self.label_mapping)
         if self.write_test_output:
             test_output = self.get_full_test_output(result['prediction'], result['label'], label_mapping=self.label_mapping,
@@ -199,7 +234,7 @@ class BERTModel(BaseModel):
         # Setup
         self._setup_bert(config, setup_mode='predict', data=data)
         # Run predict
-        predict_examples = self.processor.get_test_examples(data)
+        predict_examples = self.processor.get_pred_examples(data)
         predict_features = self.convert_examples_to_features(predict_examples)
         all_input_ids = torch.tensor([f.input_ids for f in predict_features], dtype=torch.long)
         all_input_mask = torch.tensor([f.input_mask for f in predict_features], dtype=torch.long)
@@ -227,6 +262,7 @@ class BERTModel(BaseModel):
         self.model_path = os.path.join(config.path.other, 'bert')
         self.output_path = config.path.output
         self.train_path = config.data.train
+        self.eval_path = config.data.val 
         self.test_path = config.data.test
         if config.model.params.get('pretrain_name', None):
             self.pretrain_path = config.model.params.get('pretrain_model_path', os.path.join(config.path.other, 'pretrain', 'bert', config.model.params.get('pretrain_name', None)))
@@ -237,6 +273,7 @@ class BERTModel(BaseModel):
         self.max_seq_length = config.model.params.get('max_seq_length', 96)
         self.train_batch_size = config.model.params.get('train_batch_size', 32)
         self.eval_batch_size = config.model.params.get('eval_batch_size', 32)
+        self.test_batch_size = config.model.params.get('test_batch_size', 32)
         # Initial learning rate for Adam optimizer
         self.learning_rate = config.model.params.get('learning_rate', 5e-5)
         self.num_epochs = int(config.model.params.get('num_epochs', 3))
@@ -245,7 +282,7 @@ class BERTModel(BaseModel):
         # Proportion of training to perform linear learning rate warmup for. E.g., 0.1 = 10%% of training.
         self.warmup_steps = int(self.num_epochs * len(pd.read_csv(self.train_path)) * config.model.params.get('warmup_proportion', 0.1) / (self.train_batch_size * self.gradient_accumulation_steps))
         self.no_cuda = config.model.params.get('no_cuda', False)
-        #local_rank for distributed training on gpus
+        # local_rank for distributed training on gpus
         self.local_rank = config.model.params.get('local_rank', -1) # disable distributed training by setting local_rank = -1
         self.seed = config.model.params.get('seed', np.random.randint(1e4))
         # Use 16 bit float precision (instead of 32bit)
@@ -255,7 +292,6 @@ class BERTModel(BaseModel):
         self.loss_scale = config.model.params.get('loss_scale', 0.0)
 
         self.adam_epsilon = config.model.params.get('adam_epsilon', 1e-8)
-        self.eval_after_epoch = config.model.params.get('eval_after_epoch', True)
         self.weight_decay_rate = config.model.params.get('weight_decay_rate', 1e-4)
         # Meta params
         self.output_attentions = config.model.params.get('output_attentions', False)
@@ -283,14 +319,14 @@ class BERTModel(BaseModel):
             raise ValueError("Invalid gradient_accumulation_steps parameter: {}, should be >= 1".format(self.gradient_accumulation_steps))
         self.train_batch_size = self.train_batch_size // self.gradient_accumulation_steps
 
-        # seed
+        # Seed
         random.seed(self.seed)
         np.random.seed(self.seed)
         torch.manual_seed(self.seed)
         if self.n_gpu > 0:
             torch.cuda.manual_seed_all(self.seed)
 
-        # label mapping
+        # Label mapping
         if setup_mode == 'train':
             self.label_mapping = self._set_label_mapping(self.train_path, self.test_path, self.output_path)
         elif setup_mode in ['test', 'predict']:
@@ -304,14 +340,16 @@ class BERTModel(BaseModel):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_type, do_lower_case=self.do_lower_case)
         if setup_mode == 'train':
             self.train_examples = self.processor.get_train_examples(self.train_path)
+            # Number of optimization steps over all epochs during training
             self.num_train_optimization_steps = int(len(self.train_examples) / self.train_batch_size / self.gradient_accumulation_steps) * self.num_epochs
             if self.local_rank != -1:
                 self.num_train_optimization_steps = self.num_train_optimization_steps // torch.distributed.get_world_size()
+            self.eval_examples = self.processor.get_dev_examples(self.eval_path)
 
         # Prepare model
         if setup_mode == 'train':
             if self.pretrain_path:
-                logger.info('Loading pretrain model {} of type {}...'.format(self.pretrain_path, self.model_type))
+                logger.info('Loading pretrained model {} of type {}...'.format(self.pretrain_path, self.model_type))
                 config = AutoConfig.from_pretrained(self.pretrain_path, num_labels=num_labels, label2id=self.label_mapping)
                 self.model = AutoModelForSequenceClassification.from_pretrained(
                         self.pretrain_path,
@@ -331,7 +369,7 @@ class BERTModel(BaseModel):
             if self.fp16:
                 self.model.half()
         else:
-            # Load a trained model and config that you have trained
+            # Load a finetuned model and config that you have trained
             config = AutoConfig.from_pretrained(self.output_path, output_attentions=self.output_attentions)
             self.model = AutoModelForSequenceClassification.from_pretrained(
                     self.output_path,
@@ -510,9 +548,13 @@ class SentimentClassificationProcessor(DataProcessor):
         """See base class."""
         return self._create_examples(self._read_csv(data_path), "dev")
 
-    def get_test_examples(self, data):
+    def get_test_examples(self, data_path):
         """See base class."""
-        return self._create_examples(data, "test")
+        return self._create_examples(self._read_csv(data_path), "test")
+    
+    def get_pred_examples(self, data):
+        """See base class."""
+        return self._create_examples(data, "pred")
 
     def _create_examples(self, lines, set_type):
         """Creates examples for the training and dev sets."""
@@ -522,9 +564,100 @@ class SentimentClassificationProcessor(DataProcessor):
         for (i, line) in lines.iterrows():
             guid = "%{}-{}".format(set_type, i)
             text = line['text']
-            if set_type == "test":
+            if set_type == "pred":
                 label = list(self.labels)[0]
             else:
                 label = line['label']
             examples.append(InputExample(guid=guid, text_a=text, text_b=None, label=label))
         return examples
+
+
+def set_label_mapping(train_data_path, test_data_path, output_data_path):
+    model = BERTModel()
+    # The method _set_label_mapping is inherited from the BaseModel class
+    label_mapping = model._set_label_mapping(train_data_path, test_data_path, output_data_path)
+    print(f'Label mapping: {label_mapping}')
+
+
+def preprocess_data(data_path, preprocessing_config):
+    def replace_multi_occurrences(text, filler):
+        """Replaces multiple occurrences of filler with n filler"""
+        # only run if we have multiple occurrences of filler
+        if text.count(filler) <= 1:
+            return text
+        # pad fillers with whitespace
+        text = text.replace(f'{filler}', f' {filler} ')
+        # remove introduced duplicate whitespaces
+        text = ' '.join(text.split())
+        # find indices of occurrences
+        indices = []
+        for m in re.finditer(r'{}'.format(filler), text):
+            index = m.start()
+            indices.append(index)
+        # collect merge list
+        merge_list = []
+        for i, index in enumerate(indices):
+            if i > 0 and index - old_index == len(filler) + 1:
+                # found two consecutive fillers
+                if len(merge_list) > 0 and merge_list[-1][1] == old_index:
+                    # extend previous item
+                    merge_list[-1][1] = index
+                    merge_list[-1][2] += 1
+                else:
+                    # create new item
+                    merge_list.append([old_index, index, 2])
+            old_index = index
+        # merge occurrences
+        if len(merge_list) > 0:
+            new_text = ''
+            pos = 0
+            for (start, end, count) in merge_list:
+                new_text += text[pos:start]
+                new_text += f'{count} {filler}'
+                pos = end + len(filler)
+            new_text += text[pos:]
+            text = new_text
+        return text
+
+    # Read data
+    logger.info(f'Reading data from {data_path}...')
+    df = pd.read_csv(data_path, usecols=['text', 'label'], dtype={'text': str, 'label': str})
+    # Drop NaNs in 'text' or 'label'
+    num_loaded = len(df)
+    df.dropna(subset=['text', 'label'], inplace=True)
+    # Preprocess data
+    try:
+        standardize_func_name = preprocessing_config['standardize_func_name']
+        del preprocessing_config['standardize_func_name']
+    except KeyError:
+        standardize_func_name = None
+    if standardize_func_name is not None:
+        logger.info('Standardizing data...')
+        standardize_func = getattr(__import__('twiprocess.standardize', fromlist=[standardize_func_name]), standardize_func_name)
+        df['text'] = df.text.swifter.apply(standardize_func)
+    if preprocessing_config != {}:
+        logger.info('Preprocessing data...')
+        df['text'] = df.text.swifter.apply(twp.preprocess, **preprocessing_config)
+        # Replace multiple occurrences
+        if preprocessing_config.get('replace_multiple_usernames', True):
+            username_filler = preprocessing_config.get('username_filler', 'twitteruser')
+            df['text'] = df.text.swifter.apply(replace_multi_occurrences, args=(username_filler,))
+        if preprocessing_config.get('replace_multiple_urls', True):
+            url_filler = preprocessing_config.get('url_filler', 'twitterurl')
+            df['text'] = df.text.swifter.apply(replace_multi_occurrences, args=(url_filler,))
+    # Drop empty strings in 'text'
+    df = df[df['text'] != '']
+    num_filtered = num_loaded - len(df)
+    if num_filtered > 0:
+        logger.warning(f'Filtered out {num_filtered:,} from {num_loaded:,} samples!')
+    return df
+
+
+def prepare_data(data_path, output_dir_path, preprocessing_config):
+    # Preprocess data
+    df = preprocess_data(data_path, preprocessing_config)
+    # Create paths
+    f_name = os.path.basename(data_path)
+    output_file_path = os.path.join(output_dir_path, f_name)
+    df.to_csv(output_file_path, header=True, index=False)
+    return output_file_path
