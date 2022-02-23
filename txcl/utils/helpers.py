@@ -53,7 +53,7 @@ def get_model(model_name):
         from ..models.bag_of_words import BagOfWordsModel
         enable_local_loggers()
         return BagOfWordsModel()
-    if model_name == 'bert':
+    if model_name == 'bertmodel':
         from ..models.bertmodel import BERTModel
         enable_local_loggers()
         return BERTModel()
