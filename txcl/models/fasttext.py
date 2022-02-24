@@ -47,8 +47,6 @@ class FastText(BaseModel):
         if self.label_mapping is None:
             with open(os.path.join(data_path, 'label_mapping.json'), 'r') as f:
                 self.label_mapping = json.load(f)
-            # prefix = getattr(self.train_config.model, 'label', '__label__')
-            # self.label_mapping = {prefix + k: v for k, v in self.label_mapping.items()}
 
     def train(self, config):
         """Trains supervised FastText.
