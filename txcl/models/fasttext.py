@@ -47,6 +47,8 @@ class FastText(BaseModel):
         if self.label_mapping is None:
             with open(os.path.join(data_path, 'label_mapping.json'), 'r') as f:
                 self.label_mapping = json.load(f)
+            # prefix = getattr(self.train_config.model, 'label', '__label__')
+            # self.label_mapping = {prefix + k: v for k, v in self.label_mapping.items()}
 
     def train(self, config):
         """Trains supervised FastText.
@@ -147,11 +149,7 @@ class FastText(BaseModel):
         self.setup(config.path.data, config.path.output)
         candidates = self.model.predict(data, k=len(self.label_mapping))
         predictions = [{
-            'labels': [
-                label[len(getattr(
-                    self.train_config.model, 'label', '__label__'
-                )):]
-                for label in candidate[0]],
+            'labels': [label for label in candidate[0]],
             'probabilities': candidate[1].tolist()
         } for candidate in zip(candidates[0], candidates[1])]
         return predictions
@@ -167,7 +165,6 @@ class FastText(BaseModel):
         logger.info('Reading %s data...', mode)
         df = pd.read_csv(data_path, sep='\t', header=None, names=['label', 'text'])
         df = df.astype({'text': str, 'label': str})
-        
         test_x, test_y = df['text'].tolist(), df['label'].tolist()
         test_y = [self.label_mapping[y] for y in test_y]
 
@@ -194,8 +191,9 @@ def set_label_mapping(train_data_path, test_data_path, output_path):
         pd.read_csv(test_data_path, usecols=['label'])])
     labels = sorted(list(set(labels['label'])))
     label_mapping = {}
+    prefix = '__label__'
     for i, label in enumerate(labels):
-        label_mapping[label] = i
+        label_mapping[prefix + str(label)] = i
     with open(os.path.join(output_path, 'label_mapping.json'), 'w') as f:
         json.dump(label_mapping, f)
 
